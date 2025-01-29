@@ -1,0 +1,160 @@
+.attendancemain {
+    width: 100vw;
+    height: 100svh;
+    display: flex;
+    justify-content: end;
+}
+
+.attendancesec {
+    width: calc(100vw - 260px);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.searchcon {
+    margin-top: 5em;
+    width: 90%;
+    padding: 2em 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 1em;
+}
+
+.inpcon {
+    font-size: small;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--blue);
+    cursor: pointer;
+}
+
+
+.inpcon input {
+    padding: 0.2em 1em;
+}
+
+input:focus {
+    outline: none;
+
+}
+
+.inpcon p {
+    border: 1px solid var(--blue);
+    outline: none;
+    padding: 0.5em 1em;
+    color: white;
+}
+
+.searchbar{
+    display: flex;
+    
+}
+.edit{
+    button{
+    background-color: var(--blue);
+    color: white;
+    outline: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-right: 1em;
+    cursor: pointer;
+}}
+.adtxt {
+    display: block;
+}
+
+.tablecon {
+    width: 90%;
+    max-height: 600px;
+    overflow: scroll;
+}
+
+.attendancetable {
+    font-size: smaller;
+    width: 100%;
+    background-color: #d9d9d9;
+}
+
+
+.attendanceth {
+    min-width: 100px;
+    position: sticky;
+    top: 0;
+    padding: 0.5em 0;
+    font-weight: 300;
+    color: white;
+    background-color: var(--blue);
+}
+
+.attendancetd {
+    text-align: center;
+    padding: 0.5em 0.5em;
+    background-color: white;
+}
+
+@media(max-width:800px) {
+
+    .attendancesec {
+        width: 100%;
+    }
+
+    .tablecon {
+        width: 90%;
+        overflow: scroll;
+    }
+
+    .adtxt {
+        display: none;
+    }
+
+    .attendanceth:last-child {
+        z-index: 11;
+    }
+
+    /* .attbox,
+    .labhead .attendanceth:last-child {
+        position: sticky;
+        right: 0;
+        box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.2);
+        
+    } */
+
+    .attendancetd,
+    .attendancetd {
+        font-size: small;
+    }
+}
+.finishbtn{
+    font-size:small;
+    padding: 0.5em 2em;
+    background-color: var(--yellow);
+    border-radius: 5px;
+    position: absolute;
+    right: 1em;
+    bottom: 1em;
+    cursor: pointer;
+}
+
+
+/* =-----------------------today-attendance */
+.today-pg{
+    width: 100vw;
+    height: 100svh;
+    display: flex;
+    justify-content: end;
+    background-color: aquamarine;
+}
+.todayattendancesec{
+    width: calc(100vw - 260px);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    color: black;
+}

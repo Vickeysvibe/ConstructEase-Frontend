@@ -1,0 +1,109 @@
+.reportmain {
+    width: 100vw;
+    height: 100svh;
+    display: flex;
+    justify-content: end;
+}
+
+.reportsec {
+    width: calc(100vw - 260px);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.reportsec h1 {
+    width: 90%;
+    margin-top: 5em;
+}
+
+.reportform {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.reportform label {
+    margin: 1em 0 0.5em 0.2em;
+}
+
+.reportform .reportinput {
+    background-color: rgb(225, 225, 225);
+    outline: none;
+    border: none;
+    padding: 0 1em;
+    width: 40%;
+    height: 40px;
+    border-radius: 7px;
+    appearance: none;
+    color: rgb(0, 0, 0);
+    min-width: 370px;
+}
+
+.reportdateinput p {
+    display: none;
+}
+
+.reportdateinput {
+    display: flex;
+    align-items: center;
+    align-items: center;
+    font-size: small;
+    overflow: hidden;
+}
+
+.dateinput {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    outline: none;
+    border: none;
+    overflow: hidden;
+}
+
+.reportdownloadbtncon {
+    width: 40%;
+    margin: 2em 0;
+    display: flex;
+    justify-content: space-around;
+    gap: 0.5em;
+}
+
+.reportdownloadbtn {
+    background-color: var(--blue);
+    flex-grow: 1;
+    padding: 0.7em 1.2em;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition-duration: 0.5s;
+}
+
+.reportdownloadbtn:hover {
+    border-radius: 30px;
+    color: var(--blue);
+    background-color: #b1b1b1;
+}
+
+@media(max-width:800px) {
+    .reportsec {
+        width: 100%;
+    }
+
+    .reportform .reportinput {
+        width:95%;
+        min-width: none;
+    }
+
+    .reportdateinput p {
+        display: block;
+    }
+
+    .reportdownloadbtncon {
+        width: 100%;
+    }
+}
