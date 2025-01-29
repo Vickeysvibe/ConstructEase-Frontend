@@ -209,7 +209,7 @@ export default function Home() {
                     </span>
                     {card.location}
                   </p>
-                  <Link to={"Company/123456/master/client"}>
+                  <Link to={"/Company/123456/master/client"}>
                     <p className="home-card-view">
                       <GoArrowUpRight />
                     </p>

@@ -6,14 +6,18 @@ import SitePG from "./Site/SitePG";
 // Lazy loaded components
 const Login = lazy(() => import("./Login/Login"));
 const Home = lazy(() => import("./Home/Home"));
+
 // ------------------------------Master-------------------------------------
+
 const Master = lazy(() => import("./Site/Master/Master"));
 const Clientform = lazy(() => import("./Site/Master/masterComp/Client"));
 const Labourform = lazy(() => import("./Site/Master/masterComp/Labour"));
 const ProductForm = lazy(() => import("./Site/Master/masterComp/Product"));
 const Supervisors = lazy(() => import("./Site/Master/masterComp/Supervisors"));
 const Vendors = lazy(() => import("./Site/Master/masterComp/Vendor"));
+
 //--------------------------Attendance--------------------------------
+
 const Attendance = lazy(() => import("./Site//Attendance/Attendance"));
 const LabourAttendance = lazy(() =>
   import("./Site//Attendance/attendanceComp/LabourAttendance")
@@ -33,6 +37,12 @@ const Vendorwise = lazy(() => import("./Site/Report/reportComp/Vendorwise"));
 const Payment = lazy(() => import("./Site/Report/reportComp/Paymentwise"));
 const Material = lazy(() => import("./Site/Report/reportComp/Materialwise"));
 const Overall = lazy(() => import("./Site/Report/reportComp/Overallstatus"));
+
+// ------------------------Purchase---------------------------------------------
+
+import Purchase from "./Site/Purchase/Purchase";
+import PurchaseOrder from "./Site/Purchase/purchaseComp/PurchaseOrder";
+import PurchaseReturn from "./Site/Purchase/purchaseComp/PurchaseReturn";
 
 function App() {
   return (
@@ -71,8 +81,12 @@ function App() {
                 <Route path="materialwise" element={<Material />} />
                 <Route path="overallwise" element={<Overall />} />
               </Route>
-              {/* Payroll */}
-              <Route path="payroll" element={<SitePG />} />
+              {/* Purchase */}
+              <Route path="purchase" element={<Purchase />}>
+                <Route path="order" element={<PurchaseOrder />} />
+                <Route path="purchasereturn" element={<PurchaseReturn />} />
+              </Route>
+              <Route path="*" element={<h1>404 - Page Not Found</h1>} />
             </Route>
           </Route>
         </Routes>

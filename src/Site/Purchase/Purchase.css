@@ -1,0 +1,276 @@
+.purchaseOrder {
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  justify-content: end;
+  /* background-color:black ; */
+}
+.purchaseOrderSec {
+  width: calc(100vw - 240px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  margin-top: 6em;
+  padding-left: 2em;
+}
+
+.orderHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  h1 {
+    padding-bottom: 1em;
+  }
+  .search-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    input {
+      width: 200px;
+      height: 35px;
+      padding-left: 1em;
+    }
+    .searchbutton {
+      padding: 0.55em;
+      outline: none;
+      /* border-radius: 5px; */
+      border: none;
+      background-color: var(--blue);
+      color: white;
+      cursor: pointer;
+    }
+    .chooseVendor {
+      padding-right: 2em;
+      button {
+        padding: 0.55em;
+        outline: none;
+        border-radius: 5px;
+        border: none;
+        background-color: var(--blue);
+        color: white;
+        cursor: pointer;
+      }
+    }
+  }
+}
+.tablecon {
+  width: 90%;
+  max-height: 600px;
+  overflow: scroll;
+  margin-top: 2em;
+}
+
+.purchasetable {
+  font-size: smaller;
+  width: 95%;
+  background-color: #d9d9d9;
+  border-radius: 10px;
+  margin-left: 1.5em;
+  margin-top: 1em;
+}
+
+.purchaseth {
+  min-width: 100px;
+  position: sticky;
+  top: 0;
+  padding: 0.5em 0;
+  font-weight: 300;
+  color: white;
+  background-color: var(--blue);
+}
+
+.purchasetd {
+  text-align: center;
+  padding: 0.5em 0.5em;
+  bottom: none;
+  outline: none;
+  background-color: white;
+}
+
+.purchasepopupcon {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.39);
+    backdrop-filter: blur(11.4px);
+    -webkit-backdrop-filter: blur(11.4px);
+    display: grid;
+    place-items: center;
+    z-index: 1111;
+}
+
+.purchasepopupinner {
+    width: 50%;
+    background-color: white;
+    border-radius: 20px;
+    padding: 1em;
+    
+}
+.chooseing-card{
+    display: flex;
+    flex-direction: column;
+    header{
+        display: flex;
+        flex-direction: column;
+        .header-top{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            h3{
+                background-color: var(--blue);
+                padding: 0.3em;
+                border-radius: 10px;
+                color: white;
+            }
+            .cross{
+                p{
+                    font-size: 1.5em;
+                    cursor: pointer;
+                }
+            }
+        }
+        .header-bottom{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+    .vendor-selection{
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        .vendor-details,.shipping-details{
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            padding: 2em;
+            border: 1px solid black;
+            border-radius: 20px;
+            input,select{
+                height: 35px;
+                padding-left: 1em;
+                border-radius: 5px;
+                outline: none;
+                border: none;
+                background-color: #d9d9d9;
+                color: grey;
+            }
+        }
+    }
+    .quantity-selection{
+        width: 95%;
+        display: none;
+        align-items: center;
+        flex-direction: column;
+        border: 1px solid black;
+        margin-left: 1.5em;
+        border-radius: 20px;
+        margin-top: 1em;
+        .fields{
+            display: flex;
+            gap: 3em;
+            input{
+                width: 50%;
+            }
+        }
+    }
+}
+.purchaseaddrow {
+    cursor: pointer;
+    background-color: #d9d9d9;
+    
+}
+
+.purchaseclosepopup {
+    cursor: pointer;
+    background-color: var(--yellow);
+    color: #000000;
+
+}
+
+@media(max-width:800px) {
+
+
+    .purchaseOrderSec {
+        width: 100vw;
+    }
+
+    .tablecon {
+        width: 90%;
+        overflow: scroll;
+    }
+
+    .ordersubtxt {
+        font-size: small;
+        padding: 0.3em 1.3em;
+    }
+
+    /* .purchasepopupcon {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+
+    .purchasepopupinner {
+        width: auto;
+        display: flex;
+        justify-content: start;
+        align-items: start;
+    }
+
+    .purchasetablepopup {
+        width: 100%;
+        overflow: scroll;
+    }
+
+    .purchasepopupth {
+        width: 20px;
+    } */
+    .purchasepopupcon {
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        background: rgba(0, 0, 0, 0.39);
+        backdrop-filter: blur(11.4px);
+        -webkit-backdrop-filter: blur(11.4px);
+        display: grid;
+        place-items: center;
+        z-index: 1111;
+    }
+
+    .purchasepopupinner {
+        width: auto;
+        background-color: rgb(208, 208, 208);
+    }
+
+    .purchaseaddrow {
+        cursor: pointer;
+        background-color: #adadad;
+    }
+
+    .purchaseclosepopup {
+        cursor: pointer;
+        background-color: var(--yellow);
+        color: #000000;
+
+    }
+
+    .purchasepopuptd {
+        text-align: center;
+        background-color: white;
+        padding: 0.5em;
+    }
+
+    .purchasepopupth {
+        padding: 0.5em;
+        background-color: var(--blue);
+        color: #d9d9d9;
+        font-weight: 400;
+    }
+
+    .purchasetd,
+    .purchasetd {
+        font-size: small;
+    }
+}
