@@ -42,7 +42,9 @@ const Overall = lazy(() => import("./Site/Report/reportComp/Overallstatus"));
 
 import Purchase from "./Site/Purchase/Purchase";
 import PurchaseOrder from "./Site/Purchase/purchaseComp/PurchaseOrder";
-import PurchaseReturn from "./Site/Purchase/purchaseComp/PurchaseReturn";
+import VendorSelection from "./Site/Purchase/purchaseComp/VendorSelection";
+import Details from "./Site/Purchase/purchaseComp/Details";
+import PurchseMain from "./Site/Purchase/Purchase";
 
 function App() {
   return (
@@ -82,9 +84,11 @@ function App() {
                 <Route path="overallwise" element={<Overall />} />
               </Route>
               {/* Purchase */}
-              <Route path="purchase" element={<Purchase />}>
-                <Route path="order" element={<PurchaseOrder />} />
-                <Route path="purchasereturn" element={<PurchaseReturn />} />
+              <Route path="purchase">
+                <Route path="order" element={<PurchseMain />}>
+                  <Route path="details" element={<Details />} />
+                </Route>
+                <Route path="vendor-selection" element={<VendorSelection />} />
               </Route>
               <Route path="*" element={<h1>404 - Page Not Found</h1>} />
             </Route>
