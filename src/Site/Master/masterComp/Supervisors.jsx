@@ -2,35 +2,19 @@ import "../Master.css";
 import { useState, useEffect } from "react";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export default function SupervisorForm() {
+  const { siteId } = useParams()
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
+  const [supervisorData, setSupervisorData] = useState([])
+  const token = localStorage.getItem("authToken");
 
-  const supervisorData = [
-    {
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      address: "123 Main St, City",
-      phoneNo: "123-456-7890",
-      password: "password123",
-      role: "local",
-      engineerId: "ENG001",
-    },
-    {
-      name: "Bob Williams",
-      email: "bob.williams@example.com",
-      address: "456 Elm St, City",
-      phoneNo: "987-654-3210",
-      password: "password456",
-      role: "local",
-      engineerId: "ENG002",
-    },
-    // Add more supervisors as needed
-  ];
 
   const [clientData, setClientData] = useState([...supervisorData]);
   const [newSupervisor, setNewSupervisor] = useState({
@@ -46,22 +30,38 @@ export default function SupervisorForm() {
   const supervisorHeading = [
     "S.No",
     "Name",
-    "PhoneNo",
     "Email",
     "Address",
-    "Password",
+    "Phone number",
     "Role",
-    "EngineerId",
     "Action",
   ];
+  const api = import.meta.env.VITE_API
 
-  // Search Functionality (Search by Name Only)
   useEffect(() => {
-    const result = clientData.filter((item) =>
+    const fetchSupervisors = async () => {
+      try {
+        const response = await axios.get(`${api}/supervisors/getsuppervisors?siteId=${siteId}&scope=local`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setSupervisorData(response.data);
+        setFilteredData(response.data);
+      } catch (error) {
+        console.error("Error fetching supervisors:", error);
+      }
+    };
+    fetchSupervisors();
+  }, [siteId, token, api]);
+
+
+  useEffect(() => {
+    const result = supervisorData.filter((item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredData(result);
-  }, [searchTerm, clientData]);
+  }, [searchTerm, supervisorData]);
 
   const handleDelete = (index) => {
     const updatedData = clientData.filter((_, i) => i !== index);
@@ -91,7 +91,32 @@ export default function SupervisorForm() {
     console.log("Edited Data:", editedData); // Log all tracked edits
     setEditIndex(null); // End editing mode
   };
-
+  const handleAddSupervisor = async () => {
+    try {
+      const response = await axios.post(
+        `${api}/supervisors/create`,
+        { ...newSupervisor, siteId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setSupervisorData((prev) => [...prev, response.data]);
+      setNewSupervisor({
+        name: "",
+        email: "",
+        address: "",
+        phoneNo: "",
+        password: "",
+        role: "local",
+        engineerId: "",
+      });
+      setAddPopupOpen(false);
+    } catch (error) {
+      console.error("Error adding supervisor:", error);
+    }
+  };
   return (
     <>
       <main className="mastermain">
@@ -127,11 +152,10 @@ export default function SupervisorForm() {
                   <tr className="labhead">
                     {supervisorHeading.map((header, index) => (
                       <th
-                        className={`masterth ${
-                          header !== "Name" && header !== "PhoneNo" && header !== "S.No" && header !== "Action"
+                        className={`masterth ${header !== "Name" && header !== "PhoneNo" && header !== "S.No" && header !== "Action"
                             ? "hide-mobile"
                             : ""
-                        }`}
+                          }`}
                         key={index}
                       >
                         {header}
@@ -144,15 +168,14 @@ export default function SupervisorForm() {
                     <tr key={index}>
                       <td className="mastertd sl">{index + 1}</td>
                       {Object.keys(supervisor)
-                        .slice(0, 7)
+                        .slice(1, 8)
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${
-                              field !== "name" && field !== "phoneNo"
+                            className={`mastertd ${field !== "name" && field !== "phoneNo"
                                 ? "hide-mobile"
                                 : ""
-                            }`}
+                              }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -242,32 +265,10 @@ export default function SupervisorForm() {
                   }))
                 }
               />
-              <input
-                type="text"
-                placeholder="Engineer ID"
-                value={newSupervisor.engineerId}
-                onChange={(e) =>
-                  setNewSupervisor((prev) => ({
-                    ...prev,
-                    engineerId: e.target.value,
-                  }))
-                }
-              />
+              
               <p
                 className="mastersubmitbtn"
-                onClick={() => {
-                  setClientData((prev) => [...prev, newSupervisor]);
-                  setNewSupervisor({
-                    name: "",
-                    email: "",
-                    address: "",
-                    phoneNo: "",
-                    password: "",
-                    role: "local",
-                    engineerId: "",
-                  });
-                  setAddPopupOpen(false);
-                }}
+                onClick={handleAddSupervisor}
               >
                 Add Supervisor
               </p>
