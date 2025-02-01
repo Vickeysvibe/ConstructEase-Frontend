@@ -104,7 +104,7 @@ export default function VendorForm() {
   const handleDelete = async (index) => {
     try {
       const vendor = filteredData[index];
-      await request("DELETE", `/vendors/deletevendors/${vendor._id}`, {});
+      await request("DELETE", `/vendors/deletevendors/${vendor._id}?siteId=${siteId}`, {});
       const updatedData = filteredData.filter((_, i) => i !== index);
       setFilteredData(updatedData);
 

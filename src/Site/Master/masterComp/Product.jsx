@@ -150,7 +150,7 @@ export default function Productform({ setView, setViewDetial }) {
     console.log(clientData)
 
     try {
-      await request("DELETE", `/product/deleteproduct/${productId}`, {});
+      await request("DELETE", `/product/deleteproduct/${productId}?siteId=${siteId}`, {});
 
       const updatedData = clientData.filter((_, i) => i !== index);
       setClientData(updatedData);

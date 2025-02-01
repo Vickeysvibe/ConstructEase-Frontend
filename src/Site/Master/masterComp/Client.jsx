@@ -141,7 +141,7 @@ export default function ClientManagement() {
   const handleDelete = async (index) => {
     try {
       const clientId = clientData[index]._id;
-      await request("DELETE", `/client/deleteclient/${clientId}`, {});
+      await request("DELETE", `/client/deleteclient/${clientId}?siteId=${siteId}`, {});
 
       setClientData((prev) => prev.filter((_, i) => i !== index));
     } catch (error) {

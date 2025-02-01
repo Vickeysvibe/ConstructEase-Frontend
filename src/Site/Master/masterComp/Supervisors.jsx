@@ -164,7 +164,7 @@ export default function SupervisorForm() {
   const handleDelete = async (index) => {
     try {
       const supervisor = filteredData[index];
-      await request("DELETE", `/supervisors/deletesupervisor/${supervisor._id}`,{});
+      await request("DELETE", `/supervisors/deletesupervisor/${supervisor._id}?siteId=${siteId}`,{});
       const updatedData = filteredData.filter((_, i) => i !== index);
       setFilteredData(updatedData);
 

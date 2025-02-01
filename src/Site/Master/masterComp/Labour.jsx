@@ -14,6 +14,10 @@ export default function Labourform({ setViewDetial, setView }) {
   const [editedData, setEditedData] = useState({});
   const [workersData, setworkersData] = useState([])
   const [selectedFile, setSelectedFile] = useState(null);
+  const [viewDetail, setViewDetail] = useState(null);
+  
+
+
 
   const api = import.meta.env.VITE_API
 
@@ -36,6 +40,7 @@ export default function Labourform({ setViewDetial, setView }) {
     "WagesPerShift",
     "Action",
   ];
+  
   useEffect(() => {
     const fetchLabours = async () => {
       try {
@@ -98,7 +103,7 @@ export default function Labourform({ setViewDetial, setView }) {
   const handleDelete = async (index) => {
     const labourId = clientData[index]._id;
     try {
-      await request("DELETE", `/labour/delete/${labourId}`, {});
+      await request("DELETE", `/labour/delete/${labourId}?siteId=${siteId}`, {});
 
       const updatedData = clientData.filter((_, i) => i !== index);
       setClientData(updatedData);
@@ -114,10 +119,10 @@ export default function Labourform({ setViewDetial, setView }) {
   };
   //   console.log(editedData);
 
-  const handleView = (_id) => {
-    const viewdetials = workersData[_id];
-    setViewDetial(viewdetials);
-    setView(true);
+  const handleView = (index) => {
+    const viewDetails = workersData[index]; // Use index to get the correct worker data
+    setViewDetail(viewDetails); // Set view details
+    setView(true); // Set view to true
   };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
