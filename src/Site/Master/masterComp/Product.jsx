@@ -4,7 +4,8 @@ import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import View from "./View";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { request } from "../../../api/request";
+
 
 
 // import Labourform from "./LabourForm";
@@ -34,14 +35,8 @@ export default function Productform({ setView, setViewDetial }) {
 
     const fetchProducts = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-
-        const response = await axios.get(`${api}/product/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setConstructionData(response.data);
+        const response = await request("GET", `/product/getAll?siteId=${siteId}`);
+        setConstructionData(response);
       } catch (error) {
         console.error("Failed to fetch products", error);
       }
@@ -155,14 +150,11 @@ export default function Productform({ setView, setViewDetial }) {
     console.log(clientData)
 
     try {
-      const token = localStorage.getItem("authToken");
-      await axios.delete(`${api}/product/deleteproduct/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await request("DELETE", `/product/deleteproduct/${productId}`, {});
+
       const updatedData = clientData.filter((_, i) => i !== index);
       setClientData(updatedData);
+
     } catch (error) {
       console.error('Error deleting product:', error);
     }
@@ -178,13 +170,9 @@ export default function Productform({ setView, setViewDetial }) {
     setClientData(updatedData);
 
     try {
-      const token = localStorage.getItem("authToken");
 
-      await axios.put(`${api}/product/update/${updatedData[index]._id}`, updatedData[index], {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await request("PUT", `/product/update/${updatedData[index]._id}`, updatedData[index]);
+
     } catch (error) {
       console.error('Error updating product:', error);
     }
@@ -208,14 +196,10 @@ export default function Productform({ setView, setViewDetial }) {
 
   const handleAddProduct = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(`${api}/product/create?siteId=${siteId}`, newProduct, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.data) {
-        setClientData((prev) => [...prev, response.data]);
+      const response = await request("POST", `/product/create?siteId=${siteId}`, newProduct);
+
+      if (response) {
+        setClientData((prev) => [...prev, response]);
         setnewProduct({
           name: "",
           description: "",
@@ -225,16 +209,13 @@ export default function Productform({ setView, setViewDetial }) {
         setAddPopupOpen(false);
       }
 
-      if (response.data.message === "Product created successfully") {
-        alert("product added successfully!");
+      if (response.message === "Product created successfully") {
+        alert("Product added successfully!");
 
-        const fetchResponse = await axios.get(`${api}/product/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientData(fetchResponse.data);
+        const fetchResponse = await request("GET", `/product/getAll?siteId=${siteId}`);
+        setClientData(fetchResponse);
       }
+
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -258,25 +239,18 @@ export default function Productform({ setView, setViewDetial }) {
     formData.append("file", file);
 
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(`${api}/product/upload?siteId=${siteId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await request("POST", `/product/upload?siteId=${siteId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      if (response.data.message === "Products uploaded successfully") {
+      
+      if (response.message === "Products uploaded successfully") {
         alert("File uploaded successfully!");
-
-        // Fetch updated clients list
-        const fetchResponse = await axios.get(`${api}/product/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientData(fetchResponse.data);
+      
+        // Fetch updated products list
+        const fetchResponse = await request("GET", `/product/getAll?siteId=${siteId}`);
+        setClientData(fetchResponse);
       }
+      
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload file. Please try again.");

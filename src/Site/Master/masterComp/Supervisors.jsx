@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { request } from "../../../api/request";
 
 export default function SupervisorForm() {
   const { siteId } = useParams()
@@ -15,7 +15,6 @@ export default function SupervisorForm() {
   const [supervisorData, setSupervisorData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const token = localStorage.getItem("authToken");
 
 
   const [clientData, setClientData] = useState([...supervisorData]);
@@ -42,19 +41,17 @@ export default function SupervisorForm() {
   useEffect(() => {
     const fetchSupervisors = async () => {
       try {
-        const response = await axios.get(`${api}/supervisors/getsuppervisors?siteId=${siteId}&scope=local`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setSupervisorData(response.data);
-        setFilteredData(response.data);
+        const response = await request("GET", `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`);
+
+        setSupervisorData(response);
+        setFilteredData(response);
+
       } catch (error) {
         console.error("Error fetching supervisors:", error);
       }
     };
     fetchSupervisors();
-  }, [siteId, token, api]);
+  }, [siteId]);
 
   //search
   useEffect(() => {
@@ -83,21 +80,17 @@ export default function SupervisorForm() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      await axios.post(`${api}/supervisors/upload?siteId=${siteId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      await request("POST", `/supervisors/upload?siteId=${siteId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      const response = await axios.get(`${api}/supervisors/getsuppervisors?siteId=${siteId}&scope=local`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setSupervisorData(response.data);
-      setFilteredData(response.data);
+
+      const response = await request("GET", `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`);
+
+      setSupervisorData(response);
+      setFilteredData(response);
 
       alert("File uploaded successfully");
+
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -122,15 +115,8 @@ export default function SupervisorForm() {
     }
 
     try {
-      await axios.put(
-        `${api}/supervisors/update/${editedData._id}`,
-        editedData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await request("PUT", `/supervisors/update/${editedData._id}`, editedData);
+
 
       setSupervisorData((prev) =>
         prev.map((supervisor) =>
@@ -158,16 +144,9 @@ export default function SupervisorForm() {
   // };
   const handleAddSupervisor = async () => {
     try {
-      const response = await axios.post(
-        `${api}/supervisors/create?siteId=${siteId}`,
-        { ...newSupervisor, siteId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setSupervisorData((prev) => [...prev, response.data]);
+      const response = await request("POST", `/supervisors/create?siteId=${siteId}`, { ...newSupervisor, siteId });
+
+      setSupervisorData((prev) => [...prev, response]);
       setNewSupervisor({
         name: "",
         email: "",
@@ -185,18 +164,15 @@ export default function SupervisorForm() {
   const handleDelete = async (index) => {
     try {
       const supervisor = filteredData[index];
-      await axios.delete(`${api}/supervisors/deletesupervisor/${supervisor._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await request("DELETE", `/supervisors/deletesupervisor/${supervisor._id}`,{});
       const updatedData = filteredData.filter((_, i) => i !== index);
       setFilteredData(updatedData);
+
     } catch (error) {
       console.error("Error deleting supervisor:", error);
     }
   };
-  
+
   return (
     <>
       <main className="mastermain">
@@ -264,7 +240,7 @@ export default function SupervisorForm() {
                             className={`mastertd 
                               ${field !== "name" && field !== "phoneNo" ? "hide-mobile" : ""} 
                               ${(field === "password" || field === "engineerId") ? "hide" : ""}`}
-                            
+
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
