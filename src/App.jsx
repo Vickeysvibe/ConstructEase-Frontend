@@ -86,7 +86,7 @@ function App() {
               {/* Purchase */}
               <Route path="purchase">
                 <Route path="order" element={<PurchseMain />}>
-                  <Route path="details" element={<Details />} />
+                  <Route path="details/:Poid" element={<Details />} />
                 </Route>
                 <Route path="vendor-selection" element={<VendorSelection />} />
               </Route>
