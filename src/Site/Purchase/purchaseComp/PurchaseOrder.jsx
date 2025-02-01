@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../Purchase.css";
 import { RxCrossCircled } from "react-icons/rx";
+import format from "../../../assets/format.webp";
 const PurchaseOrder = () => {
   const orderhead = [
     "Serial No",
@@ -11,7 +12,7 @@ const PurchaseOrder = () => {
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [addpopopn, setaddpopopn] = useState(false);
+  const [addpopopn, setaddpopopn] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [orders, setOrders] = useState([]);
   const [rows, setRows] = useState([]);
@@ -57,6 +58,7 @@ const PurchaseOrder = () => {
     setRows(updatedRows);
   };
   // --------------------------New-row-in-cards---------------------------
+
   const addNewOrders = () => {
     const validRows = rows.filter(
       (row) =>
@@ -70,7 +72,7 @@ const PurchaseOrder = () => {
       setOrders(updatedOrders);
       setFilteredData(updatedOrders);
       setRows([]);
-      setaddpopopn(false);
+      setOrderaList(validRows); // This updates ordersList
     } else {
       alert("No value");
     }
@@ -115,18 +117,6 @@ const PurchaseOrder = () => {
     // Add more vendors as needed
   ];
   const [details, setDetails] = useState([]);
-  // const vendorChoose = (event) => {
-  //   const selectedIdx = event.target.selectedIndex - 1; // Subtract 1 to account for the placeholder
-  //   if (selectedIdx >= 0) {
-  //     setDetails(vendorData[selectedIdx]);
-  //     console.log(details); // This will log the selected vendor data
-  //   }
-  // };
-  useEffect(() => {
-    if (details) {
-      console.log(details); // Log whenever `details` changes
-    }
-  }, [details]);
 
   const vendorChoose = (event) => {
     const selectedIdx = event.target.selectedIndex - 1;
@@ -134,8 +124,60 @@ const PurchaseOrder = () => {
       setDetails(vendorData[selectedIdx]); // This will trigger the useEffect to log
     }
   };
-  console.log(details.name);
   // full-details-------------
+
+  const [ordersList, setOrderaList] = useState([]);
+
+  const [orderPost, setOrderPost] = useState(
+    {
+      siteId: 1,
+      VendorId: 101,
+      transport: "Car",
+      date: "22/1/2024",
+      order: [
+        {
+          Category: "brick",
+          Ordercode: "101",
+          productName: "brick",
+          Unit: "2",
+          id: 1,
+        },
+        {
+          Category: "sand",
+          Ordercode: "102",
+          productName: "sand",
+          Unit: "4",
+          id: 2,
+        },
+      ],
+    },
+    {
+      siteId: "",
+      VendorId: "",
+      transport: "",
+      date: "",
+      order: [],
+    }
+  );
+  const [transport, setTransport] = useState();
+  const [date, setDate] = useState();
+  const addOrderPost = () => {
+    setOrderPost((prevOrderPost) => ({
+      ...prevOrderPost,
+      VendorId: details.siteId,
+      transport: transport,
+      date: date,
+      order: ordersList,
+    }));
+    setDownload(true);
+  };
+
+  useEffect(() => {
+    console.log("Updated orderPost:", orderPost);
+  }, [orderPost]);
+
+  // ------------------------download---------------
+  const [download, setDownload] = useState(false);
 
   return (
     <main className="purchaseOrder">
@@ -155,47 +197,35 @@ const PurchaseOrder = () => {
               <button className="searchbutton">Search</button>
             </div>
             <div className="chooseVendor">
-              <button onClick={() => setaddpopopn(true)}>Choose Vendor</button>
+              <button onClick={() => setaddpopopn(0)}>Choose Vendor</button>
             </div>
           </div>
         </header>
         <div className="tablecon">
-          {/* {filteredData.length > 0 ? (
-            <table className="purchasetable">
-              <thead>
-                <tr className="labhead">
-                  {orderhead.map((header, index) => (
-                    <th className="purchaseth" key={index}>
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((order, index) => (
-                  <tr key={order.id}>
-                    <td className="purchasetd">{index + 1}</td>
-                    <td className="purchasetd">{order.ProductName}</td>
-                    <td className="purchasetd">{order.Ordercode}</td>
-                    <td className="purchasetd">{order.Unit}</td>
-                    <td className="purchasetd">{order.Category}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No result found</p>
-          )} */}
           {filteredData.map((order, index) => (
-            <div className="orders-card">
-              <p>{order.ProductName}</p>
-              <p>{order.Ordercode}</p>
-              <p>{order.Unit}</p>
+            <div
+              className="orders-card"
+              key={index}
+              onClick={() => setaddpopopn(1)}
+            >
+              <div className="order-cards-detials">
+                <strong>Vendor Name: </strong>
+                <p>{order.ProductName}</p>
+              </div>
+              <div className="order-cards-detials">
+                <strong>Product Id: </strong>
+                <p>{order.Ordercode}</p>
+              </div>
+              <div className="order-cards-detials">
+                <strong>Toatal Unit: </strong>
+                <p>{order.Unit}</p>
+              </div>
+              {/* <p>{order.Ordercode}</p> */}
             </div>
           ))}
         </div>
       </section>
-      {addpopopn && (
+      {addpopopn === 0 ? (
         <article className="purchasepopupcon">
           <div className="purchasepopupinner">
             <div className="chooseing-card">
@@ -206,7 +236,7 @@ const PurchaseOrder = () => {
                   <div className="cross">
                     <p
                       onClick={() => {
-                        setaddpopopn(false);
+                        setaddpopopn(null);
                         setDetails([]);
                       }}
                     >
@@ -228,8 +258,8 @@ const PurchaseOrder = () => {
                       onChange={vendorChoose}
                     >
                       {/* <option disabled selected>
-                        Enter the vendor
-                      </option> */}
+                      Enter the vendor
+                    </option> */}
                       {vendor.map((drop, index) => (
                         <option key={index} value={drop}>
                           {drop}
@@ -254,99 +284,236 @@ const PurchaseOrder = () => {
                       placeholder="Enter the Shipped to site"
                       value={details.siteId}
                     />
-                    <input type="text" placeholder="Enter the transport" />
-                    <input type="date" />
+                    <input
+                      type="text"
+                      placeholder="Enter the transport"
+                      onChange={(e) => {
+                        setTransport(e.target.value);
+                      }}
+                    />
+                    <input
+                      type="date"
+                      onChange={(e) => {
+                        setDate(e.target.value);
+                      }}
+                    />
                   </div>
-                </div>
-                <div className="quantity-selection">
-                  <div className="fields">
-                    <input type="text" placeholder="Enter the Name" />
-                    <input type="text" placeholder="Enter the Unit" />
-                  </div>
-                  <div className="fields">
-                    <input type="text" placeholder="Enter the Detials" />
-                    <input type="text" placeholder="Enter the Req Qty" />
-                  </div>
-                  <button>Add</button>
                 </div>
               </div>
             </div>
-
-            <table className="purchasetable purchasetablepopup">
-              <thead>
-                <tr className="labhead">
-                  {orderhead.map((header, index) => (
-                    <th className=" purchasepopupth" key={index}>
-                      {header}
-                    </th>
+            <div className="table">
+              <table className="purchasetable purchasetablepopup">
+                <thead>
+                  <tr className="labhead">
+                    {orderhead.map((header, index) => (
+                      <th className=" purchasepopupth" key={index}>
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, index) => (
+                    <tr key={row.id}>
+                      <td className="purchasepopuptd">{index + 1}</td>
+                      <td
+                        className="purchasepopuptd"
+                        contentEditable="true"
+                        onBlur={(e) =>
+                          updateRow(index, "ProductName", e.target.innerText)
+                        }
+                      >
+                        {row.ProductName}
+                      </td>
+                      <td
+                        className="purchasepopuptd"
+                        contentEditable="true"
+                        onBlur={(e) =>
+                          updateRow(index, "Ordercode", e.target.innerText)
+                        }
+                      >
+                        {row.Ordercode}
+                      </td>
+                      <td
+                        className="purchasepopuptd"
+                        contentEditable="true"
+                        onBlur={(e) =>
+                          updateRow(index, "Unit", e.target.innerText)
+                        }
+                      >
+                        {row.Unit}
+                      </td>
+                      <td
+                        className="purchasepopuptd"
+                        contentEditable="true"
+                        onBlur={(e) =>
+                          updateRow(index, "Category", e.target.innerText)
+                        }
+                      >
+                        {row.Category}
+                      </td>
+                    </tr>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, index) => (
-                  <tr key={row.id}>
-                    <td className="purchasepopuptd">{index + 1}</td>
+                  <tr className="addrow">
                     <td
-                      className="purchasepopuptd"
-                      contentEditable="true"
-                      onBlur={(e) =>
-                        updateRow(index, "ProductName", e.target.innerText)
-                      }
+                      className="purchasetd purchaseaddrow"
+                      colSpan={3}
+                      onClick={addRow}
                     >
-                      {row.ProductName}
+                      New Row +
                     </td>
                     <td
-                      className="purchasepopuptd"
-                      contentEditable="true"
-                      onBlur={(e) =>
-                        updateRow(index, "Ordercode", e.target.innerText)
-                      }
+                      className="purchasetd purchaseclosepopup"
+                      onClick={addNewOrders}
                     >
-                      {row.Ordercode}
+                      Add
                     </td>
                     <td
-                      className="purchasepopuptd"
-                      contentEditable="true"
-                      onBlur={(e) =>
-                        updateRow(index, "Unit", e.target.innerText)
-                      }
+                      className="purchasetd purchaseclosepopup"
+                      onClick={() => setaddpopopn(false)}
                     >
-                      {row.Unit}
-                    </td>
-                    <td
-                      className="purchasepopuptd"
-                      contentEditable="true"
-                      onBlur={(e) =>
-                        updateRow(index, "Category", e.target.innerText)
-                      }
-                    >
-                      {row.Category}
+                      Close
                     </td>
                   </tr>
-                ))}
-                <tr>
-                  <td
-                    className="purchasetd purchaseaddrow"
-                    colSpan={3}
-                    onClick={addRow}
-                  >
-                    New Row +
-                  </td>
-                  <td
-                    className="purchasetd purchaseclosepopup"
-                    onClick={addNewOrders}
-                  >
-                    Add
-                  </td>
-                  <td
-                    className="purchasetd purchaseclosepopup"
-                    onClick={() => setaddpopopn(false)}
-                  >
-                    Close
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
+            <div className="btn">
+              <button className="conform-btn" onClick={addOrderPost}>
+                Conform
+              </button>
+            </div>
+          </div>
+          <div />
+        </article>
+      ) : addpopopn === 1 ? (
+        <article className="purchasepopupcon">
+          <div className="purchasepopupinner">
+            <div className="chooseing-card">
+              <header>
+                <div className="header-top">
+                  <h3>#xgcfhj</h3>
+                  {/* <div className="date">{orderPost.date}</div> */}
+                  <div className="cross">
+                    <p
+                      onClick={() => {
+                        setaddpopopn(null);
+                        setDetails([]);
+                      }}
+                    >
+                      <RxCrossCircled />
+                    </p>
+                  </div>
+                </div>
+                <div className="header-bottom">
+                  <h1>PURCHASE ORDER DETAILS</h1>
+                </div>
+              </header>
+              <div className="selection">
+                <div className="vendor-selection">
+                  <div className="vendor-details">
+                    <div className="show">
+                      <p>{orderPost.VendorId}</p>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Address"
+                      value={details.address}
+                    />
+                    <input
+                      type="text"
+                      placeholder="GST Number"
+                      value={details.gstIn}
+                    />
+                  </div>
+                  <div className="shipping-details">
+                    <input
+                      type="text"
+                      placeholder="Enter the Shipped to site"
+                      value={details.siteId}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Enter the transport"
+                      onChange={(e) => {
+                        setTransport(e.target.value);
+                      }}
+                    />
+                    <input
+                      type="date"
+                      onChange={(e) => {
+                        setDate(e.target.value);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="table">
+              <table className="purchasetable purchasetablepopup ">
+                <thead>
+                  <tr className="labhead">
+                    {orderhead.map((header, index) => (
+                      <th className=" purchasepopupth" key={index}>
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderPost.order.map((orderslists, index) => (
+                    <tr key={index}>
+                      <td>{orderslists.id}</td>
+                      <td>{orderslists.productName}</td>
+                      <td>{orderslists.Ordercode}</td>
+                      <td>{orderslists.Unit}</td>
+                      <td>{orderslists.Category}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="btn">
+              <button className="conform-btn" onClick={addOrderPost}>
+                Conform
+              </button>
+            </div>
+          </div>
+        </article>
+      ) : (
+        <></>
+      )}
+      {download && (
+        <article className="download-pg">
+          <div className="download-sec">
+            <header>
+              <div className="heading">
+                <h1>Download Formats</h1>
+                <p
+                  onClick={() => {
+                    setDownload(false);
+                  }}
+                >
+                  X
+                </p>
+              </div>
+
+              <p>Select a option for download format.</p>
+            </header>
+            <div className="download-contaniner">
+              <div className="download-card">
+                <img src={format} alt="format" />
+                <h3>Format 1</h3>
+              </div>
+              <div className="download-card">
+                <img src={format} alt="format" />
+                <h3>Format 2</h3>
+              </div>
+              <div className="download-card">
+                <img src={format} alt="format" />
+                <h3>Format 3</h3>
+              </div>
+            </div>
           </div>
         </article>
       )}
