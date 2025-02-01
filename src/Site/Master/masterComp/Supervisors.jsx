@@ -12,7 +12,9 @@ export default function SupervisorForm() {
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
-  const [supervisorData, setSupervisorData] = useState([])
+  const [supervisorData, setSupervisorData] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const token = localStorage.getItem("authToken");
 
 
@@ -24,7 +26,6 @@ export default function SupervisorForm() {
     phoneNo: "",
     password: "",
     role: "local", // Default role is local
-    engineerId: "",
   });
 
   const supervisorHeading = [
@@ -32,7 +33,7 @@ export default function SupervisorForm() {
     "Name",
     "Email",
     "Address",
-    "Phone number",
+    "phoneNo",
     "Role",
     "Action",
   ];
@@ -55,46 +56,110 @@ export default function SupervisorForm() {
     fetchSupervisors();
   }, [siteId, token, api]);
 
-
+  //search
   useEffect(() => {
     const result = supervisorData.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredData(result);
   }, [searchTerm, supervisorData]);
 
-  const handleDelete = (index) => {
-    const updatedData = clientData.filter((_, i) => i !== index);
-    setClientData(updatedData);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setSelectedFile(file);
+      console.log('uploded')
+      handleUpload(file);  // Call handleUpload with the selected file
+    }
+  };
+
+  const handleUpload = async (file) => {
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      await axios.post(`${api}/supervisors/upload?siteId=${siteId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const response = await axios.get(`${api}/supervisors/getsuppervisors?siteId=${siteId}&scope=local`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSupervisorData(response.data);
+      setFilteredData(response.data);
+
+      alert("File uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
   };
 
   const handleEdit = (index) => {
     setEditIndex(index);
+    setEditedData({ ...filteredData[index] });
   };
 
-  const handleSaveEditObject = (index, field, value) => {
-    const updatedData = [...clientData];
-    updatedData[index] = { ...updatedData[index], [field]: value };
-    setClientData(updatedData);
-
-    // Track the edited data
+  const handleSaveEditObject = (field, value) => {
     setEditedData((prev) => ({
       ...prev,
-      ...updatedData[index],
       [field]: value,
     }));
-
-    setEditIndex(null);
   };
 
-  const handleSaveRow = () => {
-    console.log("Edited Data:", editedData); // Log all tracked edits
-    setEditIndex(null); // End editing mode
+  const handleSaveRow = async () => {
+    if (!editedData._id) {
+      console.error("No supervisor selected for update");
+      return;
+    }
+
+    try {
+      await axios.put(
+        `${api}/supervisors/update/${editedData._id}`,
+        editedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setSupervisorData((prev) =>
+        prev.map((supervisor) =>
+          supervisor._id === editedData._id ? editedData : supervisor
+        )
+      );
+
+      setFilteredData((prev) =>
+        prev.map((supervisor) =>
+          supervisor._id === editedData._id ? editedData : supervisor
+        )
+      );
+
+      setEditIndex(null);
+    } catch (error) {
+      console.error("Error updating supervisor:", error);
+    }
   };
+
+
+
+  // const handleSaveRow = () => {
+  //   console.log("Edited Data:", editedData); // Log all tracked edits
+  //   setEditIndex(null); // End editing mode
+  // };
   const handleAddSupervisor = async () => {
     try {
       const response = await axios.post(
-        `${api}/supervisors/create`,
+        `${api}/supervisors/create?siteId=${siteId}`,
         { ...newSupervisor, siteId },
         {
           headers: {
@@ -110,13 +175,28 @@ export default function SupervisorForm() {
         phoneNo: "",
         password: "",
         role: "local",
-        engineerId: "",
       });
       setAddPopupOpen(false);
     } catch (error) {
       console.error("Error adding supervisor:", error);
     }
   };
+
+  const handleDelete = async (index) => {
+    try {
+      const supervisor = filteredData[index];
+      await axios.delete(`${api}/supervisors/deletesupervisor/${supervisor._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const updatedData = filteredData.filter((_, i) => i !== index);
+      setFilteredData(updatedData);
+    } catch (error) {
+      console.error("Error deleting supervisor:", error);
+    }
+  };
+  
   return (
     <>
       <main className="mastermain">
@@ -135,7 +215,16 @@ export default function SupervisorForm() {
                 <p>Search</p>
               </div>
               <div className="masterbtnscon">
-                <p className="masteraddbtn">Upload</p>
+
+                <input
+                  type="file"
+                  id="file-upload"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="file-upload" className="client-upload-button">
+                  Upload
+                </label>
                 <p
                   className="masteraddbtn"
                   onClick={() => setAddPopupOpen(true)}
@@ -152,9 +241,9 @@ export default function SupervisorForm() {
                   <tr className="labhead">
                     {supervisorHeading.map((header, index) => (
                       <th
-                        className={`masterth ${header !== "Name" && header !== "PhoneNo" && header !== "S.No" && header !== "Action"
-                            ? "hide-mobile"
-                            : ""
+                        className={`masterth ${header !== "Name" && header !== "phoneNo" && header !== "S.No" && header !== "Action"
+                          ? "hide-mobile"
+                          : ""
                           }`}
                         key={index}
                       >
@@ -172,18 +261,14 @@ export default function SupervisorForm() {
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${field !== "name" && field !== "phoneNo"
-                                ? "hide-mobile"
-                                : ""
-                              }`}
+                            className={`mastertd 
+                              ${field !== "name" && field !== "phoneNo" ? "hide-mobile" : ""} 
+                              ${(field === "password" || field === "engineerId") ? "hide" : ""}`}
+                            
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
-                              handleSaveEditObject(
-                                index,
-                                field,
-                                e.target.innerText
-                              )
+                              handleSaveEditObject(field, e.target.innerText)
                             }
                           >
                             {supervisor[field]}
@@ -265,7 +350,7 @@ export default function SupervisorForm() {
                   }))
                 }
               />
-              
+
               <p
                 className="mastersubmitbtn"
                 onClick={handleAddSupervisor}
