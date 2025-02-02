@@ -704,9 +704,8 @@
 
 /* ----------------------------OutWard------------------- */
 .outward-main {
-  width: calc(100vw - 240px);
+  width: 100%;
   padding: 1em;
-  margin-top: 5em;
   .outward-header {
     width: 100%;
     display: flex;

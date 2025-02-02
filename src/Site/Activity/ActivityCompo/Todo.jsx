@@ -95,11 +95,17 @@ export default function Todo() {
   };
 
   const handleEditColumn = (id) => {
+    console.log(id == columns[5].id); // true
+    const dd = columns.map((col) => {
+      if (col.id === id) return col;
+    });
+    console.log(dd); // 0 length array
     setColumns((prevColumns) =>
       prevColumns.map((column) =>
         column.id === id ? { ...column, isEditing: !column.isEditing } : column
       )
     );
+    setNewColName();
   };
 
   const handleChangeColumnName = (id, newLabel) => {

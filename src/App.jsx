@@ -58,6 +58,7 @@ const AddInward = lazy(() => import("./Site/Activity/ActivityCompo/AddInward"));
 const ViewInward = lazy(() =>
   import("./Site/Activity/ActivityCompo/ViewInward")
 );
+const Outward = lazy(() => import("./Site/Activity/ActivityCompo/Outward.jsx"));
 
 function App() {
   return (
@@ -101,16 +102,29 @@ function App() {
                 <Route path="order" element={<PurchseMain />}>
                   <Route path="details/:Poid" element={<Details />} />
                 </Route>
+                <Route
+                  path="return"
+                  element={
+                    <>
+                      <Navbar />
+                      <PurchaseOrder />
+                    </>
+                  }
+                />
                 <Route path="vendor-selection" element={<VendorSelection />} />
               </Route>
               {/* Site Activity */}
               <Route path="activity" element={<Activity />}>
                 <Route path="todo" element={<Todo />} />
+                <Route path="funds" element={<Funds />} />
+                <Route path="outwards" element={<Outward />} />
+
                 <Route path="inwards" element={<Inward />}>
                   <Route path="add-material-inward" element={<AddInward />} />
-                  <Route path="view-material-inward" element={<ViewInward />} />
+                  <Route path=":MIid" element={<ViewInward />} />
                 </Route>
                 <Route path="notes" element={<Notes />} />
+                <Route path="work" element={<Workdone />} />
               </Route>
               {/* 404 Page */}
               <Route path="*" element={<h1>404 - Page Not Found</h1>} />
