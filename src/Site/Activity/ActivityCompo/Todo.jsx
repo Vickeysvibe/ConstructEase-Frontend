@@ -5,6 +5,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { MdOutlineSave } from "react-icons/md";
 import { request } from "../../../api/request";
 import { useParams } from "react-router-dom";
+import { Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function Todo() {
   const { siteId } = useParams();
@@ -95,25 +96,43 @@ export default function Todo() {
   };
 
   const handleEditColumn = (id) => {
-    console.log(id == columns[5].id); // true
-    const dd = columns.map((col) => {
+    const dd = columns.find((col) => {
+      col.id === id;
       if (col.id === id) return col;
     });
-    console.log(dd); // 0 length array
     setColumns((prevColumns) =>
       prevColumns.map((column) =>
-        column.id === id ? { ...column, isEditing: !column.isEditing } : column
+        column.id === id
+          ? { ...column, isEditing: !column.isEditing, sh: true }
+          : column
       )
     );
-    setNewColName();
+    setNewColName(dd.id);
   };
 
-  const handleChangeColumnName = (id, newLabel) => {
+  const handleChangeColumnName = async (id) => {
+    const res = await request("PUT", `/todo/updatecolumn?siteId=${siteId}`, {
+      oldColumnName: id,
+      newColumnName: newColName,
+    });
     setColumns((prevColumns) =>
       prevColumns.map((column) =>
-        column.id === id ? { ...column, label: newLabel } : column
+        column.id === id
+          ? { ...column, id: newColName, label: newColName }
+          : column
       )
     );
+    setRefresh((prev) => !prev);
+  };
+
+  const handleDeleteColumn = async (id) => {
+    const res = await request("DELETE", `/todo/deletecolumn?siteId=${siteId}`, {
+      columnName: id,
+    });
+    setColumns((prevColumns) =>
+      prevColumns.filter((column) => column.id !== id)
+    );
+    setRefresh((prev) => !prev);
   };
 
   const handleAddTask = () => {
@@ -196,18 +215,51 @@ export default function Todo() {
                   }`}
                 >
                   {column.isEditing ? (
-                    <input
-                      type="text"
-                      value={newColName}
-                      onChange={(e) => setNewColName(e.target.value)}
-                      autoFocus
-                    />
+                    <>
+                      <input
+                        type="text"
+                        value={newColName}
+                        onChange={(e) => setNewColName(e.target.value)}
+                        autoFocus
+                      />
+                      {column.sh && (
+                        <button
+                          onClick={() => {
+                            handleChangeColumnName(column.id);
+                          }}
+                        >
+                          save
+                        </button>
+                      )}
+                    </>
                   ) : (
                     <span
                       onDoubleClick={() => handleEditColumn(column.id)}
-                      style={{ cursor: "pointer" }}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "8px",
+                      }}
                     >
                       {column.label}
+                      {column.isAdd && (
+                        <div>
+                          <Pencil
+                            size={10}
+                            onClick={() => handleEditColumn(column.id)}
+                            style={{ cursor: "pointer", marginRight: "7px" }}
+                          />
+                          <Trash2
+                            size={10}
+                            onClick={() => {
+                              handleDeleteColumn(column.id);
+                            }}
+                            style={{ cursor: "pointer", marginRight: "7px" }}
+                          />
+                        </div>
+                      )}
                     </span>
                   )}
                 </th>

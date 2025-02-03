@@ -1,4 +1,8 @@
 import axios from "axios";
+<<<<<<< HEAD
+=======
+
+>>>>>>> f1d612c6a00e2036a8ffb4a64ed2500491f0046b
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API || "http://localhost:8000/api",
   timeout: 10000,
@@ -36,7 +40,11 @@ const refreshToken = async () => {
   try {
     isRefreshing = true;
     const response = await axios.post(
+<<<<<<< HEAD
       `${import.meta.env.VITE_API}`/auth/refresh,
+=======
+      `${import.meta.env.VITE_API}/auth/refresh`,
+>>>>>>> f1d612c6a00e2036a8ffb4a64ed2500491f0046b
       {
         token: refreshToken,
       }
@@ -90,7 +98,11 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       const newToken = await refreshToken();
       if (newToken) {
+<<<<<<< HEAD
         originalRequest.headers.Authorization =` Bearer ${newToken}`;
+=======
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+>>>>>>> f1d612c6a00e2036a8ffb4a64ed2500491f0046b
         return apiClient(originalRequest);
       }
     }
