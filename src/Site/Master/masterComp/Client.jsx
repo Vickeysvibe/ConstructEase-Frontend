@@ -3,6 +3,8 @@ import "../Master.css";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { request } from "../../../api/request";
+
 
 
 export default function ClientManagement() {
@@ -52,24 +54,25 @@ export default function ClientManagement() {
     formData.append("file", file);
 
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(`${api}/client/upload?siteId=${siteId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
 
-      if (response.data.message === "Clients uploaded successfully") {
+      const response = await request(
+        "POST",
+        `/client/upload?siteId=${siteId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.message === "Clients uploaded successfully") {
         alert("File uploaded successfully!");
 
         // Fetch updated clients list
-        const fetchResponse = await axios.get(`${api}/client/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientData(fetchResponse.data);
+        const fetchResponse = await request("GET", `/client/getAll?siteId=${siteId}`);
+
+        setClientData(fetchResponse);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -79,16 +82,12 @@ export default function ClientManagement() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        console.log(siteId);
-        const token = localStorage.getItem("authToken");
+        const data = await request(
+          "GET",
+          `/client/getAll?siteId=${siteId}`
+        );
 
-        console.log(siteId);
-        const response = await axios.get(`${api}/client/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientData(response.data);
+        setClientData(data);
       } catch (error) {
         console.error("Error fetching clients:", error);
       }
@@ -99,9 +98,6 @@ export default function ClientManagement() {
   // Add new client
   const handleAddClient = async () => {
     try {
-      // Get the siteId from URL params
-      const token = localStorage.getItem("authToken");
-      // Get the siteId from the route params
 
       if (!siteId) {
         console.error("Site ID is missing");
@@ -109,21 +105,17 @@ export default function ClientManagement() {
       }
 
       // Construct the API endpoint
-      const response = await axios.post(`${api}/client/create?siteId=${siteId}`, newClient, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the headers
-        },
-      });
+      const response = await request("POST", `/client/create?siteId=${siteId}`, newClient);
 
-      // Handle successful client creation
-      setClientData((prev) => [...prev, response.data.client]);
+      setClientData((prev) => [...prev, response.client]);
+
       setNewClient({
         name: "",
         phoneNo: "",
         address: "",
         panGstNo: "",
-
       });
+
       setAddPopupOpen(false);
     } catch (error) {
       console.error("Error adding client:", error);
@@ -132,16 +124,14 @@ export default function ClientManagement() {
   const handleSaveEdit = async () => {
     try {
       const clientId = clientData[editingIndex]._id;
-      const token = localStorage.getItem("authToken");
-      const response = await axios.put(`${api}/client/update/${clientId}`, editedClient, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await request("PUT", `/client/update/${clientId}`, editedClient);
+
       const updatedData = [...clientData];
-      updatedData[editingIndex] = response.data.client;
+      updatedData[editingIndex] = response.client;
+
       setClientData(updatedData);
       setEditingIndex(null);
+
     } catch (error) {
       console.error("Error updating client:", error);
     }
@@ -151,9 +141,9 @@ export default function ClientManagement() {
   const handleDelete = async (index) => {
     try {
       const clientId = clientData[index]._id;
-      await axios.delete(`${api}/client/deleteclient/${clientId}`);
-      const updatedData = clientData.filter((_, i) => i !== index);
-      setClientData(updatedData);
+      await request("DELETE", `/client/deleteclient/${clientId}?siteId=${siteId}`, {});
+
+      setClientData((prev) => prev.filter((_, i) => i !== index));
     } catch (error) {
       console.error("Error deleting client:", error);
     }
@@ -292,7 +282,7 @@ export default function ClientManagement() {
                       <p className="client-card-detail">
                         <strong>PAN/GST:</strong> {client.panGstNo}
                       </p>
-                      
+
                       <div className="client-card-actions">
                         <button
                           className="client-delete-button"
@@ -358,17 +348,7 @@ export default function ClientManagement() {
               />
               <button
                 className="client-add-popup-button"
-                onClick={() => {
-                  setClientData((prev) => [...prev, newClient]);
-                  setNewClient({
-                    name: "",
-                    phoneNo: "",
-                    address: "",
-                    panGstNo: "",
-                    siteId: "",
-                  });
-                  setAddPopupOpen(false);
-                }}
+                onClick={handleAddClient}
               >
                 Add Client
               </button>

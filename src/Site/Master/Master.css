@@ -146,7 +146,9 @@
 .client-save-button {
   margin-right: 1em;
 }
-
+.hide{
+  display: none;
+}
 @media (max-width: 800px) {
   .client-management-section {
     width: 100vw;

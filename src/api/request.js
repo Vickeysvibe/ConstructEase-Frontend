@@ -1,12 +1,14 @@
 import axios from "axios";
 
+const token = localStorage.getItem("authToken");
 // Create an Axios instance with default settings
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API || "http://localhost:8000/api",
   timeout: 10000, // Set timeout to 10 seconds
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    Authorization:
+      `Bearer ${token}`,
   },
 });
 

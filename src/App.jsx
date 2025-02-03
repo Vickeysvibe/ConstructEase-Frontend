@@ -123,6 +123,8 @@ function App() {
                   <Route path="add-material-inward" element={<AddInward />} />
                   <Route path=":MIid" element={<ViewInward />} />
                 </Route>
+                <Route path="fund" element={<Funds />} />
+                <Route path="outwards" element={<Outward />} />
                 <Route path="notes" element={<Notes />} />
                 <Route path="work" element={<Workdone />} />
               </Route>

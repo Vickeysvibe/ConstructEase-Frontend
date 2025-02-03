@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { request } from "../../../api/request";
 
 export default function Labourform({ setViewDetial, setView }) {
   const { companyName, siteId } = useParams();
@@ -14,6 +14,10 @@ export default function Labourform({ setViewDetial, setView }) {
   const [editedData, setEditedData] = useState({});
   const [workersData, setworkersData] = useState([])
   const [selectedFile, setSelectedFile] = useState(null);
+  const [viewDetail, setViewDetail] = useState(null);
+  
+
+
 
   const api = import.meta.env.VITE_API
 
@@ -36,16 +40,15 @@ export default function Labourform({ setViewDetial, setView }) {
     "WagesPerShift",
     "Action",
   ];
+  
   useEffect(() => {
     const fetchLabours = async () => {
       try {
-        const response = await axios.get(`${api}/labour/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientData(response.data);
-        setworkersData(response.data);
+        const response = await request("GET", `/labour/getAll?siteId=${siteId}`);
+
+        setClientData(response);
+        setworkersData(response);
+
       } catch (error) {
         console.error("Error fetching labours:", error);
       }
@@ -55,12 +58,9 @@ export default function Labourform({ setViewDetial, setView }) {
 
   const handleAddLabour = async () => {
     try {
-      const response = await axios.post(`${api}/labour/create?siteId=${siteId}`, newLabour, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setClientData((prev) => [...prev, response.data.labour]);
+      const response = await request("POST", `/labour/create?siteId=${siteId}`, newLabour);
+
+      setClientData((prev) => [...prev, response.labour]); // Assuming response contains `labour`
       setNewLabour({
         name: "",
         phoneNo: "",
@@ -69,6 +69,7 @@ export default function Labourform({ setViewDetial, setView }) {
         wagesPerShift: "",
       });
       setAddPopupOpen(false);
+
     } catch (error) {
       console.error("Error adding labour:", error);
     }
@@ -86,17 +87,13 @@ export default function Labourform({ setViewDetial, setView }) {
   const handleSaveEditObject = async (index, field, value) => {
     const updatedLabour = { ...clientData[index], [field]: value };
     try {
-      const response = await axios.put(
-        `${api}/labour/update-labour/${updatedLabour._id}?siteId=${siteId}`,
-        updatedLabour, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await request("PUT", `/labour/update-labour/${updatedLabour._id}?siteId=${siteId}`, updatedLabour);
+
       const updatedData = [...clientData];
-      updatedData[index] = response.data.labour;
+      updatedData[index] = response.labour;
       setClientData(updatedData);
       setEditIndex(null);
+
     } catch (error) {
       console.error("Error updating labour:", error);
     }
@@ -106,11 +103,8 @@ export default function Labourform({ setViewDetial, setView }) {
   const handleDelete = async (index) => {
     const labourId = clientData[index]._id;
     try {
-      await axios.delete(`${api}/labour/delete/${labourId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await request("DELETE", `/labour/delete/${labourId}?siteId=${siteId}`, {});
+
       const updatedData = clientData.filter((_, i) => i !== index);
       setClientData(updatedData);
     } catch (error) {
@@ -125,10 +119,10 @@ export default function Labourform({ setViewDetial, setView }) {
   };
   //   console.log(editedData);
 
-  const handleView = (_id) => {
-    const viewdetials = workersData[_id];
-    setViewDetial(viewdetials);
-    setView(true);
+  const handleView = (index) => {
+    const viewDetails = workersData[index]; // Use index to get the correct worker data
+    setViewDetail(viewDetails); // Set view details
+    setView(true); // Set view to true
   };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -149,24 +143,17 @@ export default function Labourform({ setViewDetial, setView }) {
     formData.append("file", file);
 
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(`${api}/labour/upload?siteId=${siteId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await request("POST", `/labour/upload?siteId=${siteId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (response.data.message === "labour uploaded successfully") {
+      if (response.message === "labour uploaded successfully") {
         alert("File uploaded successfully!");
 
-        const fetchResponse = await axios.get(`${api}/labour/getAll?siteId=${siteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setworkersData(fetchResponse.data);
+        const fetchResponse = await request("GET", `/labour/getAll?siteId=${siteId}`);
+        setworkersData(fetchResponse);
       }
+
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload file. Please try again.");
