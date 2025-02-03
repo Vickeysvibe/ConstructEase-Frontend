@@ -46,6 +46,20 @@ import VendorSelection from "./Site/Purchase/purchaseComp/VendorSelection";
 import Details from "./Site/Purchase/purchaseComp/Details";
 import PurchseMain from "./Site/Purchase/Purchase";
 
+//-------------------------Activity----------------------
+
+const Activity = lazy(() => import("./Site/Activity/Activity"));
+const Todo = lazy(() => import("./Site/Activity/ActivityCompo/Todo"));
+const Notes = lazy(() => import("./Site/Activity/ActivityCompo/Notes"));
+const Workdone = lazy(() => import("./Site/Activity/ActivityCompo/Workdone"));
+const Funds = lazy(() => import("./Site/Activity/ActivityCompo/funds.jsx"));
+const Inward = lazy(() => import("./Site/Activity/ActivityCompo/Inward"));
+const AddInward = lazy(() => import("./Site/Activity/ActivityCompo/AddInward"));
+const ViewInward = lazy(() =>
+  import("./Site/Activity/ActivityCompo/ViewInward")
+);
+const Outward = lazy(()=>import("./Site/Activity/ActivityCompo/Outward.jsx"))
+
 function App() {
   return (
     <Router>
@@ -90,6 +104,18 @@ function App() {
                 </Route>
                 <Route path="vendor-selection" element={<VendorSelection />} />
               </Route>
+              {/* Site Activity */}
+              <Route path="activity" element={<Activity />}>
+                <Route path="todo" element={<Todo />} />
+                <Route path="inwards" element={<Inward />}>
+                  <Route path="add-material-inward" element={<AddInward />} />
+                  <Route path="view-material-inward" element={<ViewInward />} />
+                </Route>
+                <Route path="fund" element={<Funds />} />
+                <Route path="outwards" element={<Outward />} />
+                <Route path="notes" element={<Notes />} />
+              </Route>
+              {/* 404 Page */}
               <Route path="*" element={<h1>404 - Page Not Found</h1>} />
             </Route>
           </Route>
