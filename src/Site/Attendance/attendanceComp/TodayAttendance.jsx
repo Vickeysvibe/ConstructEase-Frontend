@@ -1,133 +1,131 @@
-import { useState, useEffect } from "react";
-import "../Attendance.css";
-import TodayAttendance from "./TodayAttendance";
+  import { useState, useEffect } from "react";
+  import "../Attendance.css";
+  import { request } from "../../../api/request";
+  import { useParams } from "react-router-dom";
 
-export default function LabourAtt() {
-  const [currentDate, setCurrentDate] = useState("");
-  const [editMode, setEditMode] = useState(false); // To toggle edit mode
-  const [updatedData, setUpdatedData] = useState([]); // Editable data
-  const [changedValues, setChangedValues] = useState([]); // Track changes
-  const [searchTerm, setSearchTerm] = useState("");
+  export default function TodayAttendance() {
+    const [currentDate, setCurrentDate] = useState("");
+    const [editMode, setEditMode] = useState(false);
+    const [updatedData, setUpdatedData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const { companyName, siteId: site } = useParams();
 
-  const laboratthead = [
-    "Serial No",
-    "Name",
-    "Category",
-    "SubCategory",
-    "Shift",
-    "Wages",
-    "Total",
-    "Attendance",
-  ];
+    const laboratthead = [
+      "Serial No",
+      "Name",
+      "Category",
+      "SubCategory",
+      "Shift",
+      "Wages",
+      "Total",
+      "Attendance",
+    ];
 
-  const laboratt = [
-    {
-      id: 1,
-      name: "John Doe",
-      category: "Labour",
-      subCategory: "Mason",
-      shiftDef: 1,
-      wagesPerShift: 500,
-      Total: 500,
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      category: "Labour",
-      subCategory: "Carpenter",
-      shiftDef: 1,
-      wagesPerShift: 600,
-      Total: 600,
-    },
-    {
-      id: 3,
-      name: "Ali Khan",
-      category: "Labour",
-      subCategory: "Electrician",
-      shiftDef: 1,
-      wagesPerShift: 700,
-      Total: 700,
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      category: "Labour",
-      subCategory: "Painter",
-      shiftDef: 1,
-      wagesPerShift: 550,
-      Total: 550,
-    },
-    {
-      id: 5,
-      name: "Rajesh Gupta",
-      category: "Labour",
-      subCategory: "Plumber",
-      shiftDef: 1,
-      wagesPerShift: 650,
-      Total: 650,
-    },
-  ];
+    useEffect(() => {
+      const today = new Date();
+      const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+      setCurrentDate(formattedDate);
 
-  useEffect(() => {
-    const today = new Date();
-    const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-    setCurrentDate(formattedDate);
-    setUpdatedData(laboratt); // Initialize editable data
-  }, []);
+      fetchTodayAttendance();
+    }, []);
 
-  useEffect(() => {
-    // Log changed values when toggling edit mode
-    if (!editMode) {
-      console.log("Changed Values:", changedValues);
-    }
-  }, [editMode]);
+    const fetchTodayAttendance = async () => {
+      try {
+        const response = await request("GET", `/attendance/todayAttendance?siteId=${site}`);
+        
+        const dataWithOriginalShift = response.attendanceResponse.map(worker => ({
+          ...worker,
+          Shift: Number(worker.Shift), // Ensure it's stored as a number
+          originalShift: Number(worker.Shift), // Store original shift value as a number
+        }));
 
-  const handleShiftChange = (e, id) => {
-    const newShiftDef = parseFloat(e.target.value);
-
-    const updated = updatedData.map((worker) => {
-      if (worker.id === id) {
-        const newTotal = newShiftDef * worker.wagesPerShift;
-
-        // Track changes
-        const change = {
-          id: worker.id,
-          name: worker.name,
-          oldShiftDef: worker.shiftDef,
-          newShiftDef,
-          oldTotal: worker.Total,
-          newTotal,
-        };
-
-        // Update changed values array
-        setChangedValues((prev) => {
-          const existingIndex = prev.findIndex((item) => item.id === id);
-          if (existingIndex !== -1) {
-            const updatedChanges = [...prev];
-            updatedChanges[existingIndex] = change;
-            return updatedChanges;
-          }
-          return [...prev, change];
-        });
-
-        return { ...worker, shiftDef: newShiftDef, Total: newTotal };
+        setUpdatedData(dataWithOriginalShift);
+      } catch (error) {
+        console.error("Error fetching today's attendance:", error);
+        setUpdatedData([]);
       }
-      return worker;
-    });
+    };
 
-    setUpdatedData(updated);
-  };
+    const handleShiftChange = (e, index) => {
+      const newShiftDef = Number(e.target.value);
+      const worker = updatedData[index];
 
-  const toggleEditMode = () => {
-    setEditMode((prev) => !prev);
-  };
+      const labourId = worker.labourId || worker.id || worker._id;
 
-  const filteredData = updatedData.filter((worker) =>
-    worker.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      if (!labourId) {
+        console.error("labourId is missing for worker at index:", index);
+        return;
+      }
 
-  return (
-    <>
+      // Update shift locally
+      const updated = updatedData.map((worker, idx) => {
+        if (idx === index) {
+          return { 
+            ...worker, 
+            Shift: newShiftDef, 
+            Total: newShiftDef * worker.WagesPerShift,
+          };
+        }
+        return worker;
+      });
+
+      setUpdatedData(updated);
+    };
+
+    const handleSaveShift = async () => {
+      try {
+        const updates = updatedData
+          .filter(worker => worker.Shift !== worker.originalShift) // Filter out workers with unchanged shifts
+          .map(worker => ({
+            labourId: worker.id,
+            newShift: worker.Shift
+          }));
+    
+        if (updates.length === 0) {
+          console.log("No changes detected.");
+          toggleEditMode();
+          return;
+        }
+    
+        // Send the updates
+        const updateResponses = await Promise.all(
+          updates.map(worker =>
+            request("PUT", `/attendance/updateshift?siteId=${site}`, worker)
+          )
+        );
+    
+        // Handle responses if needed
+        updateResponses.forEach(response => {
+          console.log("Shift update response:", response);
+        });
+    
+        // Update local data to reflect changes
+        setUpdatedData(prevData =>
+          prevData.map(worker => {
+            const updatedWorker = updates.find(u => u.labourId === worker.id);
+            return updatedWorker
+              ? { ...worker, originalShift: updatedWorker.newShift }
+              : worker;
+          })
+        );
+    
+        toggleEditMode();
+      } catch (error) {
+        console.error("Error saving updated shifts:", error);
+      }
+    };
+    
+    
+
+    const toggleEditMode = () => {
+      setEditMode((prev) => !prev);
+    };
+
+    const filteredResults = (updatedData || []).filter(worker =>
+      worker?.Name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
       <main className="attendancemain">
         <section className="attendancesec">
           <div className="searchcon">
@@ -146,31 +144,30 @@ export default function LabourAtt() {
                 <p className="adtxt">{currentDate}</p>
               </div>
               <div className="edit">
-                <button onClick={toggleEditMode}>
+                <button onClick={editMode ? handleSaveShift : toggleEditMode}>
                   {editMode ? "Save" : "Edit"}
                 </button>
               </div>
             </div>
           </div>
+
           <div className="tablecon">
-            {filteredData.length > 0 ? (
+            {filteredResults.length > 0 ? (
               <table className="attendancetable">
                 <thead>
                   <tr className="labhead">
                     {laboratthead.map((header, index) => (
-                      <th className="attendanceth" key={index}>
-                        {header}
-                      </th>
+                      <th className="attendanceth" key={index}>{header}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((worker, index) => (
-                    <tr key={worker.id}>
+                  {filteredResults.map((worker, index) => (
+                    <tr key={index}>
                       <td className="attendancetd">{index + 1}</td>
-                      <td className="attendancetd">{worker.name}</td>
-                      <td className="attendancetd">{worker.category}</td>
-                      <td className="attendancetd">{worker.subCategory}</td>
+                      <td className="attendancetd">{worker.Name}</td>
+                      <td className="attendancetd">{worker.Category}</td>
+                      <td className="attendancetd">{worker.SubCategory || "N/A"}</td>
                       <td className="attendancetd">
                         {editMode ? (
                           <input
@@ -178,14 +175,14 @@ export default function LabourAtt() {
                             step="0.5"
                             min="0.5"
                             max="2"
-                            value={worker.shiftDef}
-                            onChange={(e) => handleShiftChange(e, worker.id)}
+                            value={worker.Shift}
+                            onChange={(e) => handleShiftChange(e, index)}
                           />
                         ) : (
-                          worker.shiftDef
+                          worker.Shift
                         )}
                       </td>
-                      <td className="attendancetd">{worker.wagesPerShift}</td>
+                      <td className="attendancetd">{worker.WagesPerShift}</td>
                       <td className="attendancetd">{worker.Total}</td>
                       <td className="attendancetd">Present</td>
                     </tr>
@@ -198,6 +195,5 @@ export default function LabourAtt() {
           </div>
         </section>
       </main>
-    </>
-  );
-}
+    );
+  }

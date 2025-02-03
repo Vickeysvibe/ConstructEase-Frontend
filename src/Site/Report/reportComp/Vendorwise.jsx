@@ -1,32 +1,73 @@
-// import '../App.css';
 import "../Report.css";
-
 import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { request } from "../../../api/request";
 
-export default function Labourwise() {
+export default function Vendorwise() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const vendors = ["qwert", "dfga", "ugfcvt", "gfxdfcgvhb", "gfxhbv", "d"];
+  const [vendor, setVendor] = useState("");
+
+  const {siteId:site } = useParams();
+
+  const vendors = ["Vendor 8", "Vendor 9", "Vendor 10", "Vendor 11", "gfxhbv", "d"];
+
+  const handleDownload = async () => {
+    if (!startDate || !endDate) {
+      alert("Please select start and end dates.");
+      return;
+    }
+
+    try {
+      const response = await request(
+        "POST", 
+        `/reports/vendor-report?siteId=${site}`, 
+        { 
+          siteId: site,
+          startDate,
+          endDate,
+          vendor: vendor || "ALL",
+        },
+        { responseType: "blob" }
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "VendorReport.xlsx";
+      link.click();
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      alert("Failed to download report.");
+    }
+  };
+
   return (
     <>
       <main className="reportmain">
         <section className="reportsec">
           <h1>Vendor Report</h1>
           <form className="reportform">
-            <label>Select Vendor :</label>
-            <select className="reportinput">
-              {vendors.map((vendor) => {
-                return (
-                  <option key={vendor} value={vendor}>
-                    {vendor}
-                  </option>
-                );
-              })}
+            <label>Select Vendor:</label>
+            <select
+              className="reportinput"
+              value={vendor}
+              onChange={(e) => setVendor(e.target.value)}
+            >
+              <option value="">All</option>
+              {vendors.map((vendorItem) => (
+                <option key={vendorItem} value={vendorItem}>
+                  {vendorItem}
+                </option>
+              ))}
             </select>
 
             <label>Start Date:</label>
             <span className="reportinput reportdateinput">
-              {startDate == "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
+              {startDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
               <input
                 className="dateinput"
                 type="date"
@@ -37,7 +78,7 @@ export default function Labourwise() {
 
             <label>End Date:</label>
             <span className="reportinput reportdateinput">
-              {endDate == "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
+              {endDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
               <input
                 className="dateinput"
                 type="date"
@@ -46,7 +87,13 @@ export default function Labourwise() {
               />
             </span>
             <div className="reportdownloadbtncon">
-              <p className="reportdownloadbtn">Download as Excel</p>
+              <p
+                type="button"
+                onClick={handleDownload}
+                className="reportdownloadbtn"
+              >
+                Download as Excel
+              </p>
             </div>
           </form>
         </section>

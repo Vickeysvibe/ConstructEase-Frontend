@@ -41,7 +41,7 @@ export default function Sidemenu({ siteId, companyName }) {
     },
     {
       title: `Purchase Return`,
-      link: `/${companyName}/${siteId}/purchase/purchasereturn`,
+      link: `/${companyName}/${siteId}/purchase/return`,
     },
   ];
 

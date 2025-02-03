@@ -1,9 +1,17 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { RxCrossCircled } from "react-icons/rx";
 import { FaRegEdit, FaSave } from "react-icons/fa";
+import { request } from "../../../api/request";
 
 const VendorSelection = () => {
+  const { companyName, siteId } = useParams();
+  const [selectedPoId, setSelectedPoId] = useState();
+  const [selectedPo, setSelectedPo] = useState();
+  const [subTotal, setSubTotal] = useState(0);
+  const [tax, setTax] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [tableData, setTableData] = useState([]);
   const tableHeaders = [
     "Serial No",
     "Product Name",
@@ -16,120 +24,50 @@ const VendorSelection = () => {
     "Edit",
   ];
 
-  const initialData = [
-    {
-      serialNo: 1,
-      productName: "Cement",
-      details: "50kg bag, Grade 43",
-      reqQty: 100,
-      unit: "Bags",
-      suppliedQty: 90,
-      unitPrice: 350,
-      subtotal: 90 * 350,
-    },
-    {
-      serialNo: 2,
-      productName: "Steel Rods",
-      details: "TMT 12mm",
-      reqQty: 50,
-      unit: "Kg",
-      suppliedQty: 50,
-      unitPrice: 600,
-      subtotal: 50 * 600,
-    },
-    {
-      serialNo: 3,
-      productName: "Bricks",
-      details: "Red Clay Bricks",
-      reqQty: 500,
-      unit: "Pieces",
-      suppliedQty: 480,
-      unitPrice: 8,
-      subtotal: 480 * 8,
-    },
-  ];
+  const [pos, setPos] = useState();
 
-  const Orders = [
-    {
-      siteId: "001",
-      VendorId: "V1001",
-      transport: "Truck",
-      date: "2025-01-30",
-      order: [
-        { itemId: "I001", itemName: "Cement", quantity: 100, unit: "Bags" },
-        { itemId: "I002", itemName: "Steel Rods", quantity: 50, unit: "Kg" },
-      ],
-    },
-    {
-      siteId: "002",
-      VendorId: "V1002",
-      transport: "Ship",
-      date: "2025-02-01",
-      order: [
-        { itemId: "I003", itemName: "Bricks", quantity: 500, unit: "Pieces" },
-        { itemId: "I004", itemName: "Sand", quantity: 200, unit: "Kg" },
-      ],
-    },
-    {
-      siteId: "003",
-      VendorId: "V1003",
-      transport: "Air",
-      date: "2025-02-05",
-      order: [
-        {
-          itemId: "I005",
-          itemName: "Glass Panels",
-          quantity: 20,
-          unit: "Sheets",
-        },
-      ],
-    },
-    ,
-    {
-      siteId: "003",
-      VendorId: "V1003",
-      transport: "Air",
-      date: "2025-02-05",
-      order: [
-        {
-          itemId: "I005",
-          itemName: "Glass Panels",
-          quantity: 20,
-          unit: "Sheets",
-        },
-      ],
-    },
-    ,
-    {
-      siteId: "003",
-      VendorId: "V1003",
-      transport: "Air",
-      date: "2025-02-05",
-      order: [
-        {
-          itemId: "I005",
-          itemName: "Glass Panels",
-          quantity: 20,
-          unit: "Sheets",
-        },
-      ],
-    },
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const response = await request(
+        "GET",
+        `/purchase/getAllPos?siteId=${siteId}`
+      );
+      setPos(response);
+    };
+    fetchOrders();
+  }, []);
 
-  const [tableData, setTableData] = useState(initialData);
+  useEffect(() => {
+    const fetchPO = async () => {
+      const response = await request("GET", `/purchase/getPo/${selectedPoId}`);
+      console.log(response);
+      setSelectedPo(response);
+      setTableData(
+        response.order.map((element) => {
+          return { ...element, suppliedQty: 0, unitPrice: 0, total: 0 };
+        })
+      );
+      console.log(tableData);
+    };
+    fetchPO();
+  }, [selectedPoId]);
+
   const [editIndex, setEditIndex] = useState(null);
 
-  // Calculate Grand Sub Total
-  const grandSubTotal = tableData.reduce((acc, row) => acc + row.subtotal, 0);
-
+  console.log(tableData);
   // Handle contentEditable changes
   const handleInputChange = (index, field, value) => {
     const newData = [...tableData];
     newData[index][field] = value ? parseFloat(value) : 0;
-    newData[index].subtotal =
+    newData[index].total =
       newData[index].suppliedQty * newData[index].unitPrice; // Update subtotal
     setTableData(newData);
   };
+
+  useEffect(() => {
+    setSubTotal(tableData.reduce((acc, curr) => acc + curr.total, 0));
+    setGrandTotal(subTotal + (subTotal * tax) / 100);
+  }, [tableData, tax]);
 
   // Handle Edit/Save button click
   const handleEditClick = (index) => {
@@ -141,18 +79,51 @@ const VendorSelection = () => {
     }
   };
 
-  //   ------------gst-total--------
-  const [gst, setGst] = useState(1);
-  const total = grandSubTotal * gst;
+  const createMI = async () => {
+    const response = await request("POST", `/materials/createMI`, {
+      POid: selectedPoId,
+      vendorId: selectedPo.vendorId._id,
+      siteId: selectedPo.siteId._id,
+      order: tableData.map((td) => {
+        return {
+          productId: td.productId._id,
+          suppliedQty: td.suppliedQty,
+          unitPrice: td.unitPrice,
+        };
+      }),
+      subTotal: subTotal,
+      tax: tax,
+      grandTotal: grandTotal,
+    });
+    // console.log({
+    //   POid: selectedPoId,
+    //   vendorId: selectedPo.vendorId._id,
+    //   siteId: selectedPo.siteId._id,
+    //   order: tableData.map((td) => {
+    //     return {
+    //       productId: td.productId._id,
+    //       suppliedQty: td.suppliedQty,
+    //       unitPrice: td.unitPrice,
+    //     };
+    //   }),
+    //   subTotal: subTotal,
+    //   tax: tax,
+    //   grandTotal: grandTotal,
+    // });
+    setSelectedPoId(null);
+    setTableData(null);
+    setTax(0);
+    setGrandTotal(0);
+    setSubTotal(0);
+    setSelectedPo(null);
+  };
 
-  
   return (
     <article className="addinward-container">
       <div className="addinward-popup-inner">
         <div className="addinward-card">
           <header>
             <div className="addinward-header-top">
-              <h3>#xgcfhj</h3>
               <div className="addinward-date">1/01/2024</div>
               <div className="addinward-cross">
                 <Link to={"purchase"}>
@@ -168,118 +139,145 @@ const VendorSelection = () => {
           </header>
         </div>
         <div className="scroll">
-          <div className="addinward-selection">
-            {Orders.map((details, index) => (
-              <div className="addinward-vendor-details" key={index}>
-                <div className="show">
-                  <p>{details.VendorId}</p>
+          {!selectedPoId && (
+            <>
+              <h1>Select Purchase order</h1>
+              <div className="addinward-selection">
+                {pos?.map((order, index) => (
+                  <div
+                    onClick={() => {
+                      setSelectedPoId(order.POid);
+                    }}
+                    key={index}
+                  >
+                    <div className="orders-card">
+                      <div className="order-cards-detials">
+                        <strong>Vendor Name: </strong>
+                        <p>{order.vendorName}</p>
+                      </div>
+                      <div className="order-cards-detials">
+                        <strong>Order Count: </strong>
+                        <p>{order.orderCount}</p>
+                      </div>
+                      <div className="order-cards-detials">
+                        <strong>Transport: </strong>
+                        <p>{order.transport}</p>
+                      </div>
+                      <div className="order-cards-detials">
+                        <strong>Date: </strong>
+                        <p>{new Date(order.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {/* Table to display orders */}
+          {selectedPoId && (
+            <>
+              <div className="addinward-table">
+                <table className="addinward-purchase-table">
+                  <thead>
+                    <tr className="addinward-table-header">
+                      {tableHeaders.map((header, index) => (
+                        <th key={index} className="addinward-th">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableData?.map((row, index) => (
+                      <tr key={index}>
+                        <td className="addinward-td">{index + 1}</td>
+                        <td className="addinward-td">{row.productId.name}</td>
+                        <td className="addinward-td">
+                          {row.productId.description.substring(0, 200)}
+                        </td>
+                        <td className="addinward-td">{row.requiredQty}</td>
+                        <td className="addinward-td">{row.productId.unit}</td>
+
+                        <td
+                          className="addinward-td"
+                          contentEditable={editIndex === index}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) =>
+                            handleInputChange(
+                              index,
+                              "suppliedQty",
+                              e.target.innerText
+                            )
+                          }
+                        >
+                          {row.suppliedQty}
+                        </td>
+
+                        <td
+                          className="addinward-td"
+                          contentEditable={editIndex === index}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) =>
+                            handleInputChange(
+                              index,
+                              "unitPrice",
+                              e.target.innerText
+                            )
+                          }
+                        >
+                          {row.unitPrice}
+                        </td>
+
+                        <td className="addinward-td">{row.total}</td>
+
+                        <td
+                          className="addinward-td lchid"
+                          onClick={() => handleEditClick(index)}
+                        >
+                          {editIndex === index ? <FaSave /> : <FaRegEdit />}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Grand Sub Total Calculation */}
+              <div className="total">
+                <div className="total-field">
+                  <input
+                    type="text"
+                    value={`Grand Sub Total : ${subTotal}`}
+                    readOnly
+                  />
                 </div>
-                <div className="show">
-                  <p>{details.transport}</p>
+                <div className="total-field">
+                  <input
+                    type="text"
+                    placeholder="GST"
+                    value={tax} // Display the current GST value
+                    onChange={(e) =>
+                      setTax(e.target.value ? parseFloat(e.target.value) : "")
+                    }
+                  />
                 </div>
-                <div className="show">
-                  <p>{details.siteId}</p>
+                <div className="total-field">
+                  <input
+                    type="text"
+                    value={`Grand Total : ${grandTotal}`}
+                    readOnly
+                  />
                 </div>
               </div>
-            ))}
-          </div>
-          {/* Table to display orders */}
-          <div className="addinward-table">
-            <table className="addinward-purchase-table">
-              <thead>
-                <tr className="addinward-table-header">
-                  {tableHeaders.map((header, index) => (
-                    <th key={index} className="addinward-th">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tableData.map((row, index) => (
-                  <tr key={index}>
-                    <td className="addinward-td">{row.serialNo}</td>
-                    <td className="addinward-td">{row.productName}</td>
-                    <td className="addinward-td">{row.details}</td>
-                    <td className="addinward-td">{row.reqQty}</td>
-                    <td className="addinward-td">{row.unit}</td>
 
-                    {/* Editable Supplied Qty */}
-                    <td
-                      className="addinward-td"
-                      contentEditable={editIndex === index}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) =>
-                        handleInputChange(
-                          index,
-                          "suppliedQty",
-                          e.target.innerText
-                        )
-                      }
-                    >
-                      {row.suppliedQty}
-                    </td>
-
-                    {/* Editable Unit Price */}
-                    <td
-                      className="addinward-td"
-                      contentEditable={editIndex === index}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) =>
-                        handleInputChange(
-                          index,
-                          "unitPrice",
-                          e.target.innerText
-                        )
-                      }
-                    >
-                      {row.unitPrice}
-                    </td>
-
-                    {/* Subtotal */}
-                    <td className="addinward-td">{row.subtotal}</td>
-
-                    {/* Edit/Save Button */}
-                    <td
-                      className="addinward-td lchid"
-                      onClick={() => handleEditClick(index)}
-                    >
-                      {editIndex === index ? <FaSave /> : <FaRegEdit />}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Grand Sub Total Calculation */}
-          <div className="total">
-            <div className="total-field">
-              <input
-                type="text"
-                value={`Grand Sub Total : ${grandSubTotal}`}
-                readOnly
-              />
-            </div>
-            <div className="total-field">
-              <input
-                type="text"
-                placeholder="GST"
-                value={gst} // Display the current GST value
-                onChange={(e) =>
-                  setGst(e.target.value ? parseFloat(e.target.value) : "")
-                }
-              />
-            </div>
-            <div className="total-field">
-              <input type="text" value={`Grand Total : ${total}`} readOnly />
-            </div>
-          </div>
-
-          {/* Confirm Button */}
-          <div className="addinward-btn">
-            <button className="addinward-confirm-btn">Confirm</button>
-          </div>
+              {/* Confirm Button */}
+              <div className="addinward-btn">
+                <button onClick={createMI} className="addinward-confirm-btn">
+                  Confirm
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </article>

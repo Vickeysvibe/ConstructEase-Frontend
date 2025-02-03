@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from "react";
 import "../Activity.css";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router-dom";
+import { request } from "../../../api/request";
 
 const Inward = () => {
+  const { siteId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const material = [
-    {
-      vendorname: "ragul",
-      productid: 101,
-      unitshift: 2,
-    },
-    {
-      vendorname: "bhghf",
-      productid: 102,
-      unitshift: 5,
-    },
-  ];
+  const [materialInwards, setMaterialInwards] = useState();
 
-  const filteredMaterials = material.filter(
-    (item) =>
-      item.vendorname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.productid.toString().includes(searchTerm)
+  useEffect(() => {
+    const fetchMaterialInwards = async () => {
+      const response = await request("GET", `/materials/getMIBySite/${siteId}`);
+      setMaterialInwards(response);
+    };
+    fetchMaterialInwards();
+  }, []);
+
+  const filteredMaterials = materialInwards?.filter((item) =>
+    item.vendorName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -48,20 +45,28 @@ const Inward = () => {
           </div>
         </header>
         <div className="tablecon">
-          {filteredMaterials.map((material, index) => (
-            <Link to={"view-material-inward"} key={index}>
+          {filteredMaterials?.map((material, index) => (
+            <Link to={material.MIid} key={index}>
               <div className="orders-card">
                 <div className="order-cards-detials">
                   <strong>Vendor Name: </strong>
-                  <p>{material.vendorname}</p>
+                  <p>{material.vendorName}</p>
                 </div>
                 <div className="order-cards-detials">
-                  <strong>Product Id: </strong>
-                  <p>{material.productid}</p>
+                  <strong>Date: </strong>
+                  <p>{new Date(material.date).toLocaleDateString()}</p>
                 </div>
                 <div className="order-cards-detials">
-                  <strong>Unit shift:</strong>
-                  <p>{material.unitshift}</p>
+                  <strong>Order count:</strong>
+                  <p>{material.materials}</p>
+                </div>
+                <div className="order-cards-detials">
+                  <strong>Sub-Total :</strong>
+                  <p>{material.subTotal}</p>
+                </div>
+                <div className="order-cards-detials">
+                  <strong>Grand-Total:</strong>
+                  <p>{material.grandTotal}</p>
                 </div>
               </div>
             </Link>

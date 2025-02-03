@@ -46,6 +46,7 @@ const PurchseMain = () => {
               <div className="search">
                 <input
                   type="text"
+                  className="search"
                   placeholder="Search"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
