@@ -124,7 +124,7 @@ export default function ClientManagement() {
   const handleSaveEdit = async () => {
     try {
       const clientId = clientData[editingIndex]._id;
-      const response = await request("PUT", `/client/update/${clientId}`, editedClient);
+      const response = await request("PUT", `/client/update/${clientId}?siteId=${siteId}`, editedClient);
 
       const updatedData = [...clientData];
       updatedData[editingIndex] = response.client;
