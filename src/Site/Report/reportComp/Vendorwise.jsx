@@ -10,7 +10,7 @@ export default function Vendorwise() {
 
   const {siteId:site } = useParams();
 
-  const vendors = ["Vendor 8", "Vendor 9", "Vendor 10", "Vendor 11", "gfxhbv", "d"];
+  const vendors = ["Vendor 8", "Vendor 9", "Vendor 10", "Vendor 53", "gfxhbv", "d"];
 
   const handleDownload = async () => {
     if (!startDate || !endDate) {
@@ -21,7 +21,7 @@ export default function Vendorwise() {
     try {
       const response = await request(
         "POST", 
-        `/reports/vendor-report?siteId=${site}`, 
+        `/material/vendor-report?siteId=${site}`, 
         { 
           siteId: site,
           startDate,

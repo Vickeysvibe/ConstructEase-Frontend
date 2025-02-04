@@ -10,7 +10,7 @@ const Inward = () => {
 
   useEffect(() => {
     const fetchMaterialInwards = async () => {
-      const response = await request("GET", `/materials/getMIBySite/${siteId}`);
+      const response = await request("GET", `/materials/getMIBySite/siteId=${siteId}`);
       setMaterialInwards(response);
     };
     fetchMaterialInwards();
