@@ -30,7 +30,7 @@ const VendorSelection = () => {
     const fetchOrders = async () => {
       const response = await request(
         "GET",
-        `/purchase/getAllPos?siteId=${siteId}`
+        `/purchase/getAllPos?siteId=${siteId}&mi=true`
       );
       setPos(response);
     };
@@ -49,7 +49,7 @@ const VendorSelection = () => {
       );
       console.log(tableData);
     };
-    fetchPO();
+    if (selectedPoId) fetchPO();
   }, [selectedPoId]);
 
   const [editIndex, setEditIndex] = useState(null);
