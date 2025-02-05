@@ -38,8 +38,19 @@ const PurchaseOrder = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const response = await request("GET", `/purchase/getPr/${selectedPrId}`);
-      setSelectedPr(response);
-      console.log(response);
+      setSelectedPr({
+        ...response.POid,
+        subTotal: response.subTotal,
+        tax: response.tax,
+        grandTotal: response.grandTotal,
+      });
+      setTable(
+        response.order.map((order) => ({
+          ...order,
+          availableQty: order.materialId.availableQty,
+          total: order.returnQty * order.materialId.unitPrice,
+        }))
+      );
     };
     if (selectedPrId) fetchOrders();
   }, [selectedPrId]);
@@ -96,7 +107,19 @@ const PurchaseOrder = () => {
   const handleInputChange = (index, field, value) => {
     const newData = [...table];
     newData[index][field] = value ? parseFloat(value) : 0;
+    console.log(newData[index]);
     newData[index].total = newData[index].returnQty * newData[index].unitPrice; // Update subtotal
+    newData[index].materialId.availableQty =
+      newData[index].materialId.availableQty - newData[index].returnQty; // Update availableQty
+    setTable(newData);
+  };
+
+  const handleInputChangepr = (index, field, value) => {
+    const newData = [...table];
+    newData[index][field] = value ? parseFloat(value) : 0;
+    console.log(newData[index]);
+    newData[index].total =
+      newData[index].returnQty * newData[index].materialId.unitPrice; // Update subtotal
     newData[index].availableQty =
       newData[index].availableQty - newData[index].returnQty; // Update availableQty
     setTable(newData);
@@ -134,6 +157,27 @@ const PurchaseOrder = () => {
       tax: tax,
       grandTotal: grandTotal,
       order: table.map((row) => ({
+        MatId: row._id,
+        returnQty: row.returnQty,
+        availableQty: row.availableQty,
+      })),
+      template: template,
+    };
+    const response = await request(
+      "POST",
+      `/purchase/createPr?siteId=${siteId}`,
+      body
+    );
+    console.log(response);
+  };
+  const editPr = async (template) => {
+    const body = {
+      POid: selectedPrId,
+      vendorId: selectedPo.vendorId._id,
+      subTotal: subTotal,
+      tax: tax,
+      grandTotal: grandTotal,
+      order: table.map((row) => ({
         productId: row.productId._id,
         suppliedQty: row.suppliedQty,
         unitPrice: row.unitPrice,
@@ -143,7 +187,7 @@ const PurchaseOrder = () => {
     };
     const response = await request(
       "POST",
-      `/purchase/createPr?siteId=${siteId}`,
+      `/purchase/createPr?siteId=${siteId}?edit=true`,
       body
     );
     console.log(response);
@@ -432,18 +476,18 @@ const PurchaseOrder = () => {
                 <div className="vendor-selection">
                   <div className="vendor-details">
                     <div className="show">
-                      <p>{selectedPo?.vendorId?.name}</p>
+                      <p>{selectedPr?.vendorId?.name}</p>
                     </div>
                     <input
                       type="text"
                       placeholder="Address"
-                      value={selectedPo?.vendorId?.address}
+                      value={selectedPr?.vendorId?.address}
                       readOnly
                     />
                     <input
                       type="text"
                       placeholder="GST Number"
-                      value={selectedPo?.vendorId?.gstIn}
+                      value={selectedPr?.vendorId?.gstIn}
                       readOnly
                     />
                   </div>
@@ -451,19 +495,19 @@ const PurchaseOrder = () => {
                     <input
                       type="text"
                       placeholder="Enter the Shipped to site"
-                      value={selectedPo?.siteId._id}
+                      value={selectedPr?.siteId._id}
                       readOnly
                     />
                     <input
                       type="text"
                       placeholder="Enter the transport"
-                      value={selectedPo?.transport}
+                      value={selectedPr?.transport}
                       readOnly
                     />
                     <input
                       type="text"
                       placeholder="Enter the date"
-                      value={new Date(selectedPo?.date).toLocaleDateString()}
+                      value={new Date(selectedPr?.date).toLocaleDateString()}
                       readOnly
                     />
                   </div>
@@ -475,44 +519,34 @@ const PurchaseOrder = () => {
                 <table className="addinward-purchase-table">
                   <thead>
                     <tr className="addinward-table-header">
-                      {orderhead.map((header, index) => (
-                        <th key={index} className="addinward-th">
-                          {header}
-                        </th>
-                      ))}
+                      {orderhead
+                        .filter((f) => f != "Edit")
+                        .map((header, index) => (
+                          <th key={index} className="addinward-th">
+                            {header}
+                          </th>
+                        ))}
                     </tr>
                   </thead>
                   <tbody>
                     {table?.map((row, index) => (
                       <tr key={index}>
                         <td className="addinward-td">{index + 1}</td>
-                        <td className="addinward-td">{row.productId.name}</td>
-                        <td className="addinward-td">{row.productId.unit}</td>
-                        <td className="addinward-td">{row.suppliedQty}</td>
+                        <td className="addinward-td">
+                          {row.materialId.productId.name}
+                        </td>
+                        <td className="addinward-td">
+                          {row.materialId.productId.unit}
+                        </td>
+                        <td className="addinward-td">
+                          {row.materialId.suppliedQty}
+                        </td>
                         <td className="addinward-td">{row.availableQty}</td>
-                        <td className="addinward-td">{row.unitPrice}</td>
-                        <td
-                          className="addinward-td"
-                          contentEditable={editIndex === index}
-                          suppressContentEditableWarning={true}
-                          onBlur={(e) =>
-                            handleInputChange(
-                              index,
-                              "returnQty",
-                              e.target.innerText
-                            )
-                          }
-                        >
-                          {row.returnQty}
+                        <td className="addinward-td">
+                          {row.materialId.unitPrice}
                         </td>
+                        <td className="addinward-td">{row.returnQty}</td>
                         <td className="addinward-td">{row.total}</td>
-
-                        <td
-                          className="addinward-td lchid"
-                          onClick={() => handleEditClick(index)}
-                        >
-                          {editIndex === index ? <FaSave /> : <FaRegEdit />}
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -523,35 +557,24 @@ const PurchaseOrder = () => {
               <div className="total-field">
                 <input
                   type="text"
-                  value={`Grand Sub Total : ${subTotal}`}
+                  value={`Grand Sub Total : ${selectedPr.subTotal}`}
                   readOnly
                 />
               </div>
               <div className="total-field">
                 <input
                   type="text"
-                  placeholder="GST"
-                  value={tax} // Display the current GST value
-                  onChange={(e) =>
-                    setTax(e.target.value ? parseFloat(e.target.value) : "")
-                  }
+                  value={selectedPr.tax} // Display the current GST value
+                  readOnly
                 />
               </div>
               <div className="total-field">
                 <input
                   type="text"
-                  value={`Grand Total : ${grandTotal}`}
+                  value={`Grand Total : ${selectedPr.grandTotal}`}
                   readOnly
                 />
               </div>
-            </div>
-            <div className="btn">
-              <button
-                className="conform-btn"
-                onClick={() => setDownload((prev) => !prev)}
-              >
-                Conform
-              </button>
             </div>
           </div>
         </article>
