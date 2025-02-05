@@ -2,6 +2,10 @@ import { AiTwotoneEdit, AiOutlineDelete } from "react-icons/ai";
 import "../Master.css";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import { request } from "../../../api/request";
+
+
 
 export default function ClientManagement() {
   const { companyName, siteId } = useParams();
@@ -9,23 +13,7 @@ export default function ClientManagement() {
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [clientData, setClientData] = useState([
-    {
-      name: "Client A",
-      phoneNo: "123-456-7890",
-      address: "123 Main St, City",
-      panGstNo: "GST12345",
-      siteId: "SITE001",
-    },
-    {
-      name: "Client B",
-      phoneNo: "987-654-3210",
-      address: "456 Elm St, City",
-      panGstNo: "GST98765",
-      siteId: "SITE002",
-    },
-  ]);
-
+  const [clientData, setClientData] = useState([]);
   const [newClient, setNewClient] = useState({
     name: "",
     phoneNo: "",
@@ -35,7 +23,9 @@ export default function ClientManagement() {
   });
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which card is being edited
-  const [editedClient, setEditedClient] = useState({}); // Store the edited client data
+  const [editedClient, setEditedClient] = useState({});// Store the edited client data
+  const [selectedFile, setSelectedFile] = useState(null);
+  const api = import.meta.env.VITE_API
 
   // Search functionality
   useEffect(() => {
@@ -45,23 +35,126 @@ export default function ClientManagement() {
     setFilteredData(result);
   }, [searchTerm, clientData]);
 
-  const handleDelete = (index) => {
-    const updatedData = clientData.filter((_, i) => i !== index);
-    setClientData(updatedData);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setSelectedFile(file);
+      console.log('uploded')
+      handleUpload(file);  // Call handleUpload with the selected file
+    }
   };
+  const handleUpload = async (file) => {
+    if (!file) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    console.log('running')
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+
+      const response = await request(
+        "POST",
+        `/client/upload?siteId=${siteId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.message === "Clients uploaded successfully") {
+        alert("File uploaded successfully!");
+
+        // Fetch updated clients list
+        const fetchResponse = await request("GET", `/client/getAll?siteId=${siteId}`);
+
+        setClientData(fetchResponse);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file. Please try again.");
+    }
+  };
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const data = await request(
+          "GET",
+          `/client/getAll?siteId=${siteId}`
+        );
+
+        setClientData(data);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  // Add new client
+  const handleAddClient = async () => {
+    try {
+
+      if (!siteId) {
+        console.error("Site ID is missing");
+        return;
+      }
+
+      // Construct the API endpoint
+      const response = await request("POST", `/client/create?siteId=${siteId}`, newClient);
+
+      setClientData((prev) => [...prev, response.client]);
+
+      setNewClient({
+        name: "",
+        phoneNo: "",
+        address: "",
+        panGstNo: "",
+      });
+
+      setAddPopupOpen(false);
+    } catch (error) {
+      console.error("Error adding client:", error);
+    }
+  };
+  const handleSaveEdit = async () => {
+    try {
+      const clientId = clientData[editingIndex]._id;
+      const response = await request("PUT", `/client/update/${clientId}`, editedClient);
+
+      const updatedData = [...clientData];
+      updatedData[editingIndex] = response.client;
+
+      setClientData(updatedData);
+      setEditingIndex(null);
+
+    } catch (error) {
+      console.error("Error updating client:", error);
+    }
+  };
+
+
+  const handleDelete = async (index) => {
+    try {
+      const clientId = clientData[index]._id;
+      await request("DELETE", `/client/deleteclient/${clientId}?siteId=${siteId}`, {});
+
+      setClientData((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting client:", error);
+    }
+  };
+
 
   const handleEdit = (index) => {
     setEditingIndex(index);
     setEditedClient({ ...clientData[index] });
   };
 
-  const handleSaveEdit = () => {
-    const updatedData = [...clientData];
-    updatedData[editingIndex] = editedClient; // Update the client data
-    setClientData(updatedData);
-    console.log("Edited Client:", editedClient); // Log the edited content
-    setEditingIndex(null); // Exit edit mode
-  };
 
   return (
     <>
@@ -81,7 +174,15 @@ export default function ClientManagement() {
                 <p className="client-search-label">Search</p>
               </div>
               <div className="client-buttons-container">
-                <button className="client-upload-button">Upload</button>
+                <input
+                  type="file"
+                  id="file-upload"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="file-upload" className="client-upload-button">
+                  Upload
+                </label>
                 <button
                   className="client-add-button"
                   onClick={() => setAddPopupOpen(true)}
@@ -145,18 +246,6 @@ export default function ClientManagement() {
                           }
                         />
                       </p>
-                      <p className="client-card-detail">
-                        <strong>Site ID:</strong>{" "}
-                        <input
-                          value={editedClient.siteId}
-                          onChange={(e) =>
-                            setEditedClient((prev) => ({
-                              ...prev,
-                              siteId: e.target.value,
-                            }))
-                          }
-                        />
-                      </p>
                       <div className="client-card-actions">
                         <button
                           className="client-save-button"
@@ -178,7 +267,10 @@ export default function ClientManagement() {
                         <h2 className="client-card-title">{client.name}</h2>
                         <AiTwotoneEdit
                           className="client-edit-icon"
-                          onClick={() => handleEdit(index)}
+                          onClick={() => {
+                            setEditingIndex(index);
+                            setEditedClient({ ...client });
+                          }}
                         />
                       </div>
                       <p className="client-card-detail">
@@ -190,9 +282,7 @@ export default function ClientManagement() {
                       <p className="client-card-detail">
                         <strong>PAN/GST:</strong> {client.panGstNo}
                       </p>
-                      <p className="client-card-detail">
-                        <strong>Site ID:</strong> {client.siteId}
-                      </p>
+
                       <div className="client-card-actions">
                         <button
                           className="client-delete-button"
@@ -256,31 +346,9 @@ export default function ClientManagement() {
                   }))
                 }
               />
-              <input
-                type="text"
-                placeholder="Site ID"
-                className="client-input"
-                value={newClient.siteId}
-                onChange={(e) =>
-                  setNewClient((prev) => ({
-                    ...prev,
-                    siteId: e.target.value,
-                  }))
-                }
-              />
               <button
                 className="client-add-popup-button"
-                onClick={() => {
-                  setClientData((prev) => [...prev, newClient]);
-                  setNewClient({
-                    name: "",
-                    phoneNo: "",
-                    address: "",
-                    panGstNo: "",
-                    siteId: "",
-                  });
-                  setAddPopupOpen(false);
-                }}
+                onClick={handleAddClient}
               >
                 Add Client
               </button>

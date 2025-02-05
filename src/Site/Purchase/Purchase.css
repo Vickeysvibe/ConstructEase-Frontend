@@ -3,15 +3,48 @@
   height: 100svh;
   display: flex;
   justify-content: end;
-  /* background-color:black ; */
 }
+
 .purchaseOrderSec {
-  width: calc(100vw - 240px);
+  /* width: 100vw; */
+  width: calc(100vw - 300px);
   display: flex;
   flex-direction: column;
   justify-content: start;
   margin-top: 6em;
-  padding-left: 2em;
+  /* padding-left: 2em; */
+}
+.tablecon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.orders-card {
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+  width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.orders-card:hover {
+  transform: translateY(-10px);
+}
+
+.order-cards-detials {
+  margin-bottom: 10px;
+}
+
+.order-cards-detials strong {
+  color: #333;
+}
+
+.order-cards-detials p {
+  color: #555;
+  font-size: 14px;
 }
 
 .orderHeader {
@@ -27,13 +60,12 @@
     justify-content: space-between;
     input {
       width: 200px;
-      height: 35px;
+      height: 24px;
       padding-left: 1em;
     }
     .searchbutton {
       padding: 0.55em;
       outline: none;
-      /* border-radius: 5px; */
       border: none;
       background-color: var(--blue);
       color: white;
@@ -53,20 +85,53 @@
     }
   }
 }
-.tablecon {
-  width: 90%;
-  max-height: 600px;
-  overflow: scroll;
-  margin-top: 2em;
+
+.total {
+  display: flex;
+  justify-content: space-around;
+  padding: 1em;
+  margin-top: 0.5em;
+  .total-field {
+    input {
+      padding-left: 1em;
+      padding: 0.7em 1em;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      box-shadow: rgba(0, 0, 0, 0.35) 0px 3px 10px;
+    }
+  }
 }
 
-.purchasetable {
-  font-size: smaller;
-  width: 95%;
-  background-color: #d9d9d9;
+.tablecon {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 2em;
+  display: flex;
+  padding: 1em;
+  gap: 2em;
+  flex-wrap: wrap;
+  /* background-color: #4caf50; */
+}
+
+.orders-card {
+  padding: 1em;
+  max-width: 250px;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
   border-radius: 10px;
-  margin-left: 1.5em;
-  margin-top: 1em;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  cursor: pointer;
+  /* background-color: #000000; */
+}
+
+.order-cards-detials {
+  padding-bottom: 0.25em;
+  display: flex;
+  p {
+    padding-left: 0.5em;
+  }
 }
 
 .purchaseth {
@@ -82,195 +147,338 @@
 .purchasetd {
   text-align: center;
   padding: 0.5em 0.5em;
-  bottom: none;
-  outline: none;
   background-color: white;
 }
 
 .purchasepopupcon {
-    position: fixed;
-    height: 100vh;
-    width: 100vw;
-    background: rgba(0, 0, 0, 0.39);
-    backdrop-filter: blur(11.4px);
-    -webkit-backdrop-filter: blur(11.4px);
-    display: grid;
-    place-items: center;
-    z-index: 1111;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.39);
+  backdrop-filter: blur(11.4px);
+  -webkit-backdrop-filter: blur(11.4px);
+  display: grid;
+  place-items: center;
+  z-index: 1111;
 }
 
 .purchasepopupinner {
-    width: 50%;
-    background-color: white;
-    border-radius: 20px;
-    padding: 1em;
-    
+  width: 50%;
+  background-color: white;
+  border-radius: 20px;
+  padding: 1em;
+  /* overflow-y: scroll; */
 }
-.chooseing-card{
+
+.chooseing-card {
+  display: flex;
+  flex-direction: column;
+  header {
     display: flex;
     flex-direction: column;
-    header{
-        display: flex;
-        flex-direction: column;
-        .header-top{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            h3{
-                background-color: var(--blue);
-                padding: 0.3em;
-                border-radius: 10px;
-                color: white;
-            }
-            .cross{
-                p{
-                    font-size: 1.5em;
-                    cursor: pointer;
-                }
-            }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      h3 {
+        background-color: var(--blue);
+        padding: 0.3em;
+        border-radius: 10px;
+        color: white;
+      }
+      .cross {
+        p {
+          font-size: 1.5em;
+          cursor: pointer;
         }
-        .header-bottom{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      }
     }
-    .vendor-selection{
+    .header-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  .cards-pos-dets {
+    width: 100%;
+  }
+  .vendor-selection {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    /* width: 80vw; */
+    .vendor-details,
+    .shipping-details {
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      padding: 2em;
+      border: 1px solid black;
+      border-radius: 20px;
+      input,
+      select,
+      .show {
+        height: 35px;
+        padding-left: 1em;
+        border-radius: 5px;
+        outline: none;
+        border: none;
+        background-color: #d9d9d9;
+        color: grey;
         display: flex;
         align-items: center;
-        justify-content: space-around;
-        .vendor-details,.shipping-details{
-            width: 45%;
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-            padding: 2em;
-            border: 1px solid black;
-            border-radius: 20px;
-            input,select{
-                height: 35px;
-                padding-left: 1em;
-                border-radius: 5px;
-                outline: none;
-                border: none;
-                background-color: #d9d9d9;
-                color: grey;
-            }
-        }
+      }
     }
-    .quantity-selection{
-        width: 95%;
-        display: none;
-        align-items: center;
-        flex-direction: column;
-        border: 1px solid black;
-        margin-left: 1.5em;
-        border-radius: 20px;
-        margin-top: 1em;
-        .fields{
-            display: flex;
-            gap: 3em;
-            input{
-                width: 50%;
-            }
-        }
+  }
+  .quantity-selection {
+    width: 95%;
+    display: none;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid black;
+    margin-left: 1.5em;
+    border-radius: 20px;
+    margin-top: 1em;
+    .fields {
+      display: flex;
+      gap: 3em;
+      input {
+        width: 50%;
+      }
     }
+  }
+}
+.table {
+  max-height: 300px;
+  overflow-y: scroll;
+  /* background-color: #000000; */
+  /* z-index: 1111; */
+}
+.addrow {
+  position: sticky;
+  bottom: 0;
 }
 .purchaseaddrow {
-    cursor: pointer;
-    background-color: #d9d9d9;
-    
+  cursor: pointer;
+  background-color: #d9d9d9;
 }
 
 .purchaseclosepopup {
-    cursor: pointer;
-    background-color: var(--yellow);
-    color: #000000;
-
+  cursor: pointer;
+  background-color: var(--yellow);
+  color: #000000;
 }
 
-@media(max-width:800px) {
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+}
 
+.conform-btn {
+  padding: 0.5em;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  background-color: var(--blue);
+  color: white;
+  cursor: pointer;
+}
 
-    .purchaseOrderSec {
-        width: 100vw;
-    }
+.purchasetable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+  text-align: left;
+  /* background-color: #000000; */
+}
 
-    .tablecon {
-        width: 90%;
-        overflow: scroll;
-    }
+.purchasetable th {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+}
 
-    .ordersubtxt {
-        font-size: small;
-        padding: 0.3em 1.3em;
-    }
+.purchasetable td {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+}
 
-    /* .purchasepopupcon {
-        display: flex;
-        justify-content: start;
-        align-items: center;
-    }
+.purchasetable tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
 
+.purchasetable tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.purchasetable tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.purchasetablepopup {
+  border-radius: 8px;
+  /* overflow: hidden; */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.purchasepopupth {
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 800px) {
+  .purchaseOrder {
+    width: 100vw;
+    /* background-color: #4caf50; */
+  }
+  .purchaseOrderSec {
+    width: 100%;
+    /* background-color: #000000; */
+    /* margin-top: 5em; */
+    margin-left: 0;
+    padding-left: 0;
+  }
+  header h1 {
+    padding-left: 1em;
+  }
+  .search-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  .orders-card {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .purchasepopupcon {
+    width: 100vw;
+    height: 100vh;
     .purchasepopupinner {
-        width: auto;
-        display: flex;
-        justify-content: start;
-        align-items: start;
+      width: 90%;
+      height: 80%;
+      overflow-y: scroll;
     }
+  }
+  .purchasepopupinner {
+    overflow-x: hidden;
+  }
+  .vendor-selection {
+    flex-direction: column;
+    width: 100%;
+    gap: 1em;
+    /* background-color: #000000; */
+  }
+  .vendor-details,
+  .shipping-details {
+    width: 100% !important;
 
-    .purchasetablepopup {
-        width: 100%;
-        overflow: scroll;
-    }
+    /* background-color: #4caf50; */
+  }
+  .table {
+    overflow-x: scroll;
+  }
+  .tablecon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .purchasetable {
+    overflow-x: scroll;
+    /* background-color: #000000; */
+  }
+  .btn {
+    margin-top: 0;
+  }
+}
 
-    .purchasepopupth {
-        width: 20px;
-    } */
-    .purchasepopupcon {
-        position: fixed;
-        height: 100vh;
-        width: 100vw;
-        background: rgba(0, 0, 0, 0.39);
-        backdrop-filter: blur(11.4px);
-        -webkit-backdrop-filter: blur(11.4px);
-        display: grid;
-        place-items: center;
-        z-index: 1111;
-    }
-
-    .purchasepopupinner {
-        width: auto;
-        background-color: rgb(208, 208, 208);
-    }
-
-    .purchaseaddrow {
-        cursor: pointer;
-        background-color: #adadad;
-    }
-
-    .purchaseclosepopup {
-        cursor: pointer;
-        background-color: var(--yellow);
-        color: #000000;
-
-    }
-
-    .purchasepopuptd {
+/* -----------------------------downlod----------------------------- */
+.download-pg {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.39);
+  backdrop-filter: blur(11.4px);
+  -webkit-backdrop-filter: blur(11.4px);
+  display: grid;
+  place-items: center;
+  z-index: 1111;
+}
+.download-sec {
+  width: 70%;
+  height: 75%;
+  background-color: white;
+  border-radius: 20px;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  header {
+    /* background-color: #4caf50; */
+    width: 100%;
+    .heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      p {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        color: white;
+        background-color: red;
         text-align: center;
-        background-color: white;
-        padding: 0.5em;
+        cursor: pointer;
+      }
     }
+  }
+  .download-contaniner {
+    width: 100%;
+    display: flex;
+    gap: 2.5em;
+    margin-top: 1em;
 
-    .purchasepopupth {
-        padding: 0.5em;
-        background-color: var(--blue);
-        color: #d9d9d9;
-        font-weight: 400;
+    .download-card {
+      width: 30%;
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      align-items: center;
+      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      img {
+        width: 100%;
+        border-radius: 10px;
+      }
     }
+  }
+}
 
-    .purchasetd,
-    .purchasetd {
-        font-size: small;
+@media (max-width: 800px) {
+  .download-sec {
+    width: 90%;
+    height: 90%;
+    overflow-y: scroll;
+    .download-contaniner {
+      flex-direction: column;
+      .download-card {
+        width: 100%;
+      }
     }
+  }
 }

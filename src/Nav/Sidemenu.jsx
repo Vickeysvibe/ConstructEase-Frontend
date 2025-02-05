@@ -41,7 +41,7 @@ export default function Sidemenu({ siteId, companyName }) {
     },
     {
       title: `Purchase Return`,
-      link: `/${companyName}/${siteId}/purchase/purchasereturn`,
+      link: `/${companyName}/${siteId}/purchase/return`,
     },
   ];
 
@@ -106,7 +106,9 @@ export default function Sidemenu({ siteId, companyName }) {
       <div className="menucon">
         {urlfinds.map((val, key) => (
           <Link
-            className={`menulinks ${activeItem === val.link ? "active" : ""}`}
+            className={`menulinks ${
+              location.pathname === val.link ? "active" : ""
+            }`}
             key={key}
             to={val.link}
             onClick={() => setActiveItem(val.link)} // Update the active item on click

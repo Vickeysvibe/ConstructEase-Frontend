@@ -2,35 +2,30 @@ import "../Master.css";
 import { useState, useEffect } from "react";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useParams } from "react-router-dom";
+import { request } from "../../../api/request";
 
-export default function Labourform({setViewDetial,setView}) {
+export default function Labourform({ setViewDetial, setView }) {
+  const { companyName, siteId } = useParams();
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
+  const [workersData, setworkersData] = useState([])
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [viewDetail, setViewDetail] = useState(null);
+  
 
-  const workersData = [
-    {
-      name: "John Doe",
-      phoneNo: "123-456-7890",
-      category: "Masonry",
-      subCategory: "Brick Layer",
-      wagesPerShift: 500,
-    },
-    {
-      name: "Jane Smith",
-      phoneNo: "987-654-3210",
-      category: "Electrical",
-      subCategory: "Electrician",
-      wagesPerShift: 600,
-    },
-  ];
 
+
+  const api = import.meta.env.VITE_API
+
+  const token = localStorage.getItem("authToken");
   const [clientData, setClientData] = useState([...workersData]);
   const [newLabour, setNewLabour] = useState({
     name: "",
-    phoneNo: 0,
+    phoneNo: "",
     category: "",
     subCategory: "",
     wagesPerShift: "",
@@ -45,6 +40,41 @@ export default function Labourform({setViewDetial,setView}) {
     "WagesPerShift",
     "Action",
   ];
+  
+  useEffect(() => {
+    const fetchLabours = async () => {
+      try {
+        const response = await request("GET", `/labour/getAll?siteId=${siteId}`);
+
+        setClientData(response);
+        setworkersData(response);
+
+      } catch (error) {
+        console.error("Error fetching labours:", error);
+      }
+    };
+    fetchLabours();
+  }, [siteId]);
+
+  const handleAddLabour = async () => {
+    try {
+      const response = await request("POST", `/labour/create?siteId=${siteId}`, newLabour);
+
+      setClientData((prev) => [...prev, response.labour]); // Assuming response contains `labour`
+      setNewLabour({
+        name: "",
+        phoneNo: "",
+        category: "",
+        subCategory: "",
+        wagesPerShift: "",
+      });
+      setAddPopupOpen(false);
+
+    } catch (error) {
+      console.error("Error adding labour:", error);
+    }
+  };
+
 
   // Search Functionality (Search by Name Only)
   useEffect(() => {
@@ -54,28 +84,32 @@ export default function Labourform({setViewDetial,setView}) {
     setFilteredData(result);
   }, [searchTerm, clientData]);
 
-  const handleDelete = (index) => {
-    const updatedData = clientData.filter((_, i) => i !== index);
-    setClientData(updatedData);
+  const handleSaveEditObject = async (index, field, value) => {
+    const updatedLabour = { ...clientData[index], [field]: value };
+    try {
+      const response = await request("PUT", `/labour/update-labour/${updatedLabour._id}?siteId=${siteId}`, updatedLabour);
+
+      const updatedData = [...clientData];
+      updatedData[index] = response.labour;
+      setClientData(updatedData);
+      setEditIndex(null);
+
+    } catch (error) {
+      console.error("Error updating labour:", error);
+    }
   };
 
-  const handleEdit = (index) => {
-    setEditIndex(index);
-  };
+  // Delete a labour
+  const handleDelete = async (index) => {
+    const labourId = clientData[index]._id;
+    try {
+      await request("DELETE", `/labour/delete/${labourId}?siteId=${siteId}`, {});
 
-  const handleSaveEditObject = (index, field, value) => {
-    const updatedData = [...clientData];
-    updatedData[index] = { ...updatedData[index], [field]: value };
-    setClientData(updatedData);
-
-    // Track the edited data
-    setEditedData((prev) => ({
-      ...prev,
-      ...updatedData[index],
-      [field]: value,
-    }));
-
-    setEditIndex(null);
+      const updatedData = clientData.filter((_, i) => i !== index);
+      setClientData(updatedData);
+    } catch (error) {
+      console.error("Error deleting labour:", error);
+    }
   };
 
   const handleSaveRow = () => {
@@ -83,14 +117,51 @@ export default function Labourform({setViewDetial,setView}) {
     console.log("Edited Data:", editedData); // Log all tracked edits
     setEditIndex(null); // End editing mode
   };
-//   console.log(editedData);
+  //   console.log(editedData);
 
-  const handleView = (id) => {
-    const viewdetials = workersData[id];
-    setViewDetial(viewdetials);
-    setView(true);
+  const handleView = (index) => {
+    const viewDetails = workersData[index]; // Use index to get the correct worker data
+    setViewDetail(viewDetails); // Set view details
+    setView(true); // Set view to true
   };
-  
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setSelectedFile(file);
+      console.log('uploded')
+      handleUpload(file);  // Call handleUpload with the selected file
+    }
+  };
+  const handleUpload = async (file) => {
+    if (!file) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    console.log('running')
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await request("POST", `/labour/upload?siteId=${siteId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.message === "labour uploaded successfully") {
+        alert("File uploaded successfully!");
+
+        const fetchResponse = await request("GET", `/labour/getAll?siteId=${siteId}`);
+        setworkersData(fetchResponse);
+      }
+
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file. Please try again.");
+    }
+  };
+
+
+
   return (
     <>
       <main className="mastermain">
@@ -109,7 +180,15 @@ export default function Labourform({setViewDetial,setView}) {
                 <p>Search</p>
               </div>
               <div className="masterbtnscon">
-                <p className="masteraddbtn">Upload</p>
+                <input
+                  type="file"
+                  id="file-upload"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="file-upload" className="client-upload-button">
+                  Upload
+                </label>
                 <p
                   className="masteraddbtn"
                   onClick={() => setAddPopupOpen(true)}
@@ -126,13 +205,12 @@ export default function Labourform({setViewDetial,setView}) {
                   <tr className="labhead">
                     {productHeading.map((header, index) => (
                       <th
-                        className={`masterth ${
-                          header === "PhoneNo" ||
+                        className={`masterth ${header === "PhoneNo" ||
                           header === "Category" ||
                           header === "WagesPerShift"
-                            ? "hide-mobile"
-                            : ""
-                        }`}
+                          ? "hide-mobile"
+                          : ""
+                          }`}
                         key={index}
                       >
                         {header}
@@ -145,17 +223,16 @@ export default function Labourform({setViewDetial,setView}) {
                     <tr key={index} onClick={() => handleView(index)}>
                       <td className="mastertd sl" >{index + 1}</td>
                       {Object.keys(product)
-                        .slice(0, 5)
+                        .slice(1, 6)
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${
-                              field === "phoneNo" ||
+                            className={`mastertd ${field === "phoneNo" ||
                               field === "category" ||
                               field === "wagesPerShift"
-                                ? "hide-mobile"
-                                : ""
-                            }`}
+                              ? "hide-mobile"
+                              : ""
+                              }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -171,10 +248,10 @@ export default function Labourform({setViewDetial,setView}) {
                         ))}
                       <td className="mastertd masteredit">
                         {editIndex === index ? (
-                          <button onClick={handleSaveRow}>Save</button>
+                          <button onClick={() => setEditIndex(null)}>Save</button>
                         ) : (
                           <>
-                            <p onClick={() => handleEdit(index)}>
+                            <p onClick={() => setEditIndex(index)}>
                               <AiTwotoneEdit />
                             </p>
                             <p onClick={() => handleDelete(index)}>
@@ -247,17 +324,7 @@ export default function Labourform({setViewDetial,setView}) {
               />
               <p
                 className="mastersubmitbtn"
-                onClick={() => {
-                  setClientData((prev) => [...prev, newLabour]); // Add new labour to the array
-                  setNewLabour({
-                    name: "",
-                    phoneNo: "",
-                    category: "",
-                    subCategory: "",
-                    wagesPerShift: "",
-                  }); // Reset form
-                  setAddPopupOpen(false); // Close popup
-                }}
+                onClick={handleAddLabour}
               >
                 Add Labour
               </p>

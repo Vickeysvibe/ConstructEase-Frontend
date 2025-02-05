@@ -2,35 +2,21 @@ import "../Master.css";
 import { useState, useEffect } from "react";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { request } from "../../../api/request";
+
+
 
 export default function VendorForm() {
+  const { siteId } = useParams()
   const [addPopupOpen, setAddPopupOpen] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
-
-  const vendorData = [
-    {
-      name: "Vendor One",
-      ownerName: "John Doe",
-      address: "123 Main St, City",
-      gstIn: "GST123456789",
-      phoneNo: "123-456-7890",
-      siteId: "SITE001",
-    },
-    {
-      name: "Vendor Two",
-      ownerName: "Jane Smith",
-      address: "456 Elm St, City",
-      gstIn: "GST987654321",
-      phoneNo: "987-654-3210",
-      siteId: "SITE002",
-    },
-    // Add more vendors as needed
-  ];
-
-  const [clientData, setClientData] = useState([...vendorData]);
+  const [vendorData, setVendorData] = useState([]);
   const [newVendor, setNewVendor] = useState({
     name: "",
     ownerName: "",
@@ -39,6 +25,30 @@ export default function VendorForm() {
     phoneNo: "",
     siteId: "",
   });
+
+
+  // const vendorData = [
+  //   {
+  //     name: "Vendor One",
+  //     ownerName: "John Doe",
+  //     address: "123 Main St, City",
+  //     gstIn: "GST123456789",
+  //     phoneNo: "123-456-7890",
+  //     siteId: "SITE001",
+  //   },
+  //   {
+  //     name: "Vendor Two",
+  //     ownerName: "Jane Smith",
+  //     address: "456 Elm St, City",
+  //     gstIn: "GST987654321",
+  //     phoneNo: "987-654-3210",
+  //     siteId: "SITE002",
+  //   },
+  //   // Add more vendors as needed
+  // ];
+
+  const [clientData, setClientData] = useState([]);
+
 
   const vendorHeading = [
     "S.No",
@@ -51,42 +61,180 @@ export default function VendorForm() {
     "Action",
   ];
 
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await request("GET", `/vendors/getAllvendor?siteId=${siteId}`);
+        setVendorData(response);
+        setFilteredData(response);
+
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+      }
+    };
+    fetchVendors();
+  }, []);
+
   // Search Functionality (Search by Name Only)
   useEffect(() => {
-    const result = clientData.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredData(result);
-  }, [searchTerm, clientData]);
+    if (Array.isArray(vendorData)) {
+      const result = vendorData.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredData(result);
+    } else {
+      console.error("vendor is not an array");
+    }
+  }, [searchTerm, vendorData]);
+  console.log(vendorData)
 
-  const handleDelete = (index) => {
-    const updatedData = clientData.filter((_, i) => i !== index);
-    setClientData(updatedData);
+  // const handleDelete = async (vendorId) => {
+  //   try {
+  //     console.log('del')
+  //     await axios.delete(`${api}/vendors/${vendorId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     setClientData(clientData.filter((vendor) => vendor._id !== vendorId));
+  //   } catch (error) {
+  //     console.error("Error deleting vendor:", error);
+  //   }
+  // };
+  const handleDelete = async (index) => {
+    try {
+      const vendor = filteredData[index];
+      await request("DELETE", `/vendors/deletevendors/${vendor._id}?siteId=${siteId}`, {});
+      const updatedData = filteredData.filter((_, i) => i !== index);
+      setFilteredData(updatedData);
+
+    } catch (error) {
+      console.error("Error deleting supervisor:", error);
+    }
   };
 
   const handleEdit = (index) => {
     setEditIndex(index);
+    setEditedData({ ...filteredData[index] });
   };
 
-  const handleSaveEditObject = (index, field, value) => {
-    const updatedData = [...clientData];
-    updatedData[index] = { ...updatedData[index], [field]: value };
-    setClientData(updatedData);
 
-    // Track the edited data
+
+  const handleSaveRow = async () => {
+    console.log('exe')
+    if (!editedData._id) {
+      console.error("No vendor selected for update");
+      return;
+    }
+
+    console.log(editedData)
+    try {
+
+      const response = await request(
+        "PUT",
+        `/vendors/update-vendor/${editedData._id}?siteId=${siteId}`,
+        editedData
+      );
+
+      if (response.status === 200) {
+        // Update vendorData and filteredData
+        setVendorData((prevData) =>
+          prevData.map((vendor) =>
+            vendor._id === editedData._id ? { ...vendor, ...editedData } : vendor
+          )
+        );
+
+        setFilteredData((prevData) =>
+          prevData.map((vendor) =>
+            vendor._id === editedData._id ? { ...vendor, ...editedData } : vendor
+          )
+        );
+
+        // Reset editing state
+        setEditIndex(null);
+        setEditedData({});
+      }
+      else {
+        console.error("Failed to update vendor:", response);
+      }
+    } catch (error) {
+      console.error("Error updating vendor:", error);
+    }
+  };
+
+
+  // Ensure that edits are applied correctly to the editedData
+  const handleSaveEditObject = (field, value) => {
     setEditedData((prev) => ({
       ...prev,
-      ...updatedData[index],
       [field]: value,
     }));
-
-    setEditIndex(null);
   };
 
-  const handleSaveRow = () => {
-    console.log("Edited Data:", editedData); // Log all tracked edits
-    setEditIndex(null); // End editing mode
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      setUploadMessage("No file selected.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await request(
+        "POST",
+        `/vendors/upload-vendor?siteId=${siteId}`,
+        formData,
+        {
+          "Content-Type": "multipart/form-data",
+        }
+      );
+
+      setUploadMessage(response.data.message || "File uploaded successfully.");
+      setVendorData((prevData) => [...prevData, ...response.vendors]);
+      setFilteredData((prevData) => [...prevData, ...response.vendors]);
+
+    } catch (error) {
+      setUploadMessage("Error uploading file.");
+      console.error("Error uploading file:", error);
+    }
   };
+
+  const handleAddVendor = async () => {
+    if (!newVendor.name || !newVendor.ownerName || !newVendor.address || !newVendor.gstIn || !newVendor.phoneNo) {
+      setUploadMessage("Please fill in all the fields.");
+      return;
+    }
+
+    try {
+      const response = await request(
+        "POST",
+        `/vendors/createvendor?siteId=${siteId}`,
+        newVendor
+      );
+
+     
+      setUploadMessage('added');
+      setVendorData((prevData) => [...prevData, response.vendor]);
+      setFilteredData((prevData) => [...prevData, response.vendor]);
+      setNewVendor({
+        name: "",
+        ownerName: "",
+        address: "",
+        gstIn: "",
+        phoneNo: "",
+        siteId: "",
+      });
+      setAddPopupOpen(false);
+
+    } catch (error) {
+      console.error("Error adding vendor:", error);
+      setUploadMessage("Error adding vendor.");
+    }
+  };
+
+
+
 
   return (
     <>
@@ -106,7 +254,15 @@ export default function VendorForm() {
                 <p>Search</p>
               </div>
               <div className="masterbtnscon">
-                <p className="masteraddbtn">Upload</p>
+                <input
+                  type="file"
+                  id="file-upload"
+                  style={{ display: "none" }}
+                  onChange={handleFileUpload}
+                />
+                <label htmlFor="file-upload" className="client-upload-button">
+                  Upload
+                </label>
                 <p
                   className="masteraddbtn"
                   onClick={() => setAddPopupOpen(true)}
@@ -123,14 +279,10 @@ export default function VendorForm() {
                   <tr className="labhead">
                     {vendorHeading.map((header, index) => (
                       <th
-                        className={`masterth ${
-                          header !== "S.No" &&
-                          header !== "Name" &&
-                          header !== "OwnerName" &&
-                          header !== "Action"
-                            ? "hide-mobile"
-                            : ""
-                        }`}
+                        className={`masterth ${header !== "S.No" && header !== "Name" && header !== "OwnerName" && header !== "Action" ? "hide-mobile" : ""} 
+                        ${(header === "SiteId") ? "hide" : ""}`
+
+                        }
                         key={index}
                       >
                         {header}
@@ -143,23 +295,18 @@ export default function VendorForm() {
                     <tr key={index}>
                       <td className="mastertd sl">{index + 1}</td>
                       {Object.keys(vendor)
-                        .slice(0, 6)
+                        .slice(1, 6)
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${
-                              field !== "name" && field !== "ownerName"
-                                ? "hide-mobile"
-                                : ""
-                            }`}
+                            className={`mastertd ${field !== "name" && field !== "ownerName"
+                              ? "hide-mobile"
+                              : ""
+                              }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
-                              handleSaveEditObject(
-                                index,
-                                field,
-                                e.target.innerText
-                              )
+                              handleSaveEditObject(field, e.target.innerText)
                             }
                           >
                             {vendor[field]}
@@ -244,31 +391,10 @@ export default function VendorForm() {
                   }))
                 }
               />
-              <input
-                type="text"
-                placeholder="Site ID"
-                value={newVendor.siteId}
-                onChange={(e) =>
-                  setNewVendor((prev) => ({
-                    ...prev,
-                    siteId: e.target.value,
-                  }))
-                }
-              />
+              
               <p
                 className="mastersubmitbtn"
-                onClick={() => {
-                  setClientData((prev) => [...prev, newVendor]);
-                  setNewVendor({
-                    name: "",
-                    ownerName: "",
-                    address: "",
-                    gstIn: "",
-                    phoneNo: "",
-                    siteId: "",
-                  });
-                  setAddPopupOpen(false);
-                }}
+                onClick={handleAddVendor}
               >
                 Add Vendor
               </p>

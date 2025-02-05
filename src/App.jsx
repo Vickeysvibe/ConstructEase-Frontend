@@ -42,7 +42,23 @@ const Overall = lazy(() => import("./Site/Report/reportComp/Overallstatus"));
 
 import Purchase from "./Site/Purchase/Purchase";
 import PurchaseOrder from "./Site/Purchase/purchaseComp/PurchaseOrder";
-import PurchaseReturn from "./Site/Purchase/purchaseComp/PurchaseReturn";
+import VendorSelection from "./Site/Purchase/purchaseComp/VendorSelection";
+import Details from "./Site/Purchase/purchaseComp/Details";
+import PurchseMain from "./Site/Purchase/Purchase";
+
+//-------------------------Activity----------------------
+
+const Activity = lazy(() => import("./Site/Activity/Activity"));
+const Todo = lazy(() => import("./Site/Activity/ActivityCompo/Todo"));
+const Notes = lazy(() => import("./Site/Activity/ActivityCompo/Notes"));
+const Workdone = lazy(() => import("./Site/Activity/ActivityCompo/Workdone"));
+const Funds = lazy(() => import("./Site/Activity/ActivityCompo/funds.jsx"));
+const Inward = lazy(() => import("./Site/Activity/ActivityCompo/Inward"));
+const AddInward = lazy(() => import("./Site/Activity/ActivityCompo/AddInward"));
+const ViewInward = lazy(() =>
+  import("./Site/Activity/ActivityCompo/ViewInward")
+);
+const Outward = lazy(() => import("./Site/Activity/ActivityCompo/Outward.jsx"));
 
 function App() {
   return (
@@ -82,10 +98,37 @@ function App() {
                 <Route path="overallwise" element={<Overall />} />
               </Route>
               {/* Purchase */}
-              <Route path="purchase" element={<Purchase />}>
-                <Route path="order" element={<PurchaseOrder />} />
-                <Route path="purchasereturn" element={<PurchaseReturn />} />
+              <Route path="purchase">
+                <Route path="order" element={<PurchseMain />}>
+                  <Route path="details/:Poid" element={<Details />} />
+                </Route>
+                <Route
+                  path="return"
+                  element={
+                    <>
+                      <Navbar />
+                      <PurchaseOrder />
+                    </>
+                  }
+                />
+                <Route path="vendor-selection" element={<VendorSelection />} />
               </Route>
+              {/* Site Activity */}
+              <Route path="activity" element={<Activity />}>
+                <Route path="todo" element={<Todo />} />
+                <Route path="funds" element={<Funds />} />
+                <Route path="outwards" element={<Outward />} />
+
+                <Route path="inwards" element={<Inward />}>
+                  <Route path="add-material-inward" element={<AddInward />} />
+                  <Route path=":MIid" element={<ViewInward />} />
+                </Route>
+                <Route path="fund" element={<Funds />} />
+                <Route path="outwards" element={<Outward />} />
+                <Route path="notes" element={<Notes />} />
+                <Route path="work" element={<Workdone />} />
+              </Route>
+              {/* 404 Page */}
               <Route path="*" element={<h1>404 - Page Not Found</h1>} />
             </Route>
           </Route>
