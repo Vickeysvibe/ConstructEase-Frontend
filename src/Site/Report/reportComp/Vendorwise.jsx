@@ -21,7 +21,7 @@ export default function Vendorwise() {
     try {
       const response = await request(
         "POST", 
-        `/material/vendor-report?siteId=${site}`, 
+        `/reports/vendor-report?siteId=${site}`, 
         { 
           siteId: site,
           startDate,
