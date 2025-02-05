@@ -36,7 +36,7 @@ const refreshToken = async () => {
   try {
     isRefreshing = true;
     const response = await axios.post(
-      `${import.meta.env.VITE_API}/auth/refresh`,
+      `${import.meta.env.VITE_API}` / auth / refresh,
       {
         token: refreshToken,
       }
@@ -90,7 +90,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       const newToken = await refreshToken();
       if (newToken) {
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.Authorization = ` Bearer ${newToken}`;
         return apiClient(originalRequest);
       }
     }
