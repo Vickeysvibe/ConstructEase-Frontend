@@ -193,9 +193,26 @@ export default function SupervisorForm() {
 
   const [presentlab, setPresentLab] = useState([]);
   const [presentDetails, setPresentDetails] = useState([]);
+  const [downloadBtn, setDownloadBtn] = useState(0);
+
+  useEffect(() => {
+    if (presentlab.length > 0) {
+      setDownloadBtn(1);
+    }
+  }, [presentlab]);
+
+  const [selectAll, setSelectAll] = useState(false);
+  useEffect(() => {
+    if (presentlab.length === 0) {
+      setSelectAll(false);
+    } else if (presentlab.length === filteredData.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
+    }
+  }, [presentlab, filteredData]);
 
   const handleCheckboxChange = (e, worker) => {
-    console.log("Worker received:", worker); // Debugging
     if (!worker) {
       console.error("Worker is undefined!");
       return;
@@ -205,19 +222,25 @@ export default function SupervisorForm() {
       setPresentLab((prev) => [...prev, worker._id]);
       setPresentDetails((prev) => [...prev, worker]);
     } else {
-      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
-      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
+      setPresentLab((prev) => prev.filter((id) => id !== worker._id));
+      setPresentDetails((prev) => prev.filter((w) => w._id !== worker._id));
     }
   };
-  console.log(presentlab);
-  // --------download-btn------
-  const [downloadBtn, setDownloadBtn] = useState(0);
 
-  useEffect(() => {
-    if (presentlab.length > 0) {
-      setDownloadBtn(1);
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      // Select all workers
+      const allIds = filteredData.map((worker) => worker._id);
+      setPresentLab(allIds);
+      setPresentDetails(filteredData);
+      setSelectAll(true);
+    } else {
+      // Deselect all workers
+      setPresentLab([]);
+      setPresentDetails([]);
+      setSelectAll(false);
     }
-  }, [presentlab]);
+  };
 
   return (
     <>
@@ -290,7 +313,9 @@ export default function SupervisorForm() {
                 >
                   Add
                 </p>
-                {downloadBtn == 1 && <p className="masteraddbtn">Download</p>}
+                {presentlab.length > 0 && (
+                  <p className="masteraddbtn">Download</p>
+                )}
               </div>
             </div>
           </div>
@@ -314,6 +339,13 @@ export default function SupervisorForm() {
                         {header}
                       </th>
                     ))}
+                    <th className="masterth">
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,13 +391,11 @@ export default function SupervisorForm() {
                             >
                               <AiOutlineDelete />
                             </p>
-                            <input
-                              type="checkbox"
-                              onChange={(e) => handleCheckboxChange(e, supervisor)}
-                            />
+                            
                           </>
                         )}
                       </td>
+                      <td className="masterSelect"><input type="checkbox" onChange={(e) => handleCheckboxChange(e, supervisor)} checked={presentlab.includes(supervisor._id)}/></td>
                     </tr>
                   ))}
                 </tbody>

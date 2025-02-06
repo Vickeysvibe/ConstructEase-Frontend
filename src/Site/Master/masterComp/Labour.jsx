@@ -175,32 +175,8 @@ export default function Labourform() {
     setView(item);
     setOpn(true);
   };
-  // useEffect(() => {
-  //   console.log(view);
-  //   console.log(opn);
-  // }, [view, opn]);
-
-  // Handle attendance checkbox selection
   const [presentlab, setPresentLab] = useState([]);
   const [presentDetails, setPresentDetails] = useState([]);
-
-  const handleCheckboxChange = (e, worker) => {
-    console.log("Worker received:", worker); // Debugging
-    if (!worker) {
-      console.error("Worker is undefined!");
-      return;
-    }
-
-    if (e.target.checked) {
-      setPresentLab((prev) => [...prev, worker._id]);
-      setPresentDetails((prev) => [...prev, worker]);
-    } else {
-      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
-      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
-    }
-  };
-  console.log(presentlab)
-// --------download-btn------
   const [downloadBtn, setDownloadBtn] = useState(0);
 
   useEffect(() => {
@@ -208,6 +184,47 @@ export default function Labourform() {
         setDownloadBtn(1)
     }
   }, [presentlab]);
+
+  const [selectAll, setSelectAll] = useState(false);
+  useEffect(() => {
+    if (presentlab.length === 0) {
+      setSelectAll(false);
+    } else if (presentlab.length === filteredData.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
+    }
+  }, [presentlab, filteredData]);
+
+  const handleCheckboxChange = (e, worker) => {
+    if (!worker) {
+      console.error("Worker is undefined!");
+      return;
+    }
+  
+    if (e.target.checked) {
+      setPresentLab((prev) => [...prev, worker._id]);
+      setPresentDetails((prev) => [...prev, worker]);
+    } else {
+      setPresentLab((prev) => prev.filter((id) => id !== worker._id));
+      setPresentDetails((prev) => prev.filter((w) => w._id !== worker._id));
+    }
+  };
+
+const handleSelectAll = (e) => {
+  if (e.target.checked) {
+    // Select all workers
+    const allIds = filteredData.map((worker) => worker._id);
+    setPresentLab(allIds);
+    setPresentDetails(filteredData);
+    setSelectAll(true);
+  } else {
+    // Deselect all workers
+    setPresentLab([]);
+    setPresentDetails([]);
+    setSelectAll(false);
+  }
+};
 
   return (
     <>
@@ -281,7 +298,7 @@ export default function Labourform() {
                 >
                   Add
                 </p>
-                {downloadBtn == 1 && <p className="masteraddbtn">Download</p>}
+                {presentlab.length > 0 && <p className="masteraddbtn">Download</p>}
                 
               </div>
             </div>
@@ -292,6 +309,7 @@ export default function Labourform() {
                 <thead>
                   <tr className="labhead">
                     {productHeading.map((header, index) => (
+                      <>
                       <th
                         className={`masterth ${
                           header === "PhoneNo" ||
@@ -304,7 +322,11 @@ export default function Labourform() {
                       >
                         {header}
                       </th>
+                      
+                      </>
+                      
                     ))}
+                    <th className="masterth"><input type="checkbox" checked={selectAll} onChange={handleSelectAll}/></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -349,10 +371,11 @@ export default function Labourform() {
                             <p onClick={() => handleDelete(index)} className="del">
                               <AiOutlineDelete />
                             </p>
-                            <input type="checkbox" onChange={(e) => handleCheckboxChange(e, product)}/>
+        
                           </>
                         )}
                       </td>
+                      <td className="masterSelect"><input type="checkbox" onChange={(e) => handleCheckboxChange(e, product)} checked={presentlab.includes(product._id)}/></td>
                     </tr>
                   ))}
                 </tbody>
