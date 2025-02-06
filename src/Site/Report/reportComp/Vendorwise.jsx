@@ -1,5 +1,5 @@
 import "../Report.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
@@ -7,10 +7,24 @@ export default function Vendorwise() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [vendor, setVendor] = useState("");
+  const [vendors, setVendors] = useState([]);
 
-  const {siteId:site } = useParams();
+  const { siteId: site } = useParams();
 
-  const vendors = ["Vendor 8", "Vendor 9", "Vendor 10", "Vendor 53", "gfxhbv", "d"];
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await request("GET", `/vendors/getAllvendor?siteId=${site}`);
+        setVendors(response);
+        console.log(response);  // Check the structure of the response
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+        alert("Failed to load vendors.");
+      }
+    };
+
+    fetchVendors();
+  }, [site]);
 
   const handleDownload = async () => {
     if (!startDate || !endDate) {
@@ -18,15 +32,18 @@ export default function Vendorwise() {
       return;
     }
 
+    // Log to confirm that the correct vendor name is selected
+    console.log("Vendor selected:", vendor);
+
     try {
       const response = await request(
-        "POST", 
-        `/reports/vendor-report?siteId=${site}`, 
-        { 
+        "POST",
+        `/reports/vendor-report?siteId=${site}`,
+        {
           siteId: site,
           startDate,
           endDate,
-          vendor: vendor || "ALL",
+          vendor: vendor || "ALL", // Send vendor name (or "ALL" if no vendor selected)
         },
         { responseType: "blob" }
       );
@@ -59,8 +76,8 @@ export default function Vendorwise() {
             >
               <option value="">All</option>
               {vendors.map((vendorItem) => (
-                <option key={vendorItem} value={vendorItem}>
-                  {vendorItem}
+                <option key={vendorItem._id} value={vendorItem.name}>
+                  {vendorItem.name}  {/* Display the vendor name */}
                 </option>
               ))}
             </select>
