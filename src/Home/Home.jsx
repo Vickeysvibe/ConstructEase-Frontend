@@ -23,7 +23,7 @@ import OuterNav from "../Nav/OuterNav";
 const api = import.meta.env.VITE_API
 
 
-export default function Home() {
+export default function Home({LoggedOut,Added}) {
   const [content, setContent] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuContent, setAddContent] = useState(0);
@@ -181,6 +181,7 @@ export default function Home() {
       console.error("Error adding site:", error);
       toast.error("Failed to add site!");
     }
+    
   };
 
 
@@ -245,6 +246,15 @@ export default function Home() {
     setExpandedSupervisorId(expandedSupervisorId === id ? null : id);
   };
 
+
+ const handlecreate=()=>{
+  handleAddSite();
+  Added();
+ }
+ const handlecreateSup=()=>{
+  handleAddSupervisor()
+  Added()
+ }
   return (
     <>
       <OuterNav />
@@ -299,7 +309,7 @@ export default function Home() {
                 className="menu-superadd-input"
                 placeholder="Site Location"
               />
-              <p className="menu-superadd-btn" onClick={handleAddSite}>Create</p>
+              <p className="menu-superadd-btn" onClick={handlecreate} >Create</p>
               <p className="menu-superadd-sub">Process to Add new Site.</p>
             </div>
           ) : (
@@ -369,7 +379,7 @@ export default function Home() {
                   })
                 }
               />
-              <p onClick={handleAddSupervisor} className="menu-superadd-btn">Create</p>
+              <p onClick={handlecreateSup} className="menu-superadd-btn">Create</p>
               <p className="menu-superadd-sub">
                 Process to Add new Global Supervisor.
               </p>

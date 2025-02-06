@@ -484,12 +484,36 @@
 /* ----------------------------------------inward------------------------------- */
 .inward-main {
   width: calc(100vw - 240px);
+  height: calc(100vh - 60px);
   padding: 1em;
+  overflow-y: scroll;
+  .tablecon{
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+    /* flex-direction: column; */
+    /* align-items: center; */
+    margin-top: 1.5em;
+    /* background-color: #000; */
+  }
 }
+
 
 @media (max-width: 800px) {
   .inward-main {
     width: 100vw;
+    overflow-y: scroll;
+    /* background-color: #000; */
+    .tablecon{
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.5em;
+      overflow: scroll;
+      /* background-color: #000; */
+    }
   }
 }
 /* -----------------------AddInward---------------- */
@@ -719,9 +743,9 @@
         /* background-color: #000000; */
         input {
           padding-left: 1em;
-          padding: 0.5em 1em;
+          padding: 0.45em 1em;
           outline: none;
-          border: none;
+          border: 0.1px solid black;
         }
         .outward-search-button {
           padding: 0.5em 1em;

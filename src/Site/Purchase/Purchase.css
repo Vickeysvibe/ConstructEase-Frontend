@@ -14,11 +14,6 @@
   margin-top: 6em;
   /* padding-left: 2em; */
 }
-.tablecon {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
 
 .orders-card {
   background-color: #f8f8f8;
@@ -28,6 +23,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.3s ease;
+  /* background-color: #000000; */
 }
 
 .orders-card:hover {
@@ -60,7 +56,7 @@
     justify-content: space-between;
     input {
       width: 200px;
-      height: 24px;
+      height: 33px;
       padding-left: 1em;
     }
     .searchbutton {
@@ -102,16 +98,22 @@
     }
   }
 }
-
-.tablecon {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 2em;
-  display: flex;
-  padding: 1em;
-  gap: 2em;
-  flex-wrap: wrap;
-  /* background-color: #4caf50; */
+.purchaseOrder {
+  .tablecon {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 2em;
+    display: flex;
+    padding: 1em;
+    gap: 2em;
+    flex-wrap: wrap;
+    /* background-color: #4caf50; */
+  }
+  .tablecon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
 }
 
 .orders-card {
@@ -359,9 +361,14 @@
     justify-content: center;
     gap: 1em;
   }
+  .purchaseOrder {
+    .tablecon {
+      justify-content: center;
+    }
+  }
 
   .orders-card {
-    width: 100%;
+    /* width: 100%; */
     margin-top: 0;
   }
 
@@ -392,17 +399,25 @@
   .table {
     overflow-x: scroll;
   }
-  .tablecon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .purchaseOrder {
+    .tablecon {
+      display: flex;
+      align-items: center;
+      /* justify-content: center; */
+    }
   }
+
   .purchasetable {
     overflow-x: scroll;
     /* background-color: #000000; */
   }
   .btn {
     margin-top: 0;
+  }
+  .total {
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
   }
 }
 

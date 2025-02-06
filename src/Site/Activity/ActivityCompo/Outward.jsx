@@ -95,6 +95,7 @@ const Outward = () => {
             <div className="outward-search">
               <input
                 type="text"
+                
                 placeholder="Search by Product Name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

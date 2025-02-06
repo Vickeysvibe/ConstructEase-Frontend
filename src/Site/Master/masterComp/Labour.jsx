@@ -5,21 +5,17 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
-export default function Labourform({ setViewDetial, setView }) {
+export default function Labourform() {
   const { companyName, siteId } = useParams();
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
-  const [workersData, setworkersData] = useState([])
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [viewDetail, setViewDetail] = useState(null);
-  
+  const [workersData, setworkersData] = useState([]);
+  const [selectel̥File, setSelectedFile] = useState(null);
 
-
-
-  const api = import.meta.env.VITE_API
+  const api = import.meta.env.VITE_API;
 
   const token = localStorage.getItem("authToken");
   const [clientData, setClientData] = useState([...workersData]);
@@ -30,7 +26,6 @@ export default function Labourform({ setViewDetial, setView }) {
     subCategory: "",
     wagesPerShift: "",
   });
-
   const productHeading = [
     "S.No",
     "Name",
@@ -40,15 +35,17 @@ export default function Labourform({ setViewDetial, setView }) {
     "WagesPerShift",
     "Action",
   ];
-  
+
   useEffect(() => {
     const fetchLabours = async () => {
       try {
-        const response = await request("GET", `/labour/getAll?siteId=${siteId}`);
+        const response = await request(
+          "GET",
+          `/labour/getAll?siteId=${siteId}`
+        );
 
         setClientData(response);
         setworkersData(response);
-
       } catch (error) {
         console.error("Error fetching labours:", error);
       }
@@ -58,7 +55,11 @@ export default function Labourform({ setViewDetial, setView }) {
 
   const handleAddLabour = async () => {
     try {
-      const response = await request("POST", `/labour/create?siteId=${siteId}`, newLabour);
+      const response = await request(
+        "POST",
+        `/labour/create?siteId=${siteId}`,
+        newLabour
+      );
 
       setClientData((prev) => [...prev, response.labour]); // Assuming response contains `labour`
       setNewLabour({
@@ -69,12 +70,10 @@ export default function Labourform({ setViewDetial, setView }) {
         wagesPerShift: "",
       });
       setAddPopupOpen(false);
-
     } catch (error) {
       console.error("Error adding labour:", error);
     }
   };
-
 
   // Search Functionality (Search by Name Only)
   useEffect(() => {
@@ -87,13 +86,16 @@ export default function Labourform({ setViewDetial, setView }) {
   const handleSaveEditObject = async (index, field, value) => {
     const updatedLabour = { ...clientData[index], [field]: value };
     try {
-      const response = await request("PUT", `/labour/update-labour/${updatedLabour._id}?siteId=${siteId}`, updatedLabour);
+      const response = await request(
+        "PUT",
+        `/labour/update-labour/${updatedLabour._id}?siteId=${siteId}`,
+        updatedLabour
+      );
 
       const updatedData = [...clientData];
       updatedData[index] = response.labour;
       setClientData(updatedData);
       setEditIndex(null);
-
     } catch (error) {
       console.error("Error updating labour:", error);
     }
@@ -103,7 +105,11 @@ export default function Labourform({ setViewDetial, setView }) {
   const handleDelete = async (index) => {
     const labourId = clientData[index]._id;
     try {
-      await request("DELETE", `/labour/delete/${labourId}?siteId=${siteId}`, {});
+      await request(
+        "DELETE",
+        `/labour/delete/${labourId}?siteId=${siteId}`,
+        {}
+      );
 
       const updatedData = clientData.filter((_, i) => i !== index);
       setClientData(updatedData);
@@ -119,18 +125,13 @@ export default function Labourform({ setViewDetial, setView }) {
   };
   //   console.log(editedData);
 
-  const handleView = (index) => {
-    const viewDetails = workersData[index]; // Use index to get the correct worker data
-    setViewDetail(viewDetails); // Set view details
-    setView(true); // Set view to true
-  };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
     if (file) {
       setSelectedFile(file);
-      console.log('uploded')
-      handleUpload(file);  // Call handleUpload with the selected file
+      console.log("uploded");
+      handleUpload(file); // Call handleUpload with the selected file
     }
   };
   const handleUpload = async (file) => {
@@ -138,33 +139,118 @@ export default function Labourform({ setViewDetial, setView }) {
       alert("Please select a file to upload.");
       return;
     }
-    console.log('running')
+    console.log("running");
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const response = await request("POST", `/labour/upload?siteId=${siteId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await request(
+        "POST",
+        `/labour/upload?siteId=${siteId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (response.message === "labour uploaded successfully") {
         alert("File uploaded successfully!");
 
-        const fetchResponse = await request("GET", `/labour/getAll?siteId=${siteId}`);
+        const fetchResponse = await request(
+          "GET",
+          `/labour/getAll?siteId=${siteId}`
+        );
         setworkersData(fetchResponse);
       }
-
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload file. Please try again.");
     }
   };
+  // ---------------------pop-up--------------------------------
+  const [opn, setOpn] = useState(false);
+  const [view, setView] = useState();
 
+  const handleView = (item) => {
+    setView(item);
+    setOpn(true);
+  };
+  // useEffect(() => {
+  //   console.log(view);
+  //   console.log(opn);
+  // }, [view, opn]);
 
+  // Handle attendance checkbox selection
+  const [presentlab, setPresentLab] = useState([]);
+  const [presentDetails, setPresentDetails] = useState([]);
+
+  const handleCheckboxChange = (e, worker) => {
+    console.log("Worker received:", worker); // Debugging
+    if (!worker) {
+      console.error("Worker is undefined!");
+      return;
+    }
+
+    if (e.target.checked) {
+      setPresentLab((prev) => [...prev, worker._id]);
+      setPresentDetails((prev) => [...prev, worker]);
+    } else {
+      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
+      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
+    }
+  };
+  console.log(presentlab)
+// --------download-btn------
+  const [downloadBtn, setDownloadBtn] = useState(0);
+
+  useEffect(() => {
+    if(presentlab.length>0){
+        setDownloadBtn(1)
+    }
+  }, [presentlab]);
 
   return (
     <>
       <main className="mastermain">
+        {opn && (
+          <div
+            className="view-pg"
+            onClick={() => {
+              setOpn(false);
+            }}
+          >
+            <div className="view-card">
+              {view ? (
+                <div>
+                  <ul>
+                    {view && (
+                      <>
+                      <li>
+                        <strong>Name:</strong> <p>{view.name}</p>
+                      </li>
+                      <li>
+                        <strong>PhoneNo:</strong> <p>{view.phoneNo}</p>
+                      </li>
+                      <li>
+                        <strong>Category:</strong> <p>{view.category}</p>
+                      </li>
+                      <li>
+                        <strong>Subcategory:</strong> <p>{view.subCategory}</p>
+                      </li>
+                      <li>
+                        <strong>wagesPerShift:</strong> <p>{view.wagesPerShift}</p>
+                      </li>
+                      
+                      </>
+                    )}
+                  </ul>
+                </div>
+              ) : (
+                <p>No details available.</p>
+              )}
+            </div>
+          </div>
+        )}
         <section className="mastersec">
           <div className="searchcon">
             <h1>Labour Management</h1>
@@ -186,7 +272,7 @@ export default function Labourform({ setViewDetial, setView }) {
                   style={{ display: "none" }}
                   onChange={handleFileChange}
                 />
-                <label htmlFor="file-upload" className="client-upload-button">
+                <label htmlFor="file-upload" className="client-upload-button ">
                   Upload
                 </label>
                 <p
@@ -195,6 +281,8 @@ export default function Labourform({ setViewDetial, setView }) {
                 >
                   Add
                 </p>
+                {downloadBtn == 1 && <p className="masteraddbtn">Download</p>}
+                
               </div>
             </div>
           </div>
@@ -205,12 +293,13 @@ export default function Labourform({ setViewDetial, setView }) {
                   <tr className="labhead">
                     {productHeading.map((header, index) => (
                       <th
-                        className={`masterth ${header === "PhoneNo" ||
+                        className={`masterth ${
+                          header === "PhoneNo" ||
                           header === "Category" ||
                           header === "WagesPerShift"
-                          ? "hide-mobile"
-                          : ""
-                          }`}
+                            ? "hide-mobile"
+                            : ""
+                        }`}
                         key={index}
                       >
                         {header}
@@ -220,19 +309,20 @@ export default function Labourform({ setViewDetial, setView }) {
                 </thead>
                 <tbody>
                   {filteredData.map((product, index) => (
-                    <tr key={index} onClick={() => handleView(index)}>
-                      <td className="mastertd sl" >{index + 1}</td>
+                    <tr key={index} onClick={() => handleView(product)}>
+                      <td className="mastertd sl">{index + 1}</td>
                       {Object.keys(product)
                         .slice(1, 6)
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${field === "phoneNo" ||
+                            className={`mastertd ${
+                              field === "phoneNo" ||
                               field === "category" ||
                               field === "wagesPerShift"
-                              ? "hide-mobile"
-                              : ""
-                              }`}
+                                ? "hide-mobile"
+                                : ""
+                            }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -248,15 +338,18 @@ export default function Labourform({ setViewDetial, setView }) {
                         ))}
                       <td className="mastertd masteredit">
                         {editIndex === index ? (
-                          <button onClick={() => setEditIndex(null)}>Save</button>
+                          <button onClick={() => setEditIndex(null)}>
+                            Save
+                          </button>
                         ) : (
                           <>
                             <p onClick={() => setEditIndex(index)}>
                               <AiTwotoneEdit />
                             </p>
-                            <p onClick={() => handleDelete(index)}>
+                            <p onClick={() => handleDelete(index)} className="del">
                               <AiOutlineDelete />
                             </p>
+                            <input type="checkbox" onChange={(e) => handleCheckboxChange(e, product)}/>
                           </>
                         )}
                       </td>
@@ -322,10 +415,7 @@ export default function Labourform({ setViewDetial, setView }) {
                   }))
                 }
               />
-              <p
-                className="mastersubmitbtn"
-                onClick={handleAddLabour}
-              >
+              <p className="mastersubmitbtn" onClick={handleAddLabour}>
                 Add Labour
               </p>
               <p
