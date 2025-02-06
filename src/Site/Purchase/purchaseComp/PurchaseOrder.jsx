@@ -308,14 +308,11 @@ const PurchaseOrder = () => {
                   <h3>#xgcfhj</h3>
                   {/* <div className="date">{orderPost.date}</div> */}
                   <div className="cross">
-                    <p
-                      onClick={() => {
-                        setaddpopopn(null);
-                        setDetails([]);
-                      }}
-                    >
-                      <RxCrossCircled />
-                    </p>
+                    <Link to={"/purchase/order"}>
+                      <p>
+                        <RxCrossCircled />
+                      </p>
+                    </Link>
                   </div>
                 </div>
                 <div className="header-bottom">
@@ -364,7 +361,7 @@ const PurchaseOrder = () => {
                 </div>
               </div>
             </div>
-            <div className="tablecon">
+            <div className="">
               <div className="purchasetable">
                 <table className="addinward-purchase-table">
                   <thead>
@@ -514,7 +511,7 @@ const PurchaseOrder = () => {
                 </div>
               </div>
             </div>
-            <div className="tablecon">
+            <div className="tablecontainer">
               <div className="purchasetable">
                 <table className="addinward-purchase-table">
                   <thead>

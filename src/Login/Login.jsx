@@ -4,8 +4,8 @@ import loginimg from "../assets/login.png";
 import { useNavigate } from "react-router-dom";
 import OuterNav from "../Nav/OuterNav";
 import axios from "axios";
-
-const Login = () => {
+import { ToastContainer, toast } from 'react-toastify';
+const Login = ({LoggedIn}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -13,7 +13,7 @@ const Login = () => {
   const api = import.meta.env.VITE_API;
 
   const handleSubmit = async (e) => {
-    e.preventDefault();  // Prevent page reload on form submission
+    e.preventDefault(); // Prevent page reload on form submission
     try {
       const response = await axios.post(`${api}/auth/login`, {
         email,
@@ -62,7 +62,10 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button type="submit">Submit</button>
+              <button type="submit" onClick={LoggedIn}>
+                Submit
+              </button>
+              
             </form>
           </div>
         </div>

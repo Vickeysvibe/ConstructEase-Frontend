@@ -5,8 +5,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { request } from "../../../api/request";
 
-
-
 export default function ClientManagement() {
   const { companyName, siteId } = useParams();
   console.log(companyName, siteId);
@@ -23,9 +21,9 @@ export default function ClientManagement() {
   });
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which card is being edited
-  const [editedClient, setEditedClient] = useState({});// Store the edited client data
+  const [editedClient, setEditedClient] = useState({}); // Store the edited client data
   const [selectedFile, setSelectedFile] = useState(null);
-  const api = import.meta.env.VITE_API
+  const api = import.meta.env.VITE_API;
 
   // Search functionality
   useEffect(() => {
@@ -40,8 +38,8 @@ export default function ClientManagement() {
 
     if (file) {
       setSelectedFile(file);
-      console.log('uploded')
-      handleUpload(file);  // Call handleUpload with the selected file
+      console.log("uploded");
+      handleUpload(file); // Call handleUpload with the selected file
     }
   };
   const handleUpload = async (file) => {
@@ -49,12 +47,11 @@ export default function ClientManagement() {
       alert("Please select a file to upload.");
       return;
     }
-    console.log('running')
+    console.log("running");
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-
       const response = await request(
         "POST",
         `/client/upload?siteId=${siteId}`,
@@ -70,7 +67,10 @@ export default function ClientManagement() {
         alert("File uploaded successfully!");
 
         // Fetch updated clients list
-        const fetchResponse = await request("GET", `/client/getAll?siteId=${siteId}`);
+        const fetchResponse = await request(
+          "GET",
+          `/client/getAll?siteId=${siteId}`
+        );
 
         setClientData(fetchResponse);
       }
@@ -82,10 +82,7 @@ export default function ClientManagement() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const data = await request(
-          "GET",
-          `/client/getAll?siteId=${siteId}`
-        );
+        const data = await request("GET", `/client/getAll?siteId=${siteId}`);
 
         setClientData(data);
       } catch (error) {
@@ -98,14 +95,17 @@ export default function ClientManagement() {
   // Add new client
   const handleAddClient = async () => {
     try {
-
       if (!siteId) {
         console.error("Site ID is missing");
         return;
       }
 
       // Construct the API endpoint
-      const response = await request("POST", `/client/create?siteId=${siteId}`, newClient);
+      const response = await request(
+        "POST",
+        `/client/create?siteId=${siteId}`,
+        newClient
+      );
 
       setClientData((prev) => [...prev, response.client]);
 
@@ -124,24 +124,30 @@ export default function ClientManagement() {
   const handleSaveEdit = async () => {
     try {
       const clientId = clientData[editingIndex]._id;
-      const response = await request("PUT", `/client/update/${clientId}?siteId=${siteId}`, editedClient);
+      const response = await request(
+        "PUT",
+        `/client/update/${clientId}?siteId=${siteId}`,
+        editedClient
+      );
 
       const updatedData = [...clientData];
       updatedData[editingIndex] = response.client;
 
       setClientData(updatedData);
       setEditingIndex(null);
-
     } catch (error) {
       console.error("Error updating client:", error);
     }
   };
 
-
   const handleDelete = async (index) => {
     try {
       const clientId = clientData[index]._id;
-      await request("DELETE", `/client/deleteclient/${clientId}?siteId=${siteId}`, {});
+      await request(
+        "DELETE",
+        `/client/deleteclient/${clientId}?siteId=${siteId}`,
+        {}
+      );
 
       setClientData((prev) => prev.filter((_, i) => i !== index));
     } catch (error) {
@@ -149,13 +155,62 @@ export default function ClientManagement() {
     }
   };
 
-
   const handleEdit = (index) => {
     setEditingIndex(index);
     setEditedClient({ ...clientData[index] });
   };
+  
+  const [presentlab, setPresentLab] = useState([]);
+  const [presentDetails, setPresentDetails] = useState([]);
 
+  const handleCheckboxChange = (e, worker) => {
+    console.log("Worker received:", worker); // Debugging
+    if (!worker) {
+      console.error("Worker is undefined!");
+      return;
+    }
 
+    if (e.target.checked) {
+      setPresentLab((prev) => [...prev, worker._id]);
+      setPresentDetails((prev) => [...prev, worker]);
+    } else {
+      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
+      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
+    }
+  };
+  console.log(presentlab);
+  // --------download-btn------
+  const [downloadBtn, setDownloadBtn] = useState(0);
+
+  useEffect(() => {
+    if (presentlab.length > 0) {
+      setDownloadBtn(1);
+    }
+  }, [presentlab]);
+
+  const handleDownload = async () => {
+    try {
+      const clientIds = presentlab; 
+      const response = await request(
+        "POST", 
+        `/client/downloadclient?siteId=${siteId}`,
+        { clientIds },
+        { responseType: "blob" } 
+      );
+  
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "clients.xlsx"); 
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); 
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Failed to download file. Please try again.");
+    }}
+  
   return (
     <>
       <main className="client-management-main">
@@ -180,7 +235,7 @@ export default function ClientManagement() {
                   style={{ display: "none" }}
                   onChange={handleFileChange}
                 />
-                <label htmlFor="file-upload" className="client-upload-button">
+                <label htmlFor="file-upload" className="client-upload-button ">
                   Upload
                 </label>
                 <button
@@ -189,6 +244,7 @@ export default function ClientManagement() {
                 >
                   Add
                 </button>
+                {downloadBtn == 1 && <p className="client-add-button" onClick={handleDownload}>Download</p>}
               </div>
             </div>
           </div>
@@ -265,13 +321,19 @@ export default function ClientManagement() {
                     <>
                       <div className="client-card-header">
                         <h2 className="client-card-title">{client.name}</h2>
-                        <AiTwotoneEdit
-                          className="client-edit-icon"
-                          onClick={() => {
-                            setEditingIndex(index);
-                            setEditedClient({ ...client });
-                          }}
-                        />
+                        <div className="edit-del">
+                          <AiTwotoneEdit
+                            className="client-edit-icon"
+                            onClick={() => {
+                              setEditingIndex(index);
+                              setEditedClient({ ...client });
+                            }}
+                          />
+                          <input
+                            type="checkbox"
+                            onChange={(e) => handleCheckboxChange(e, client)}
+                          />
+                        </div>
                       </div>
                       <p className="client-card-detail">
                         <strong>Phone:</strong> {client.phoneNo}

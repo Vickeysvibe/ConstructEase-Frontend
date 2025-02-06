@@ -11,7 +11,7 @@ import { request } from "../../../api/request";
 // import Labourform from "./LabourForm";
 
 
-export default function Productform({ setView, setViewDetial }) {
+export default function Productform() {
   const { companyName, siteId } = useParams();
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -188,12 +188,7 @@ export default function Productform({ setView, setViewDetial }) {
 
 
 
-  const handleView = (_id) => {
-    const viewdetials = constructionData[_id];
-    setViewDetial(viewdetials);
-    setView(true);
-  };
-
+ 
   const handleAddProduct = async () => {
     try {
       const response = await request("POST", `/product/create?siteId=${siteId}`, newProduct);
@@ -256,13 +251,84 @@ export default function Productform({ setView, setViewDetial }) {
       alert("Failed to upload file. Please try again.");
     }
   };
+  
+  // ---------------------pop-up--------------------------------
+  const [opn, setOpn] = useState(false);
+  const [view, setView] = useState();
+  
+  const handleView = (item) => {
+    setView(item);
+    setOpn(true);
+  };
+  
 
+  const [presentlab, setPresentLab] = useState([]);
+  const [presentDetails, setPresentDetails] = useState([]);
+
+  const handleCheckboxChange = (e, worker) => {
+    console.log("Worker received:", worker); // Debugging
+    if (!worker) {
+      console.error("Worker is undefined!");
+      return;
+    }
+
+    if (e.target.checked) {
+      setPresentLab((prev) => [...prev, worker._id]);
+      setPresentDetails((prev) => [...prev, worker]);
+    } else {
+      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
+      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
+    }
+  };
+  console.log(presentlab)
+// --------download-btn------
+  const [downloadBtn, setDownloadBtn] = useState(0);
+
+  useEffect(() => {
+    if(presentlab.length>0){
+        setDownloadBtn(1)
+    }
+  }, [presentlab]);
 
   return (
     <>
       <main className="mastermain">
 
-        {/* {view && <View view={viewdetial} setView={setView} />} */}
+       {opn && 
+          <div
+            className="view-pg"
+            onClick={() => {
+              setOpn(false);
+            }}
+          >
+            <div className="view-card">
+              {view ? (
+                <div>
+                  <ul>
+                    {view && (
+                      <>
+                      <li>
+                        <strong>Name:</strong> <p>{view.name}</p>
+                      </li>
+                      <li>
+                        <strong>Description:</strong> <p>{view.description}</p>
+                      </li>
+                      <li>
+                        <strong>Category:</strong> <p>{view.category}</p>
+                      </li>
+                      <li>
+                        <strong>Unit:</strong> <p>{view.unit}</p>
+                      </li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              ) : (
+                <p>No details available.</p>
+              )}
+            </div>
+          </div>
+        }
         <section className="mastersec">
           <div className="searchcon">
             <h1>Product Management</h1>
@@ -293,6 +359,7 @@ export default function Productform({ setView, setViewDetial }) {
                 >
                   Add
                 </p>
+                {downloadBtn == 1 && <p className="masteraddbtn">Download</p>}
               </div>
             </div>
           </div>
@@ -316,7 +383,7 @@ export default function Productform({ setView, setViewDetial }) {
                 </thead>
                 <tbody>
                   {filteredData.map((product, index) => (
-                    <tr key={index} onClick={() => handleView(index)}>
+                    <tr key={index} onClick={() => handleView(product)}>
                       <td className="mastertd sl">{index + 1}</td>
                       {Object.keys(product)
                         .slice(1, 5)
@@ -348,9 +415,11 @@ export default function Productform({ setView, setViewDetial }) {
                             <p onClick={() => handleEdit(index)}>
                               <AiTwotoneEdit />
                             </p>
-                            <p onClick={() => handleDelete(index)}>
+                            <p onClick={() => handleDelete(index)} className="del">
                               <AiOutlineDelete />
                             </p>
+                            <input type="checkbox" onChange={(e) => handleCheckboxChange(e, product)}/>
+
                           </>
                         )}
                       </td>

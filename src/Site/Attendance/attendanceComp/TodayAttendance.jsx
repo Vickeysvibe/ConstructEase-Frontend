@@ -2,6 +2,7 @@
   import "../Attendance.css";
   import { request } from "../../../api/request";
   import { useParams } from "react-router-dom";
+  import { AiOutlineDelete } from "react-icons/ai";
 
   export default function TodayAttendance() {
     const [currentDate, setCurrentDate] = useState("");
@@ -19,6 +20,7 @@
       "Wages",
       "Total",
       "Attendance",
+      "Delete"
     ];
 
     useEffect(() => {
@@ -125,6 +127,11 @@
       worker?.Name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const[del,setDel]=useState();
+    useEffect(()=>{
+      console.log(del);
+    },[del])
+    
     return (
       <main className="attendancemain">
         <section className="attendancesec">
@@ -185,6 +192,7 @@
                       <td className="attendancetd">{worker.WagesPerShift}</td>
                       <td className="attendancetd">{worker.Total}</td>
                       <td className="attendancetd">Present</td>
+                      <td className="attendancetd del" onClick={()=>{setDel(index)}}><AiOutlineDelete/></td>
                     </tr>
                   ))}
                 </tbody>

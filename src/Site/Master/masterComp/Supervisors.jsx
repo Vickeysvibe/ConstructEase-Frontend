@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
 export default function SupervisorForm() {
-  const { siteId } = useParams()
+  const { siteId } = useParams();
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
@@ -14,8 +14,6 @@ export default function SupervisorForm() {
   const [editedData, setEditedData] = useState({});
   const [supervisorData, setSupervisorData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-
-
 
   const [clientData, setClientData] = useState([...supervisorData]);
   const [newSupervisor, setNewSupervisor] = useState({
@@ -36,16 +34,18 @@ export default function SupervisorForm() {
     "Role",
     "Action",
   ];
-  const api = import.meta.env.VITE_API
+  const api = import.meta.env.VITE_API;
 
   useEffect(() => {
     const fetchSupervisors = async () => {
       try {
-        const response = await request("GET", `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`);
+        const response = await request(
+          "GET",
+          `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`
+        );
 
         setSupervisorData(response);
         setFilteredData(response);
-
       } catch (error) {
         console.error("Error fetching supervisors:", error);
       }
@@ -55,20 +55,20 @@ export default function SupervisorForm() {
 
   //search
   useEffect(() => {
-    const result = supervisorData.filter((item) =>
-      item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const result = supervisorData.filter(
+      (item) =>
+        item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredData(result);
   }, [searchTerm, supervisorData]);
-
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
     if (file) {
       setSelectedFile(file);
-      console.log('uploded')
-      handleUpload(file);  // Call handleUpload with the selected file
+      console.log("uploded");
+      handleUpload(file); // Call handleUpload with the selected file
     }
   };
 
@@ -84,13 +84,15 @@ export default function SupervisorForm() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const response = await request("GET", `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`);
+      const response = await request(
+        "GET",
+        `/supervisors/getsuppervisors?siteId=${siteId}&scope=local`
+      );
 
       setSupervisorData(response);
       setFilteredData(response);
 
       alert("File uploaded successfully");
-
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -115,8 +117,11 @@ export default function SupervisorForm() {
     }
 
     try {
-      await request("PUT", `/supervisors/update/${editedData._id}`, editedData);
-
+      await request(
+        "PUT",
+        `/supervisors/update/${editedData._id}?siteId=${siteId}`,
+        editedData
+      );
 
       setSupervisorData((prev) =>
         prev.map((supervisor) =>
@@ -136,15 +141,17 @@ export default function SupervisorForm() {
     }
   };
 
-
-
   // const handleSaveRow = () => {
   //   console.log("Edited Data:", editedData); // Log all tracked edits
   //   setEditIndex(null); // End editing mode
   // };
   const handleAddSupervisor = async () => {
     try {
-      const response = await request("POST", `/supervisors/create?siteId=${siteId}`, { ...newSupervisor, siteId });
+      const response = await request(
+        "POST",
+        `/supervisors/create?siteId=${siteId}`,
+        { ...newSupervisor, siteId }
+      );
 
       setSupervisorData((prev) => [...prev, response]);
       setNewSupervisor({
@@ -164,18 +171,95 @@ export default function SupervisorForm() {
   const handleDelete = async (index) => {
     try {
       const supervisor = filteredData[index];
-      await request("DELETE", `/supervisors/deletesupervisor/${supervisor._id}?siteId=${siteId}`,{});
+      await request(
+        "DELETE",
+        `/supervisors/deletesupervisor/${supervisor._id}?siteId=${siteId}`,
+        {}
+      );
       const updatedData = filteredData.filter((_, i) => i !== index);
       setFilteredData(updatedData);
-
     } catch (error) {
       console.error("Error deleting supervisor:", error);
     }
   };
+  // ---------------------pop-up--------------------------------
+  const [opn, setOpn] = useState(false);
+  const [view, setView] = useState();
+
+  const handleView = (item) => {
+    setView(item);
+    setOpn(true);
+  };
+
+  const [presentlab, setPresentLab] = useState([]);
+  const [presentDetails, setPresentDetails] = useState([]);
+
+  const handleCheckboxChange = (e, worker) => {
+    console.log("Worker received:", worker); // Debugging
+    if (!worker) {
+      console.error("Worker is undefined!");
+      return;
+    }
+
+    if (e.target.checked) {
+      setPresentLab((prev) => [...prev, worker._id]);
+      setPresentDetails((prev) => [...prev, worker]);
+    } else {
+      setPresentLab((prev) => prev.filter((id) => id !== worker.id));
+      setPresentDetails((prev) => prev.filter((w) => w.id !== worker.id));
+    }
+  };
+  console.log(presentlab);
+  // --------download-btn------
+  const [downloadBtn, setDownloadBtn] = useState(0);
+
+  useEffect(() => {
+    if (presentlab.length > 0) {
+      setDownloadBtn(1);
+    }
+  }, [presentlab]);
 
   return (
     <>
       <main className="mastermain">
+        {opn && (
+          <div
+            className="view-pg"
+            onClick={() => {
+              setOpn(false);
+            }}
+          >
+            <div className="view-card">
+              {view ? (
+                <div>
+                  <ul>
+                    {view && (
+                      <>
+                        <li>
+                          <strong>Name:</strong> <p>{view.name}</p>
+                        </li>
+                        <li>
+                          <strong>Email:</strong> <p>{view.email}</p>
+                        </li>
+                        <li>
+                          <strong>Address:</strong> <p>{view.address}</p>
+                        </li>
+                        <li>
+                          <strong>PhoneNo:</strong> <p>{view.phoneNo}</p>
+                        </li>
+                        <li>
+                          <strong>Role:</strong> <p>{view.role}</p>
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              ) : (
+                <p>No details available.</p>
+              )}
+            </div>
+          </div>
+        )}
         <section className="mastersec">
           <div className="searchcon">
             <h1>Supervisor Management</h1>
@@ -191,7 +275,6 @@ export default function SupervisorForm() {
                 <p>Search</p>
               </div>
               <div className="masterbtnscon">
-
                 <input
                   type="file"
                   id="file-upload"
@@ -207,6 +290,7 @@ export default function SupervisorForm() {
                 >
                   Add
                 </p>
+                {downloadBtn == 1 && <p className="masteraddbtn">Download</p>}
               </div>
             </div>
           </div>
@@ -217,10 +301,14 @@ export default function SupervisorForm() {
                   <tr className="labhead">
                     {supervisorHeading.map((header, index) => (
                       <th
-                        className={`masterth ${header !== "Name" && header !== "phoneNo" && header !== "S.No" && header !== "Action"
-                          ? "hide-mobile"
-                          : ""
-                          }`}
+                        className={`masterth ${
+                          header !== "Name" &&
+                          header !== "phoneNo" &&
+                          header !== "S.No" &&
+                          header !== "Action"
+                            ? "hide-mobile"
+                            : ""
+                        }`}
                         key={index}
                       >
                         {header}
@@ -230,7 +318,7 @@ export default function SupervisorForm() {
                 </thead>
                 <tbody>
                   {filteredData.map((supervisor, index) => (
-                    <tr key={index}>
+                    <tr key={index} onClick={() => handleView(supervisor)}>
                       <td className="mastertd sl">{index + 1}</td>
                       {Object.keys(supervisor)
                         .slice(1, 8)
@@ -238,9 +326,16 @@ export default function SupervisorForm() {
                           <td
                             key={field}
                             className={`mastertd 
-                              ${field !== "name" && field !== "phoneNo" ? "hide-mobile" : ""} 
-                              ${(field === "password" || field === "engineerId") ? "hide" : ""}`}
-
+                              ${
+                                field !== "name" && field !== "phoneNo"
+                                  ? "hide-mobile"
+                                  : ""
+                              } 
+                              ${
+                                field === "password" || field === "engineerId"
+                                  ? "hide"
+                                  : ""
+                              }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -258,9 +353,16 @@ export default function SupervisorForm() {
                             <p onClick={() => handleEdit(index)}>
                               <AiTwotoneEdit />
                             </p>
-                            <p onClick={() => handleDelete(index)}>
+                            <p
+                              onClick={() => handleDelete(index)}
+                              className="del"
+                            >
                               <AiOutlineDelete />
                             </p>
+                            <input
+                              type="checkbox"
+                              onChange={(e) => handleCheckboxChange(e, supervisor)}
+                            />
                           </>
                         )}
                       </td>
@@ -282,7 +384,10 @@ export default function SupervisorForm() {
                 placeholder="Name"
                 value={newSupervisor.name}
                 onChange={(e) =>
-                  setNewSupervisor((prev) => ({ ...prev, name: e.target.value }))
+                  setNewSupervisor((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
                 }
               />
               <input
@@ -290,7 +395,10 @@ export default function SupervisorForm() {
                 placeholder="Email"
                 value={newSupervisor.email}
                 onChange={(e) =>
-                  setNewSupervisor((prev) => ({ ...prev, email: e.target.value }))
+                  setNewSupervisor((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
                 }
               />
               <input
@@ -327,10 +435,7 @@ export default function SupervisorForm() {
                 }
               />
 
-              <p
-                className="mastersubmitbtn"
-                onClick={handleAddSupervisor}
-              >
+              <p className="mastersubmitbtn" onClick={handleAddSupervisor}>
                 Add Supervisor
               </p>
               <p

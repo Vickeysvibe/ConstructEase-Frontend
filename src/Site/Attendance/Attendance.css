@@ -1,60 +1,57 @@
 .attendancemain {
-    width: 100vw;
-    height: 100svh;
-    display: flex;
-    justify-content: end;
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  justify-content: end;
 }
 
 .attendancesec {
-    width: calc(100vw - 260px);
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
+  width: calc(100vw - 240px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
 }
 
 .searchcon {
-    margin-top: 5em;
-    width: 90%;
-    padding: 2em 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start;
-    gap: 1em;
+  margin-top: 5em;
+  width: 90%;
+  padding: 2em 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  gap: 1em;
 }
 
 .inpcon {
-    font-size: small;
-    display: flex;
-    justify-content: space-between;
-    background-color: var(--blue);
-    cursor: pointer;
+  font-size: small;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--blue);
+  cursor: pointer;
 }
 
-
 .inpcon input {
-    padding: 0.2em 1em;
+  padding: 0.2em 1em;
 }
 
 input:focus {
-    outline: none;
-
+  outline: none;
 }
 
 .inpcon p {
-    border: 1px solid var(--blue);
-    outline: none;
-    padding: 0.5em 1em;
-    color: white;
+  border: 1px solid var(--blue);
+  outline: none;
+  padding: 0.5em 1em;
+  color: white;
 }
 
-.searchbar{
-    display: flex;
-    
+.searchbar {
+  display: flex;
 }
-.edit{
-    button{
+.edit {
+  button {
     background-color: var(--blue);
     color: white;
     outline: none;
@@ -64,60 +61,75 @@ input:focus {
     height: 100%;
     padding-right: 1em;
     cursor: pointer;
-}}
-.adtxt {
-    display: block;
+  }
 }
-
-.tablecon {
+.adtxt {
+  display: block;
+}
+.attendancemain {
+  .tablecon {
     width: 90%;
     max-height: 600px;
     overflow: scroll;
+    /* background-color: aqua; */
+    /* padding: 0.5em; */
+  }
 }
 
 .attendancetable {
-    font-size: smaller;
-    width: 100%;
-    background-color: #d9d9d9;
+  font-size: smaller;
+  width: 100%;
+  background-color: #d9d9d9;
 }
 
-
 .attendanceth {
-    min-width: 100px;
-    position: sticky;
-    top: 0;
-    padding: 0.5em 0;
-    font-weight: 300;
-    color: white;
-    background-color: var(--blue);
+  min-width: 100px;
+  position: sticky;
+  top: 0;
+  padding:  1em 0.5em !important;
+  font-weight: 300;
+  color: white;
+  background-color: var(--blue);
 }
 
 .attendancetd {
-    text-align: center;
-    padding: 0.5em 0.5em;
-    background-color: white;
+  text-align: center;
+  padding:  1em  !important;
+  background-color: white;
+  overflow: hidden;
 }
+.attendancetd:first-child{
+  width: 20px;
+  padding: 0em;
+  /* background-color: ; */
+}
+.del {
+  color: red;
+  font-size: 1.1em;
+  cursor: pointer;
+}
+@media (max-width: 800px) {
+  .attendancesec {
+    width: 100%;
+  }
 
-@media(max-width:800px) {
+  .tablecon {
+    display: flex;
+    align-items: start;
+    width: 90%;
+    overflow: scroll;
+    /* background-color: aqua; */
+  }
 
-    .attendancesec {
-        width: 100%;
-    }
+  .adtxt {
+    display: none;
+  }
 
-    .tablecon {
-        width: 90%;
-        overflow: scroll;
-    }
+  .attendanceth:last-child {
+    z-index: 11;
+  }
 
-    .adtxt {
-        display: none;
-    }
-
-    .attendanceth:last-child {
-        z-index: 11;
-    }
-
-    /* .attbox,
+  /* .attbox,
     .labhead .attendanceth:last-child {
         position: sticky;
         right: 0;
@@ -125,36 +137,35 @@ input:focus {
         
     } */
 
-    .attendancetd,
-    .attendancetd {
-        font-size: small;
-    }
+  .attendancetd,
+  .attendancetd {
+    font-size: small;
+  }
 }
-.finishbtn{
-    font-size:small;
-    padding: 0.5em 2em;
-    background-color: var(--yellow);
-    border-radius: 5px;
-    position: absolute;
-    right: 1em;
-    bottom: 1em;
-    cursor: pointer;
+.finishbtn {
+  font-size: small;
+  padding: 0.5em 2em;
+  background-color: var(--yellow);
+  border-radius: 5px;
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+  cursor: pointer;
 }
-
 
 /* =-----------------------today-attendance */
-.today-pg{
-    width: 100vw;
-    height: 100svh;
-    display: flex;
-    justify-content: end;
-    background-color: aquamarine;
+.today-pg {
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  justify-content: end;
+  background-color: aquamarine;
 }
-.todayattendancesec{
-    width: calc(100vw - 260px);
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    color: black;
+.todayattendancesec {
+  width: calc(100vw - 260px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  color: black;
 }

@@ -20,16 +20,18 @@
 }
 .client-search-box {
   display: flex;
-  gap: 1em;
+  /* gap: 1em; */
 }
 .client-search-input {
   padding: 0em 0.25em;
+  
 }
 .client-search-label {
   padding: 0.3em;
   background-color: var(--blue);
-  border-radius: 5px;
+  /* border-radius: 5px; */
   color: white;
+  cursor: pointer;
 }
 .client-buttons-container {
   display: flex;
@@ -42,7 +44,11 @@
   border-radius: 5px;
   outline: none;
   border: none;
+  display: flex;
+  align-items: center;
+  text-align: center;
   color: white;
+  cursor: pointer;
 }
 
 .client-cards-container {
@@ -54,6 +60,7 @@
   input {
     width: 150px;
   }
+  /* background-color: aqua; */
 }
 .client-card {
   padding: 1em;
@@ -61,14 +68,29 @@
   min-width: 250px;
   border-radius: 10px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  max-height: 200px;
+  overflow: scroll;
 }
 .client-card-detail {
   padding-bottom: 0.25em;
+  text-wrap: wrap;
 }
 .client-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  .edit-del{
+    display: flex;
+    font-size: 1.5em;
+    gap: 0.25em;
+    input{
+      width: 20px;
+
+    }
+  }
+}
+.client-edit-icon{
+  cursor: pointer;
 }
 .client-delete-button {
   background-color: var(--blue);
@@ -81,6 +103,7 @@
   padding: 0.5em;
   border-radius: 5px;
   margin-top: 0.5em;
+  cursor: pointer;
 }
 .client-popup-container {
   position: fixed;
@@ -210,6 +233,7 @@
     justify-content: center;
     align-items: center;
     outline: 1px solid var(--blue);
+    cursor: pointer;
   }
   
   .searchbox input {
@@ -254,11 +278,7 @@
     cursor: pointer;
   }
   
-  .tablecon {
-    width: 90%;
-    max-height: 600px;
-    overflow: scroll;
-  }
+  
   
   .mastertable {
     font-size: smaller;
@@ -278,7 +298,9 @@
     border: none;
     outline: none;
   }
-  
+  .del{
+    color: red;
+  }
   .mastertd {
     text-align: center;
     padding: 0.5em 0.5em;
@@ -286,6 +308,14 @@
     border: none;
     outline: none;
     white-space: nowrap;
+    input{
+      cursor: pointer;
+    }
+  }
+  .mastertd:last-child{
+    display: flex;
+    align-items: center;
+    
   }
   
   .masteredit {
@@ -359,7 +389,15 @@
     color: rgb(255, 255, 255);
     cursor: pointer;
   }
-  
+  .mastermain{
+    .tablecon {
+        width: 90%;
+        max-height: 600px;
+        overflow: scroll;
+        /* background-color: aqua; */
+        padding: 0;
+    }
+}
   @media (max-width: 800px) {
     .mastersec {
       width: 100%;
@@ -447,7 +485,11 @@
       padding-bottom: 0.25em;
   }
 }
+
 .view-card li{
+  display: flex;
+  margin-bottom: 1em;
+  gap: 1em;
   list-style: none;
   padding-bottom: 0.1em;
 }

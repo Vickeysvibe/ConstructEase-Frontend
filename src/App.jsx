@@ -2,6 +2,8 @@ import { useState, Suspense, lazy } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Navbar from "./Nav/Navbar";
 import SitePG from "./Site/SitePG";
+import { ToastContainer, toast } from 'react-toastify';
+
 
 // Lazy loaded components
 const Login = lazy(() => import("./Login/Login"));
@@ -60,18 +62,48 @@ const ViewInward = lazy(() =>
 );
 const Outward = lazy(() => import("./Site/Activity/ActivityCompo/Outward.jsx"));
 
+// ------------------------------Loading---------------------------
+const Loading = lazy(() => import("./Site/Loading/Loading.jsx"));
+
 function App() {
+  const Attendence=()=>{
+    toast.success("Attendence Updated");
+};
+const LoggedIn=()=>{
+    toast.success("Loggedin Successfully")
+};
+const LoggedOut=()=>{
+  toast.success("LoggedOut Successfully")
+};
+const Saved=()=>
+{
+    toast.success("Saved Successfully")
+};
+const Updated=()=>
+{
+    toast.success("Updated Successfully")
+};
+const Deleted=()=>
+{
+    toast.success("Deleted successfully")
+};
+const Added=()=>
+  {
+      toast.success("Added successfully")
+  };
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
+          {/* Loading page
+          <Route path="loading" element={<Loading/>}/> */}
           {/* Login */}
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login LoggedIn={LoggedIn}/>} />
+          <Route path="/login" element={<Login LoggedIn={LoggedIn}/>} />
 
           {/* Dashboard */}
           <Route path=":companyName">
-            <Route index element={<Home />} />
+            <Route index element={<Home LoggedOut={LoggedOut} Added={Added} />} />
             <Route path="dashboard" element={<Home />} />
             {/* site */}
             <Route path=":siteId">
@@ -134,6 +166,17 @@ function App() {
           </Route>
         </Routes>
       </Suspense>
+      <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+              />
     </Router>
   );
 }
