@@ -13,18 +13,6 @@ const categories = [
     "Others"
 ];
 
-// useEffect(()=>{
-//     const fetchPayement =async () => {
-//         try {
-
-//             const response = await request('GET','/p')
-
-//         } catch (error) {
-
-//         }
-
-//     }
-// })
 
 // const vendorPayments = [
 //     { id: 1, name: "Kathir Kumar", amount: "₹1000", product: "Cement", quantity: "5", unit: "/Kg" },
