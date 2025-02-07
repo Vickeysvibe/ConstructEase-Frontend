@@ -312,6 +312,29 @@ const handleSelectAll = (e) => {
   }
 };
 
+const handleDownload = async () => {
+  try {
+    const productsIds = presentlab; 
+    const response = await request(
+      "POST", 
+      `/product/downloadproduct?siteId=${siteId}`,
+      { productsIds },
+      { responseType: "blob" } 
+    );
+
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "products.xlsx"); 
+    document.body.appendChild(link);
+    link.click();
+    link.remove(); 
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    alert("Failed to download file. Please try again.");
+  }}
+
   return (
     <>
       <main className="mastermain">
@@ -381,7 +404,7 @@ const handleSelectAll = (e) => {
                 >
                   Add
                 </p>
-                {presentlab.length > 0 && <p className="masteraddbtn">Download</p>}
+                {presentlab.length > 0 && <p className="masteraddbtn" onClick={handleDownload}>Download</p>}
               </div>
             </div>
           </div>

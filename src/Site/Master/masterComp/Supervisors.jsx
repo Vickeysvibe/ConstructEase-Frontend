@@ -241,7 +241,28 @@ export default function SupervisorForm() {
       setSelectAll(false);
     }
   };
-
+  const handleDownload = async () => {
+    try {
+      const supervisorIds = presentlab; 
+      const response = await request(
+        "POST", 
+        `/supervisors/downloadsupervisors?siteId=${siteId}`,
+        { supervisorIds },
+        { responseType: "blob" } 
+      );
+  
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "supervisors.xlsx"); 
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); 
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Failed to download file. Please try again.");
+    }}
   return (
     <>
       <main className="mastermain">
@@ -314,7 +335,7 @@ export default function SupervisorForm() {
                   Add
                 </p>
                 {presentlab.length > 0 && (
-                  <p className="masteraddbtn">Download</p>
+                  <p className="masteraddbtn" onClick={handleDownload}>Download</p>
                 )}
               </div>
             </div>

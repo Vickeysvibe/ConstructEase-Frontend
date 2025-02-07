@@ -297,6 +297,7 @@
     background-color: var(--blue);
     border: none;
     outline: none;
+    
   }
   
   .del{
@@ -423,6 +424,7 @@
     }
     .masterth{
       position:unset;
+      
     }
     .masterth:last-child {
       z-index: 11;
@@ -468,7 +470,6 @@
     }
     .mastertable .masterth,
     .mastertable .mastertd {
-      text-align: left;
       padding: 8px;
     }
   }
