@@ -5,6 +5,10 @@ import Sidemenu from "./Sidemenu";
 import logo from "../assets/logo.png";
 import { LuMenu } from "react-icons/lu";
 import { IoClose } from "react-icons/io5";
+const api = import.meta.env.VITE_API
+import axios from "axios";
+
+
 
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -12,9 +16,11 @@ import { Link, useLocation, useParams } from "react-router-dom";
 export default function Navbar({ companyLogo }) {
   const location = useLocation();
   const { companyName, siteId } = useParams();
+  // console.log(siteId);
   const [ddopn, setddopn] = useState(false);
   const [inlogin, setinlogin] = useState(true);
   const [sidemenuval, setsidemenuval] = useState(null);
+  const userRole=localStorage.getItem('userRole');
 
   const Navlinks = [
     { title: "Master", link: `/${companyName}/${siteId}/master/client` },
@@ -32,6 +38,32 @@ export default function Navbar({ companyLogo }) {
       link: `/${companyName}/${siteId}/report/labourwise`,
     },
   ];
+
+  const handleCheckOut = async (card) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("No authentication token found. Please log in.");
+      return;
+    }
+  
+    const apiEndpoint = `${api}/auth/checkout?siteId=${siteId}`;
+    console.log("API Endpoint:", apiEndpoint);
+  
+    try {
+      const response = await axios.post(apiEndpoint, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      console.log("Check-out Response:", response);
+      alert(response.data.message || "Check-Out successful!");
+    } catch (error) {
+      console.error("Check-out Error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "An error occurred.");
+    }
+  };
+  
 
   useEffect(() => {
     const excludedPaths = ["/", "/login", "/dashboard"];
@@ -63,6 +95,22 @@ export default function Navbar({ companyLogo }) {
             ))}
           </div>
         )}
+        <div className="sidebtn">
+
+      {userRole == "Supervisor" &&(
+        <div
+          className="logoutbtn"
+          
+          onClick={() => {handleCheckOut(siteId)
+            window.location.href = "/dashboard";
+          }
+          }
+
+
+        >
+          Checkout                
+        </div>
+      )}  
         <div
           className="logoutbtn"
           onClick={() => {
@@ -71,7 +119,7 @@ export default function Navbar({ companyLogo }) {
           }}
         >
           Logout
-        </div>
+        </div></div>
         <p onClick={() => setddopn((prev) => !prev)} className="burgerbtn">
           {ddopn ? <IoClose /> : <LuMenu />}
         </p>
