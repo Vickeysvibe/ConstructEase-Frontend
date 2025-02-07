@@ -6,6 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 
 
+
 // Icons
 import { FiMenu } from "react-icons/fi";
 import { MdOutlineLocationOn } from "react-icons/md";
@@ -96,6 +97,59 @@ export default function Home() {
     }
     return true;
   };
+
+
+  const handleCheckIn = async (card) => {
+    if (!card || !card._id) {
+      alert("Site ID is missing!");
+      return;
+    }
+  
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+  
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          console.log("Latitude:", latitude, "Longitude:", longitude);
+  
+          const token = localStorage.getItem("authToken");
+          if (!token) {
+            alert("Authentication token missing!");
+            return;
+          }
+  
+          const apiEndpoint = `${api}/auth/checkin?siteId=${card._id}`;
+          console.log("API Endpoint:", apiEndpoint);
+  
+          const response = await axios.post(
+            apiEndpoint,
+            { location: { latitude, longitude } },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+  
+          console.log("Check-in Response:", response.data);
+          alert(response.data.message || "Check-in successful!");
+        } catch (error) {
+          console.error("Check-in Error:", error.response?.data || error.message);
+          alert(error.response?.data?.message || "Check-in failed.");
+        }
+      },
+      (error) => {
+        alert("Error fetching location: " + error.message);
+      }
+    );
+  };
+  
+  
   const handleAddSupervisor = async () => {
     if (!validateInputs()) return;
 
@@ -399,11 +453,21 @@ export default function Home() {
                     </span>
                     {card.siteAddress}
                   </p>
-                  <Link to={`/Company/${card._id}/master/client`}>
-                    <p className="home-card-view">
-                      <GoArrowUpRight />
-                    </p>
-                  </Link>
+                  {userRole === "Supervisor" ? (
+  <Link to={`/Company/${card._id}/master/client`}>
+    <p className="home-card-view" onClick={() => handleCheckIn(card)}>
+      <GoArrowUpRight />
+    </p>
+  </Link>
+) : (
+  <Link to={`/Company/${card._id}/master/client`}>
+    <p className="home-card-view">
+      <GoArrowUpRight />
+    </p>
+  </Link>
+)}
+
+
                 </div>
               </div>
             ))}

@@ -1,5 +1,5 @@
 import "../Report.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
@@ -7,10 +7,25 @@ export default function Vendorwise() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [vendor, setVendor] = useState("");
+  const [vendors, setVendors] = useState([]); 
+  const { siteId: site } = useParams();
 
-  const {siteId:site } = useParams();
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await request("GET", `/vendors/getAllvendor?siteId=${site}`);
+        if (response) {
+          setVendors(response);
+        }
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+      }
+    };
 
-  const vendors = ["Vendor 8", "Vendor 9", "Vendor 10", "Vendor 11", "gfxhbv", "d"];
+    if (site) {
+      fetchVendors();
+    }
+  }, [site]);
 
   const handleDownload = async () => {
     if (!startDate || !endDate) {
@@ -59,33 +74,28 @@ export default function Vendorwise() {
             >
               <option value="">All</option>
               {vendors.map((vendorItem) => (
-                <option key={vendorItem} value={vendorItem}>
-                  {vendorItem}
+                <option key={vendorItem._id} value={vendorItem.name}>
+                  {vendorItem.name}
                 </option>
               ))}
             </select>
 
             <label>Start Date:</label>
-            <span className="reportinput reportdateinput">
-              {startDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
-              <input
-                className="dateinput"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </span>
+            <input
+              className="reportinput"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
 
             <label>End Date:</label>
-            <span className="reportinput reportdateinput">
-              {endDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
-              <input
-                className="dateinput"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </span>
+            <input
+              className="reportinput"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+
             <div className="reportdownloadbtncon">
               <p
                 type="button"
