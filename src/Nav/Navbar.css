@@ -55,6 +55,7 @@ nav {
   color: white;
   cursor: pointer;
   gap: 1.5em;
+  margin-right: auto;
 }
 
 .navlinks {

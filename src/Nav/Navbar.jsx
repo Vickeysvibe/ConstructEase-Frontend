@@ -16,7 +16,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 export default function Navbar({ companyLogo }) {
   const location = useLocation();
   const { companyName, siteId } = useParams();
-  console.log(siteId);
+  // console.log(siteId);
   const [ddopn, setddopn] = useState(false);
   const [inlogin, setinlogin] = useState(true);
   const [sidemenuval, setsidemenuval] = useState(null);
