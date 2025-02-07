@@ -14,6 +14,7 @@ export default function VendorForm() {
   const [filteredData, setFilteredData] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
   const [vendorData, setVendorData] = useState([]);
   const [newVendor, setNewVendor] = useState({
     name: "",
@@ -171,32 +172,54 @@ export default function VendorForm() {
     }));
   };
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setSelectedFile(file);
+      console.log("uploded");
+      handleUpload(file); // Call handleUpload with the selected file
+    }
+  };
+  const handleUpload = async (file) => {
     if (!file) {
-      setUploadMessage("No file selected.");
+      alert("Please select a file to upload.");
       return;
     }
+    console.log("running");
     const formData = new FormData();
     formData.append("file", file);
+
     try {
       const response = await request(
         "POST",
         `/vendors/upload-vendor?siteId=${siteId}`,
         formData,
         {
-          "Content-Type": "multipart/form-data",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
-      setUploadMessage(response.data.message || "File uploaded successfully.");
-      setVendorData((prevData) => [...prevData, ...response.vendors]);
-      setFilteredData((prevData) => [...prevData, ...response.vendors]);
+      if (response.message === "Clients uploaded successfully") {
+        alert("File uploaded successfully!");
+
+        // Fetch updated clients list
+        const fetchResponse = await request(
+          "GET",
+          `/client/getAll?siteId=${siteId}`
+        );
+
+        setClientData(fetchResponse);
+      }
     } catch (error) {
-      setUploadMessage("Error uploading file.");
       console.error("Error uploading file:", error);
+      alert("Failed to upload file. Please try again.");
     }
   };
+
+
 
   const handleAddVendor = async () => {
     if (
@@ -243,14 +266,14 @@ export default function VendorForm() {
     setView(item);
     setOpn(true);
   };
-  
+
   const [presentlab, setPresentLab] = useState([]);
   const [presentDetails, setPresentDetails] = useState([]);
   const [downloadBtn, setDownloadBtn] = useState(0);
 
   useEffect(() => {
-    if(presentlab.length>0){
-        setDownloadBtn(1)
+    if (presentlab.length > 0) {
+      setDownloadBtn(1)
     }
   }, [presentlab]);
 
@@ -270,7 +293,7 @@ export default function VendorForm() {
       console.error("Worker is undefined!");
       return;
     }
-  
+
     if (e.target.checked) {
       setPresentLab((prev) => [...prev, worker._id]);
       setPresentDetails((prev) => [...prev, worker]);
@@ -280,43 +303,44 @@ export default function VendorForm() {
     }
   };
 
-const handleSelectAll = (e) => {
-  if (e.target.checked) {
-    // Select all workers
-    const allIds = filteredData.map((worker) => worker._id);
-    setPresentLab(allIds);
-    setPresentDetails(filteredData);
-    setSelectAll(true);
-  } else {
-    // Deselect all workers
-    setPresentLab([]);
-    setPresentDetails([]);
-    setSelectAll(false);
-  }
-};
-const handleDownload = async () => {
-  try {
-    const vendorIds = presentlab; 
-    console.log(vendorIds);
-    const response = await request(
-      "POST", 
-      `/vendors/downloadvendor?siteId=${siteId}`,
-      { vendorIds },
-      { responseType: "blob" } 
-    );
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      // Select all workers
+      const allIds = filteredData.map((worker) => worker._id);
+      setPresentLab(allIds);
+      setPresentDetails(filteredData);
+      setSelectAll(true);
+    } else {
+      // Deselect all workers
+      setPresentLab([]);
+      setPresentDetails([]);
+      setSelectAll(false);
+    }
+  };
+  const handleDownload = async () => {
+    try {
+      const vendorIds = presentlab;
+      console.log(vendorIds);
+      const response = await request(
+        "POST",
+        `/vendors/downloadvendor?siteId=${siteId}`,
+        { vendorIds },
+        { responseType: "blob" }
+      );
 
-    
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "vendors.xlsx"); 
-    document.body.appendChild(link);
-    link.click();
-    link.remove(); 
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    alert("Failed to download file. Please try again.");
-  }}
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "vendors.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Failed to download file. Please try again.");
+    }
+  }
   return (
     <>
       <main className="mastermain">
@@ -333,21 +357,21 @@ const handleDownload = async () => {
                   <ul>
                     {view && (
                       <>
-                      <li>
-                        <strong>Name:</strong> <p>{view.name}</p>
-                      </li>
-                      <li>
-                        <strong>OwnerName:</strong> <p>{view.ownerName}</p>
-                      </li>
-                      <li>
-                        <strong>Address:</strong> <p>{view.address}</p>
-                      </li>
-                      <li>
-                        <strong>GSTin:</strong> <p>{view.gstIn}</p>
-                      </li>
-                      <li>
-                        <strong>PhoneNo:</strong> <p>{view.phoneNo}</p>
-                      </li>
+                        <li>
+                          <strong>Name:</strong> <p>{view.name}</p>
+                        </li>
+                        <li>
+                          <strong>OwnerName:</strong> <p>{view.ownerName}</p>
+                        </li>
+                        <li>
+                          <strong>Address:</strong> <p>{view.address}</p>
+                        </li>
+                        <li>
+                          <strong>GSTin:</strong> <p>{view.gstIn}</p>
+                        </li>
+                        <li>
+                          <strong>PhoneNo:</strong> <p>{view.phoneNo}</p>
+                        </li>
                       </>
                     )}
                   </ul>
@@ -377,7 +401,7 @@ const handleDownload = async () => {
                   type="file"
                   id="file-upload"
                   style={{ display: "none" }}
-                  onChange={handleFileUpload}
+                  onChange={handleFileChange}
                 />
                 <label htmlFor="file-upload" className="client-upload-button">
                   Upload
@@ -399,21 +423,20 @@ const handleDownload = async () => {
                   <tr className="labhead">
                     {vendorHeading.map((header, index) => (
                       <th
-                        className={`masterth ${
-                          header !== "S.No" &&
-                          header !== "Name" &&
-                          header !== "OwnerName" &&
-                          header !== "Action"
+                        className={`masterth ${header !== "S.No" &&
+                            header !== "Name" &&
+                            header !== "OwnerName" &&
+                            header !== "Action"
                             ? "hide-mobile"
                             : ""
-                        } 
+                          } 
                         ${header === "SiteId" ? "hide" : ""}`}
                         key={index}
                       >
                         {header}
                       </th>
                     ))}
-                    <th className="masterth"><input type="checkbox" checked={selectAll} onChange={handleSelectAll}/></th>
+                    <th className="masterth"><input type="checkbox" checked={selectAll} onChange={handleSelectAll} /></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -425,11 +448,10 @@ const handleDownload = async () => {
                         .map((field) => (
                           <td
                             key={field}
-                            className={`mastertd ${
-                              field !== "name" && field !== "ownerName"
+                            className={`mastertd ${field !== "name" && field !== "ownerName"
                                 ? "hide-mobile"
                                 : ""
-                            }`}
+                              }`}
                             contentEditable={editIndex === index}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -450,11 +472,11 @@ const handleDownload = async () => {
                             <p onClick={() => handleDelete(index)} className="del">
                               <AiOutlineDelete />
                             </p>
-                            
+
                           </>
                         )}
                       </td>
-                      <td className="masterSelect"><input type="checkbox" onChange={(e) => handleCheckboxChange(e, vendor)} checked={presentlab.includes(vendor._id)}/></td>
+                      <td className="masterSelect"><input type="checkbox" onChange={(e) => handleCheckboxChange(e, vendor)} checked={presentlab.includes(vendor._id)} /></td>
                     </tr>
                   ))}
                 </tbody>
