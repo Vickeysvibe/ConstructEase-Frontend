@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../Activity.css';
-import "../../../Home/Home.css"
+import '../../../Home/Home.css'
 import { AiOutlineDelete } from "react-icons/ai";
 import { IoCalendarOutline, IoAdd, IoClose } from "react-icons/io5";
 

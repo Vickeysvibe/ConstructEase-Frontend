@@ -1,5 +1,6 @@
 import "../Report.css";
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
@@ -83,26 +84,21 @@ export default function Vendorwise() {
             </select>
 
             <label>Start Date:</label>
-            <span className="reportinput reportdateinput">
-              {startDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
-              <input
-                className="dateinput"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </span>
+            <input
+              className="reportinput"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
 
             <label>End Date:</label>
-            <span className="reportinput reportdateinput">
-              {endDate === "" ? <p>Select Date (YYYY-MM-DD)</p> : null}
-              <input
-                className="dateinput"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </span>
+            <input
+              className="reportinput"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+
             <div className="reportdownloadbtncon">
               <p
                 type="button"

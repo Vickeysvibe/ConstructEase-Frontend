@@ -1,5 +1,5 @@
 import "../Report.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
 
@@ -8,11 +8,33 @@ export default function Labourwise() {
   const [endDate, setEndDate] = useState("");
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
+  const [categories, setCategories] = useState([]); // Dynamically store categories
+  const [subCategories, setSubCategories] = useState([]); // Dynamically store subcategories
 
   const { companyName, siteId: site } = useParams();
 
-  const categories = ["Carpenter", "dfga", "ugfcvt", "gfxdfcgvhb", "gfxhbv", "d"];
-  const subCategories = ["Framework", "dfga", "ugfcvt", "gfxdfcgvhb", "gfxhbv", "d"];
+  // Fetch categories and subcategories from backend
+  useEffect(() => {
+    const fetchLabourCategories = async () => {
+      try {
+        const response = await request(
+          "GET",
+          `/reports/labourlist?siteId=${site}`
+        );
+
+        if (response) {
+          setCategories(response.category || []);
+          setSubCategories(response.subCategory || []);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    if (site) {
+      fetchLabourCategories();
+    }
+  }, [site]);
 
   const handleDownload = async () => {
     if (!startDate || !endDate) {
@@ -22,9 +44,9 @@ export default function Labourwise() {
 
     try {
       const response = await request(
-        "POST", 
-        "/reports/labourReport", 
-        { 
+        "POST",
+        "/reports/labourReport",
+        {
           siteId: site,
           startDate,
           endDate,
