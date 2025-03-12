@@ -5,6 +5,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
+import LoadingInside from "../../Loading/LoadingInside";
 
 export default function VendorForm() {
   const { siteId } = useParams();
@@ -438,7 +439,7 @@ const handleSelectAll = (e) => {
                 </tbody>
               </table>
             ) : (
-              <p>No results found</p>
+              <LoadingInside/>
             )}
           </div>
         </section>

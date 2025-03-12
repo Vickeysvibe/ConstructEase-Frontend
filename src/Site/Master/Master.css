@@ -468,7 +468,7 @@
     }
     .mastertable .masterth,
     .mastertable .mastertd {
-      text-align: left;
+      /* text-align: left; */
       padding: 8px;
     }
   }

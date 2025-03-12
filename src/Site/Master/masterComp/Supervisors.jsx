@@ -4,6 +4,7 @@ import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
+import LoadingInside from "../../Loading/LoadingInside";
 
 export default function SupervisorForm() {
   const { siteId } = useParams();
@@ -401,7 +402,7 @@ export default function SupervisorForm() {
                 </tbody>
               </table>
             ) : (
-              <p>No results found</p>
+              <LoadingInside/>
             )}
           </div>
         </section>

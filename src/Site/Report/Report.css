@@ -1,109 +1,232 @@
-.reportmain {
-    width: 100vw;
+.labour-nav {
+  width: 100%;
+  padding: 1em 4.5em;
+}
+.funds-nav {
+  display: flex;
+  gap: 0.7em;
+  font-weight: 600;
+  font-size: medium;
+  color: #b5b5b5;
+  white-space: wrap;
+}
+.highlight {
+  color: #000;
+}
+
+.funds-nav-items {
+  cursor: pointer;
+}
+
+.attendancemain {
+    width: 100%;
     height: 100svh;
     display: flex;
     justify-content: end;
 }
 
-.reportsec {
-    width: calc(100vw - 260px);
+.attendancesec {
+    width: calc(100vw - 240px);
     display: flex;
     flex-direction: column;
     justify-content: start;
     align-items: center;
 }
 
-.reportsec h1 {
+.tablecon {
     width: 90%;
-    margin-top: 5em;
+    max-height: 600px;
+    overflow: auto;
+}
+
+.attendancetable {
+    font-size: smaller;
+    width: 100%;
+    background-color: #d9d9d9;
+    border-collapse: collapse;
+}
+
+.attendanceth {
+    min-width: 100px;
+    position: sticky;
+    top: 0;
+    padding: 1em 0.5em !important;
+    font-weight: 300;
+    color: white;
+    background-color: var(--blue);
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.attendancetd {
+    text-align: center;
+    padding: 1em !important;
+    background-color: white;
+    border: 1px solid #ddd;
+    white-space:nowrap;
+}
+
+.attendancetd:first-child {
+    width: 20px;
+    padding: 0em;
+}
+
+.even-row {
+    background-color: #f9f9f9;
+}
+
+.odd-row {
+    background-color: white;
+}
+
+.attendancetable tr:hover {
+    background-color: #f1f1f1;
+}
+
+.download{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1em;
+    
+    button{
+        padding:0.5em 1.5em ;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        background-color: var(--blue);
+        color: white;
+        cursor: pointer;
+    }
+}
+@media (max-width: 800px) {
+    .attendancesec {
+        width: 100%;
+    }
+
+    .tablecon {
+        display: flex;
+        align-items: start;
+        width: 90%;
+        overflow: auto;
+    }
+
+    .attendanceth:last-child {
+        z-index: 11;
+    }
+
+    .attendancetd {
+        font-size: small;
+    }
+}
+
+.reportmain {
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  justify-content: end;
+}
+
+.reportsec {
+  width: calc(100vw - 260px);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+}
+
+.reportsec h1 {
+  width: 90%;
+  margin-top: 5em;
 }
 
 .reportform {
-    width: 90%;
-    display: flex;
-    flex-direction: column;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
 }
 
 .reportform label {
-    margin: 1em 0 0.5em 0.2em;
+  margin: 1em 0 0.5em 0.2em;
 }
 
 .reportform .reportinput {
-    background-color: rgb(225, 225, 225);
-    outline: none;
-    border: none;
-    padding: 0 1em;
-    width: 40%;
-    height: 40px;
-    border-radius: 7px;
-    appearance: none;
-    color: rgb(0, 0, 0);
-    min-width: 370px;
+  background-color: rgb(225, 225, 225);
+  outline: none;
+  border: none;
+  padding: 0 1em;
+  width: 40%;
+  height: 40px;
+  border-radius: 7px;
+  appearance: none;
+  color: rgb(0, 0, 0);
+  min-width: 370px;
 }
 
 .reportdateinput p {
-    display: none;
+  display: none;
 }
 
 .reportdateinput {
-    display: flex;
-    align-items: center;
-    align-items: center;
-    font-size: small;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  align-items: center;
+  font-size: small;
+  overflow: hidden;
 }
 
 .dateinput {
-    background-color: transparent;
-    width: 100%;
-    height: 100%;
-    appearance: none;
-    outline: none;
-    border: none;
-    overflow: hidden;
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  outline: none;
+  border: none;
+  overflow: hidden;
 }
 
 .reportdownloadbtncon {
-    width: 40%;
-    margin: 2em 0;
-    display: flex;
-    justify-content: space-around;
-    gap: 0.5em;
+  width: 40%;
+  margin: 2em 0;
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5em;
 }
 
 .reportdownloadbtn {
-    background-color: var(--blue);
-    flex-grow: 1;
-    padding: 0.7em 1.2em;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition-duration: 0.5s;
+  background-color: var(--blue);
+  flex-grow: 1;
+  padding: 0.7em 1.2em;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition-duration: 0.5s;
 }
 
 .reportdownloadbtn:hover {
-    border-radius: 30px;
-    color: var(--blue);
-    background-color: #b1b1b1;
+  border-radius: 30px;
+  color: var(--blue);
+  background-color: #b1b1b1;
 }
 
-@media(max-width:800px) {
-    .reportsec {
-        width: 100%;
-    }
+@media (max-width: 800px) {
+  .reportsec {
+    width: 100%;
+  }
 
-    .reportform .reportinput {
-        width:95%;
-        min-width: none;
-    }
+  .reportform .reportinput {
+    width: 95%;
+    min-width: none;
+  }
 
-    .reportdateinput p {
-        display: block;
-    }
+  .reportdateinput p {
+    display: block;
+  }
 
-    .reportdownloadbtncon {
-        width: 100%;
-    }
+  .reportdownloadbtncon {
+    width: 100%;
+  }
 }

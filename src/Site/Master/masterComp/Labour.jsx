@@ -4,6 +4,8 @@ import { AiTwotoneEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
+import Loading from "../../Loading/Loading";
+import LoadingInside from "../../Loading/LoadingInside";
 
 export default function Labourform() {
   const { companyName, siteId } = useParams();
@@ -381,7 +383,7 @@ const handleSelectAll = (e) => {
                 </tbody>
               </table>
             ) : (
-              <p>No results found</p>
+              <LoadingInside/>
             )}
           </div>
         </section>

@@ -5,6 +5,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import View from "./View";
 import { useParams } from "react-router-dom";
 import { request } from "../../../api/request";
+import LoadingInside from "../../Loading/LoadingInside";
 
 
 
@@ -453,7 +454,7 @@ const handleSelectAll = (e) => {
                 </tbody>
               </table>
             ) : (
-              <p>No results found</p>
+              <LoadingInside/>
             )}
           </div>
         </section>

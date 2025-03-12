@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { request } from "../../../api/request";
+import LoadingInside from "../../Loading/LoadingInside";
 
 export default function ClientManagement() {
   const { companyName, siteId } = useParams();
@@ -334,7 +335,7 @@ export default function ClientManagement() {
                 </div>
               ))
             ) : (
-              <p>No results found</p>
+             <LoadingInside/>
             )}
           </div>
         </section>

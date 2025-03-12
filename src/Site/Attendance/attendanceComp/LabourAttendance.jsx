@@ -4,6 +4,7 @@ import "../Attendance.css";
 import TodayAttendance from "./TodayAttendance";
 import { request } from "../../../api/request";
 import { use } from "react";
+import LoadingInside from "../../Loading/LoadingInside";
 
 export default function LabourAtt() {
   const [currentDate, setCurrentDate] = useState("");
@@ -150,7 +151,7 @@ export default function LabourAtt() {
               </tbody>
             </table>
           ) : (
-            <p>No result found</p>
+           <LoadingInside/>
           )}
         </div>
         {finishBtn == 1 && (
