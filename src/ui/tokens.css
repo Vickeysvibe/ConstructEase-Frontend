@@ -1,0 +1,166 @@
+/*
+ * ConstructEase design tokens. Components use these variables only — never raw hex.
+ * Brand amber comes from the original #ffc048. Light is default; dark follows the OS.
+ */
+:root {
+  --ce-surface-page: #f6f6f2;
+  --ce-surface-raised: #ffffff;
+  --ce-surface-sunken: #efefea;
+  --ce-text: #1c2226;
+  --ce-text-muted: #5d676d;
+  --ce-text-on-brand: #1c2226;
+  --ce-border: #d9dbd4;
+  --ce-border-strong: #b9bdb3;
+  --ce-brand: #f2b33d;
+  --ce-brand-hover: #e6a52c;
+  --ce-brand-soft: #fdf1d6;
+  --ce-interactive: #2c5a78;
+  --ce-interactive-soft: #e3ecf2;
+  --ce-ok: #2f7d4f;
+  --ce-ok-soft: #e1f1e7;
+  --ce-warn: #8a6a00;
+  --ce-warn-soft: #f7efcf;
+  --ce-danger: #b42318;
+  --ce-danger-soft: #fbe4e1;
+  --ce-neutral-soft: #e9ecec;
+  --ce-overlay: rgba(20, 24, 27, 0.45);
+  --ce-shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.16);
+  --ce-shadow-toast: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  --ce-font-display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --ce-font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ce-font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* type scale */
+  --ce-fs-display: 28px;
+  --ce-fs-title: 20px;
+  --ce-fs-heading: 16px;
+  --ce-fs-body: 15px;
+  --ce-fs-label: 13px;
+  --ce-fs-caption: 12px;
+
+  /* spacing scale */
+  --ce-s1: 4px;
+  --ce-s2: 8px;
+  --ce-s3: 12px;
+  --ce-s4: 16px;
+  --ce-s5: 24px;
+  --ce-s6: 32px;
+  --ce-s7: 48px;
+
+  --ce-radius-sm: 4px;
+  --ce-radius-md: 6px;
+
+  --ce-sidebar-w: 232px;
+  --ce-focus: 0 0 0 2px var(--ce-surface-raised), 0 0 0 4px var(--ce-interactive);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ce-surface-page: #14181b;
+    --ce-surface-raised: #1b2024;
+    --ce-surface-sunken: #111417;
+    --ce-text: #e7e9e4;
+    --ce-text-muted: #9ba5aa;
+    --ce-border: #2e353a;
+    --ce-border-strong: #424b51;
+    --ce-brand-soft: #3a2f17;
+    --ce-interactive: #7fb0d1;
+    --ce-interactive-soft: #1e2e3a;
+    --ce-ok: #7ccb9a;
+    --ce-ok-soft: #173022;
+    --ce-warn: #e3c25a;
+    --ce-warn-soft: #332b12;
+    --ce-danger: #f0857a;
+    --ce-danger-soft: #3b1d1a;
+    --ce-neutral-soft: #262d31;
+    --ce-overlay: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ce-surface-page: #14181b;
+  --ce-surface-raised: #1b2024;
+  --ce-surface-sunken: #111417;
+  --ce-text: #e7e9e4;
+  --ce-text-muted: #9ba5aa;
+  --ce-border: #2e353a;
+  --ce-border-strong: #424b51;
+  --ce-brand-soft: #3a2f17;
+  --ce-interactive: #7fb0d1;
+  --ce-interactive-soft: #1e2e3a;
+  --ce-ok: #7ccb9a;
+  --ce-ok-soft: #173022;
+  --ce-warn: #e3c25a;
+  --ce-warn-soft: #332b12;
+  --ce-danger: #f0857a;
+  --ce-danger-soft: #3b1d1a;
+  --ce-neutral-soft: #262d31;
+  --ce-overlay: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--ce-surface-page);
+  color: var(--ce-text);
+  font-family: var(--ce-font-body);
+  font-size: var(--ce-fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--ce-font-display);
+  font-stretch: 85%;
+  line-height: 1.2;
+  margin: 0;
+  text-wrap: balance;
+}
+p {
+  margin: 0;
+}
+a {
+  color: var(--ce-interactive);
+}
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ce-focus);
+  border-radius: var(--ce-radius-sm);
+}
+.ce-num {
+  font-family: var(--ce-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ce-muted {
+  color: var(--ce-text-muted);
+}
+.ce-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

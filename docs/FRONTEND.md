@@ -1,0 +1,16 @@
+# Frontend conventions
+
+Every page follows these. The reference implementation is `src/features/masters/` (ResourcePage + configs, TeamPage) and `src/features/home/HomePage.tsx`.
+
+1. **Build from the kit.** Import from `@/ui`: Button / IconButton / ButtonLink, Field + Input / Textarea / Select / MoneyInput / QtyInput / Checkbox / FormError, DataTable + SearchInput, Modal / Drawer / useConfirm, PageHeader / NavTabs / Tabs / Card / DescriptionList, Badge / StatusBadge / StatCard, EmptyState / LoadingBlock / ErrorState, FileImport, notify. Don't hand-roll tables, popups or buttons. Page-specific CSS is allowed (a `.css` next to the page) but uses only `--ce-*` tokens — no hex colours, no new font sizes.
+2. **Data.** Use `api` from `@/lib/api/client` and types from `@/lib/api/types` — never `fetch`/axios directly. Queries via `useQuery` with keys that start with the resource and site id (e.g. `["purchase-orders", site.site.id, params]`); after a mutation, `invalidateQueries` on the prefix. Lists keep page/q/sort/filters in the URL with `useListParams`.
+3. **Site context.** Under `/sites/:siteId`, call `useSite()` for `base` (API prefix, e.g. `${base}/purchase-orders`), `to()` (app links), and `can(perm)`. Hide actions the role can't perform; never rely on hiding for security.
+4. **Money & quantities.** The API speaks paise and decimal quantities. Show with `money()`, `moneyShort()`, `qty()`; edit with `MoneyInput` (value in paise) and `QtyInput`. Never do float rupee maths for totals you send — the server computes totals; show the server's numbers after save. Client-side previews may compute with integers (`Math.round(qtyMilli * pricePaise / 1000)`).
+5. **Dates.** Business dates are `YYYY-MM-DD` strings. Use `today(session.org.timezone)` and `addDays`; display with `date()` / `dateTime()`. Never `new Date("2026-11-11")` for a business date.
+6. **Forms.** react-hook-form + zod resolver. On API error call `applyFieldErrors(err, form.setError, [fieldNames])` and show the returned message in `<FormError>`. Disable submit while pending (`loading`). Creates that move money or stock send an `idempotencyKey` (`newIdempotencyKey()`, created once per form open).
+7. **States.** Every data view handles loading (`LoadingBlock`/DataTable `loading`), error (`ErrorState` with retry) and empty (`EmptyState` that says what will appear and how to add the first one).
+8. **Feedback.** `notify.success("PO-2026-0007 sent.")` after actions; `notify.error(err)` for failures; `useConfirm()` before destructive or irreversible actions. No `alert`/`confirm`.
+9. **Accessibility.** Real `<button>`/`<a>`; every icon-only button has a label (`IconButton label=…`); inputs go inside `Field` (label + error wiring); tables have header cells; colour is never the only signal (badges have text).
+10. **Responsive.** Pages must work at 380px wide: use `ce-form-grid` / `ce-grid-2` / `ce-stats`, `meta.hideBelow` on secondary table columns, and wrap action rows.
+11. **Downloads.** Exports and PDFs are jobs: `useExportJob(() => api.post<JobRef>(...), "PO PDF")`.
+12. **Tests.** Add `*.test.tsx` next to pages for logic worth pinning (totals preview, form validation, permission-based hiding). Run `npm run typecheck && npm run lint && npm test`.

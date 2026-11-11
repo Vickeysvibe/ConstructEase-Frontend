@@ -1,8 +1,29 @@
-# React + Vite
+# ConstructEase web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 18 + TypeScript + Vite. Talks to the ConstructEase API (`Constructease-Backend`, contract in its `docs/API.md`).
 
-Currently, two official plugins are available:
+```bash
+cp .env.example .env        # optional; defaults work with the dev proxy
+npm install
+npm run dev                 # http://localhost:5173, proxies /api → http://localhost:8000
+npm run typecheck && npm run lint && npm test && npm run build
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How it fits together
+
+```
+src/
+  app/        router, AppShell (top bar + site sidebar), auth (session bootstrap), guards, site context + permissions
+  lib/api/    client.ts (the only HTTP client), types.ts (mirror of docs/API.md)
+  lib/        format.ts (₹, qty, dates), hooks.ts (URL list params, form errors, export jobs)
+  ui/         design tokens + component kit — every screen is built from these
+  features/   one folder per area; pages are default exports, lazy-loaded by app/router.tsx
+```
+
+- **Auth**: the access token lives in memory only. The refresh token is an httpOnly cookie; on load and on any 401 the client calls `/auth/refresh` once (shared between concurrent requests) and retries.
+- **Server state**: TanStack Query. List filters, page and sort live in the URL (`useListParams`) so lists are linkable.
+- **Forms**: react-hook-form + zod. API field errors are mapped onto inputs with `applyFieldErrors`.
+- **Permissions**: `useSite().can("purchasing:write")` mirrors the API matrix to hide what a role can't do. The API enforces everything regardless.
+- **Feedback**: `notify.success/error` toasts and `useConfirm()` dialogs. `window.alert/confirm` are banned by lint.
+
+See `docs/FRONTEND.md` for the rules every page follows.

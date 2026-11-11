@@ -1,0 +1,18 @@
+.login { min-height: 100%; display: grid; grid-template-columns: minmax(0, 520px) 1fr; background: var(--ce-surface-raised); }
+.login__panel { display: flex; flex-direction: column; justify-content: center; gap: var(--ce-s4); padding: var(--ce-s7) max(var(--ce-s5), env(safe-area-inset-left)); max-width: 440px; width: 100%; margin: 0 auto; }
+.login__brand { display: flex; align-items: center; gap: var(--ce-s2); font-family: var(--ce-font-display); font-stretch: 85%; font-weight: 750; font-size: 20px; margin-bottom: var(--ce-s4); }
+.login h1 { font-size: 32px; font-weight: 800; }
+.login__help { font-size: 13px; }
+/* Drawing-sheet grid with a hazard band: the site, not a stock photo. */
+.login__art {
+  background-color: var(--ce-surface-sunken);
+  background-image:
+    repeating-linear-gradient(-45deg, var(--ce-brand) 0 18px, var(--ce-text) 18px 36px),
+    linear-gradient(var(--ce-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ce-border) 1px, transparent 1px);
+  background-size: 100% 14px, 32px 32px, 32px 32px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-position: bottom, 0 0, 0 0;
+  border-left: 1px solid var(--ce-border);
+}
+@media (max-width: 820px) { .login { grid-template-columns: 1fr; } .login__art { display: none; } }
