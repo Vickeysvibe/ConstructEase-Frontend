@@ -27,3 +27,15 @@ src/
 - **Feedback**: `notify.success/error` toasts and `useConfirm()` dialogs. `window.alert/confirm` are banned by lint.
 
 See `docs/FRONTEND.md` for the rules every page follows.
+
+## Deploy (Vercel)
+
+`vercel.json` serves `index.html` for every app route (so refreshing `/sites/...` works) and sets security headers.
+Leave `VITE_API_URL` unset: the app calls `/api/v1` on its own domain, and Vercel forwards it to the API, keeping the
+refresh cookie first-party. Add the forward once the API has a URL, as the first rewrite in `vercel.json`:
+
+```json
+{ "source": "/api/:path*", "destination": "https://YOUR-API-HOST/api/:path*" }
+```
+
+On the API set `CORS_ORIGINS` to the Vercel URL, `COOKIE_SECURE=true` and `COOKIE_SAMESITE=lax`.
