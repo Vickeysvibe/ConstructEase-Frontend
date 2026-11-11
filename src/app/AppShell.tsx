@@ -23,10 +23,14 @@ import {
   ArrowLeftRight,
   UserRound,
   KeyRound,
+  Monitor,
+  Moon,
+  Sun,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { IconButton, Select, Badge, PageHelpContext, Tooltip } from "@/ui";
 import { Breadcrumbs, CrumbProvider, useCurrentPageHelp } from "./Breadcrumbs";
+import { useTheme, type ThemePref } from "./theme";
 import { useAuth } from "./auth";
 import { useSite, type SitePermission } from "./site";
 import "./shell.css";
@@ -145,6 +149,7 @@ function UserMenu() {
           <Link to="/account" role="menuitem" onClick={() => setOpen(false)}>
             <KeyRound /> Change password
           </Link>
+          <ThemeSwitch />
           <button
             role="menuitem"
             onClick={async () => {
@@ -156,6 +161,37 @@ function UserMenu() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+const THEMES: { value: ThemePref; label: string; icon: ReactNode }[] = [
+  { value: "system", label: "System", icon: <Monitor /> },
+  { value: "light", label: "Light", icon: <Sun /> },
+  { value: "dark", label: "Dark", icon: <Moon /> },
+];
+
+/** System / Light / Dark, remembered in this browser. */
+function ThemeSwitch() {
+  const [pref, setPref] = useTheme();
+  return (
+    <div className="themeswitch" role="radiogroup" aria-label="Theme">
+      <span className="themeswitch__label">Theme</span>
+      <div className="themeswitch__options">
+        {THEMES.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            role="radio"
+            aria-checked={pref === t.value}
+            className="themeswitch__opt"
+            onClick={() => setPref(t.value)}
+          >
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

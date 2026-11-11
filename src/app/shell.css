@@ -93,3 +93,16 @@
 .crumbbar a:hover { color: var(--ce-interactive); text-decoration: underline; }
 .crumbbar [aria-current="page"] { color: var(--ce-text); font-weight: 600; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40ch; }
 .crumbbar__sep { width: 14px; height: 14px; color: var(--ce-border-strong); flex: none; }
+
+/* ---------- theme switch (account menu) ---------- */
+.themeswitch { padding: var(--ce-s2) var(--ce-s3); border-top: 1px solid var(--ce-border); margin-top: var(--ce-s1); display: flex; flex-direction: column; gap: 6px; }
+.themeswitch__label { font-size: 12px; color: var(--ce-text-muted); }
+.themeswitch__options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: var(--ce-surface-sunken); border-radius: var(--ce-radius-md); }
+.topbar__menu .themeswitch__opt {
+  all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px;
+  border-radius: var(--ce-radius-sm); font-size: 12px; cursor: pointer; color: var(--ce-text-muted);
+}
+.topbar__menu .themeswitch__opt svg { width: 16px; height: 16px; }
+.topbar__menu .themeswitch__opt:hover { color: var(--ce-text); background: transparent; }
+.topbar__menu .themeswitch__opt[aria-checked="true"] { background: var(--ce-surface-raised); color: var(--ce-text); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+.topbar__menu .themeswitch__opt:focus-visible { box-shadow: var(--ce-focus); }
