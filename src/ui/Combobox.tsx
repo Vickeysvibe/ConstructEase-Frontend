@@ -49,7 +49,7 @@ export function Combobox<T>({
   const visible = (onSearch ? items : items?.filter((i) => itemLabel(i).toLowerCase().includes(text.trim().toLowerCase()))) ?? [];
   useEffect(() => setActive(0), [text, items]);
   useEffect(() => {
-    listRef.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
+    listRef.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView?.({ block: "nearest" });
   }, [active]);
 
   const pick = (item: T) => {

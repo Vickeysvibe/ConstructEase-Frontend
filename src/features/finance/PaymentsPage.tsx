@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Pencil, Plus, X } from "lucide-react";
+import { Ban, Pencil, Plus } from "lucide-react";
 import { api } from "@/lib/api/client";
 import type { List, Payment, PaymentCategory } from "@/lib/api/types";
 import { date as fmtDate, money, today as todayIn } from "@/lib/format";
@@ -15,10 +15,9 @@ import {
   Field,
   FormError,
   IconButton,
-  Input,
   Modal,
   PageHeader,
-  SearchInput,
+  DateRangeFilter,
   Select,
   StatusBadge,
   Textarea,
@@ -136,56 +135,6 @@ export default function PaymentsPage() {
           )
         }
       />
-      <div className="fin-filters" role="group" aria-label="Filter payments">
-        <Field label="Category">
-          <Select
-            value={params.category ?? ""}
-            onChange={(e) => setParams({ category: e.target.value || undefined, partyId: undefined })}
-            options={CATEGORY_OPTIONS}
-            placeholder="All"
-          />
-        </Field>
-        <Field label="Direction">
-          <Select value={params.direction ?? ""} onChange={(e) => setParams({ direction: e.target.value || undefined })} options={DIRECTION_OPTIONS} placeholder="Both" />
-        </Field>
-        {filterKind && (
-          <Field label={filterKind === "vendor" ? "Vendor" : filterKind === "client" ? "Client" : "Labourer"}>
-            <Select
-              value={params.partyId ?? ""}
-              onChange={(e) => setParams({ partyId: e.target.value || undefined })}
-              options={(parties.data?.items ?? []).map((p) => ({ value: p.id, label: p.name }))}
-              placeholder="All"
-            />
-          </Field>
-        )}
-        <Field label="From">
-          <Input type="date" value={params.from ?? ""} max={params.to || undefined} onChange={(e) => setParams({ from: e.target.value || undefined })} />
-        </Field>
-        <Field label="To">
-          <Input type="date" value={params.to ?? ""} min={params.from || undefined} onChange={(e) => setParams({ to: e.target.value || undefined })} />
-        </Field>
-        <Field label="Status">
-          <Select
-            value={params.status ?? ""}
-            onChange={(e) => setParams({ status: e.target.value || undefined })}
-            options={[
-              { value: "posted", label: "Posted" },
-              { value: "void", label: "Void" },
-            ]}
-            placeholder="All"
-          />
-        </Field>
-        {filtered && (
-          <Button
-            variant="ghost"
-            icon={<X />}
-            className="fin-filters__clear"
-            onClick={() => setParams({ q: undefined, category: undefined, direction: undefined, partyId: undefined, from: undefined, to: undefined, status: undefined })}
-          >
-            Clear filters
-          </Button>
-        )}
-      </div>
       <DataTable
         columns={columns}
         data={items}
@@ -200,20 +149,59 @@ export default function PaymentsPage() {
         sort={params.sort}
         onSortChange={(sort) => setParams({ sort })}
         caption="Payments"
-        toolbar={
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: "Reference or description…", label: "Search payments" }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filtersActive={filtered}
+        onClearFilters={() => setParams({ q: undefined, category: undefined, direction: undefined, partyId: undefined, from: undefined, to: undefined, status: undefined })}
+        filters={
           <>
-            <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder="Search reference or description…" label="Search payments" />
-            {!!items?.length && (
-              <div className="fin-totals" aria-label="Totals for this page">
-                <span>
-                  This page: received <strong className="fin-amount fin-amount--in">{money(totals.in)}</strong>
-                </span>
-                <span>
-                  paid out <strong className="fin-amount fin-amount--out">{money(totals.out)}</strong>
-                </span>
-              </div>
+            <Select
+              aria-label="Category"
+              value={params.category ?? ""}
+              onChange={(e) => setParams({ category: e.target.value || undefined, partyId: undefined })}
+              options={CATEGORY_OPTIONS}
+              placeholder="All categories"
+            />
+            <Select
+              aria-label="Direction"
+              value={params.direction ?? ""}
+              onChange={(e) => setParams({ direction: e.target.value || undefined })}
+              options={DIRECTION_OPTIONS}
+              placeholder="In and out"
+            />
+            {filterKind && (
+              <Select
+                aria-label={filterKind === "vendor" ? "Vendor" : filterKind === "client" ? "Client" : "Labourer"}
+                value={params.partyId ?? ""}
+                onChange={(e) => setParams({ partyId: e.target.value || undefined })}
+                options={(parties.data?.items ?? []).map((p) => ({ value: p.id, label: p.name }))}
+                placeholder={filterKind === "vendor" ? "All vendors" : filterKind === "client" ? "All clients" : "All labour"}
+              />
             )}
+            <Select
+              aria-label="Status"
+              value={params.status ?? ""}
+              onChange={(e) => setParams({ status: e.target.value || undefined })}
+              options={[
+                { value: "posted", label: "Posted" },
+                { value: "void", label: "Void" },
+              ]}
+              placeholder="Any status"
+            />
+            <DateRangeFilter from={params.from} to={params.to} onChange={setParams} />
           </>
+        }
+        summary={
+          !!items?.length && (
+            <>
+              <span>
+                In <strong className="fin-amount fin-amount--in">{money(totals.in)}</strong>
+              </span>
+              <span>
+                Out <strong className="fin-amount fin-amount--out">{money(totals.out)}</strong>
+              </span>
+            </>
+          )
         }
         empty={
           filtered ? (

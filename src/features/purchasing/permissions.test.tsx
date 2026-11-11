@@ -53,7 +53,7 @@ describe("purchase order detail", () => {
   it("an archived site hides every write action", async () => {
     renderDetail({ role: "engineer", archived: true });
     expect(await screen.findByText("PO-2026-0007")).toBeInTheDocument();
-    for (const name of ["Receive goods", "Return goods", "Cancel order", "Send to vendor"]) {
+    for (const name of ["Receive goods", "Return goods", "Cancel order", "Issue PO"]) {
       expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();
     }
     expect(screen.getByRole("button", { name: "Download PDF" })).toBeInTheDocument();

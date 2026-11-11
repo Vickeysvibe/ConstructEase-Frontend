@@ -1,4 +1,4 @@
-.shell { min-height: 100%; display: grid; grid-template-rows: auto 1fr; }
+.shell { min-height: 100%; display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); }
 .topbar {
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; gap: var(--ce-s3);
@@ -7,8 +7,9 @@
 }
 .topbar__brand { display: flex; align-items: center; gap: var(--ce-s2); text-decoration: none; color: var(--ce-text); font-family: var(--ce-font-display); font-stretch: 85%; font-weight: 750; font-size: 18px; }
 .topbar__brand img { width: 28px; height: 28px; }
-.topbar__org { color: var(--ce-text-muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30vw; }
-.topbar__site { min-width: 0; max-width: 260px; }
+.topbar__site { min-width: 0; max-width: 260px; flex: 0 1 260px; }
+.topbar__site .ce-select__button { min-height: 34px; }
+.topbar__brand { flex: none; }
 .topbar__user { position: relative; }
 .topbar__menu {
   position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
@@ -49,12 +50,46 @@
 
 @media (max-width: 900px) {
   .topbar .topbar__menu-btn { display: inline-flex; }
-  .topbar__org { display: none; }
   .body { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: fixed; inset: 56px auto 0 0; width: min(280px, 86vw); height: auto; z-index: 35; transform: translateX(-100%); transition: transform 0.16s; box-shadow: var(--ce-shadow-pop); }
   .sidebar[data-open="true"] { transform: none; }
   .sidebar-scrim { position: fixed; inset: 56px 0 0 0; background: var(--ce-overlay); z-index: 34; }
 }
 @media (max-width: 560px) {
+  .topbar { gap: var(--ce-s2); padding: 0 var(--ce-s3); }
+  .topbar .ce-spacer { display: none; }
+  .topbar__site { flex: 1 1 auto; }
   .topbar__brand span { display: none; }
 }
+
+/* ---------- org pill ---------- */
+.orgpill {
+  display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px 0 4px; max-width: 260px;
+  border: 1px solid var(--ce-border); border-radius: 999px; background: var(--ce-surface-sunken);
+  color: var(--ce-text); text-decoration: none; font-size: 13.5px; font-weight: 500; min-width: 0;
+}
+.orgpill--link:hover { border-color: var(--ce-border-strong); background: var(--ce-surface-raised); }
+.orgpill__logo { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: none; background: var(--ce-surface-raised); }
+.orgpill__logo--initials {
+  display: grid; place-items: center; background: var(--ce-brand); color: var(--ce-text-on-brand);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+}
+.orgpill__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@media (max-width: 600px) { .orgpill { padding: 0 4px; } .orgpill__name { display: none; } }
+
+/* ---------- breadcrumb bar ---------- */
+.crumbbar { display: flex; align-items: center; gap: var(--ce-s3); margin: calc(var(--ce-s2) * -1) 0 var(--ce-s4); min-width: 0; flex-wrap: wrap; }
+.crumbbar__back {
+  display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px 0 6px; border-radius: var(--ce-radius-sm);
+  border: 1px solid var(--ce-border-strong); background: var(--ce-surface-raised); color: var(--ce-text);
+  text-decoration: none; font-size: 13px; font-weight: 500; flex: none;
+}
+.crumbbar__back svg { width: 16px; height: 16px; }
+.crumbbar__back:hover { background: var(--ce-surface-sunken); }
+.crumbbar nav { min-width: 0; }
+.crumbbar ol { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: 13px; }
+.crumbbar li { display: inline-flex; align-items: center; gap: 2px; min-width: 0; }
+.crumbbar a { color: var(--ce-text-muted); text-decoration: none; padding: 2px 4px; border-radius: 3px; white-space: nowrap; }
+.crumbbar a:hover { color: var(--ce-interactive); text-decoration: underline; }
+.crumbbar [aria-current="page"] { color: var(--ce-text); font-weight: 600; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40ch; }
+.crumbbar__sep { width: 14px; height: 14px; color: var(--ce-border-strong); flex: none; }

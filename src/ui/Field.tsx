@@ -8,7 +8,6 @@ import {
   type InputHTMLAttributes,
   type ReactElement,
   type ReactNode,
-  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
 import clsx from "clsx";
@@ -73,26 +72,6 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
   ref,
 ) {
   return <textarea ref={ref} className={clsx("ce-input", className)} {...rest} />;
-});
-
-export interface Option {
-  value: string;
-  label: string;
-}
-export const Select = forwardRef<
-  HTMLSelectElement,
-  SelectHTMLAttributes<HTMLSelectElement> & { options: Option[]; placeholder?: string }
->(function Select({ className, options, placeholder, ...rest }, ref) {
-  return (
-    <select ref={ref} className={clsx("ce-input", className)} {...rest}>
-      {placeholder !== undefined && <option value="">{placeholder}</option>}
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
 });
 
 type ValueInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type"> & {

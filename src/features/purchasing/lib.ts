@@ -12,7 +12,7 @@ export const GST_OPTIONS = GST_RATES_BP.map((bp) => ({ value: String(bp), label:
 
 export const PO_STATUS_LABELS: Record<POStatus, string> = {
   draft: "Draft",
-  sent: "Sent",
+  sent: "Issued",
   partially_received: "Partially received",
   received: "Received",
   cancelled: "Cancelled",

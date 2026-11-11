@@ -54,7 +54,6 @@ export default function SiteDashboardPage() {
     <div className="ce-page">
       <PageHeader
         title="Overview"
-        crumbs={site.site.name}
         description={site.archived ? "This site is archived. You can still read its records." : undefined}
         actions={actions}
       />
@@ -109,7 +108,7 @@ export function DashboardBody({ data, showMoney }: { data: SiteDashboard; showMo
           </div>
           <h3 className="dash-section-title">Awaiting delivery</h3>
           {purchasing.awaitingDelivery.length === 0 ? (
-            <p className="ce-muted">No orders are waiting for material. Sent purchase orders appear here until fully received.</p>
+            <p className="ce-muted">No orders are waiting for material. Issued purchase orders appear here until everything has arrived.</p>
           ) : (
             <ul className="dash-list">
               {purchasing.awaitingDelivery.map((po) => (

@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useBlocker, type BlockerFunction } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, ChevronLeft, ChevronRight, Lock, Minus, Plus, RefreshCw, Users } from "lucide-react";
+import { CheckCheck, Lock, Minus, Plus, RefreshCw, Users } from "lucide-react";
 import { api, ApiError } from "@/lib/api/client";
 import type { AttendanceRow, AttendanceSaveInput, AttendanceSheet } from "@/lib/api/types";
 import { addDays, date as fmtDate, money, moneyShort } from "@/lib/format";
@@ -12,10 +12,10 @@ import {
   Button,
   ButtonLink,
   Card,
+  DateStepper,
   EmptyState,
   ErrorState,
   IconButton,
-  Input,
   LoadingBlock,
   Modal,
   NavTabs,
@@ -68,16 +68,7 @@ export default function AttendancePage() {
     <div className="ce-page">
       <PageHeader title="Labour attendance" description={`${fmtDate(day)} · ${dayHint(day, todayStr)}`} />
       <NavTabs label="Attendance" tabs={attendanceTabs(site.to)} />
-      <div className="att-date" role="group" aria-label="Choose date">
-        <IconButton variant="secondary" label="Previous day" icon={<ChevronLeft />} onClick={() => setDay(addDays(day, -1))} />
-        <Input type="date" aria-label="Attendance date" value={day} max={todayStr} onChange={(e) => e.target.value && setDay(e.target.value)} />
-        <IconButton variant="secondary" label="Next day" icon={<ChevronRight />} disabled={day >= todayStr} onClick={() => setDay(addDays(day, 1))} />
-        {day !== todayStr && (
-          <Button variant="ghost" onClick={() => setDay(todayStr)}>
-            Today
-          </Button>
-        )}
-      </div>
+      <DateStepper label="Attendance date" value={day} max={todayStr} today={todayStr} onChange={setDay} />
       <SheetView key={day} day={day} q={params.q ?? ""} trade={params.trade ?? ""} setFilter={setParams} />
     </div>
   );

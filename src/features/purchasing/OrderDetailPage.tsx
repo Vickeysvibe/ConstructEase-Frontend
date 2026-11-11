@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, PackageCheck, Pencil, Send, Undo2 } from "lucide-react";
+import { Ban, FileCheck2, PackageCheck, Pencil, Undo2 } from "lucide-react";
 import { api } from "@/lib/api/client";
 import type { DocRef, JobRef, POLine, PurchaseOrder } from "@/lib/api/types";
 import { date, money, percentFromBp, qty } from "@/lib/format";
 import { useSite } from "@/app/site";
+import { useCrumbLabel } from "@/app/Breadcrumbs";
 import {
   Button,
   ButtonLink,
@@ -40,12 +41,13 @@ export default function OrderDetailPage() {
     queryFn: () => api.get<PurchaseOrder>(`${site.base}/purchase-orders/${poId}`),
   });
   const po = query.data;
+  useCrumbLabel(po?.number);
   const invalidate = () => qc.invalidateQueries({ queryKey: keys.orders(site) });
 
   const send = useMutation({
     mutationFn: () => api.post<PurchaseOrder>(`${site.base}/purchase-orders/${poId}/send`),
     onSuccess: (p) => {
-      notify.success(`${p.number} sent.`);
+      notify.success(`${p.number} issued. Download the PDF to share it with the vendor.`);
       void invalidate();
     },
     onError: notify.error,
@@ -59,12 +61,11 @@ export default function OrderDetailPage() {
     onError: notify.error,
   });
 
-  const crumbs = <Link to={site.to("purchasing/orders")}>Purchase orders</Link>;
   if (query.isPending) return <LoadingBlock rows={8} />;
   if (query.error || !po)
     return (
       <div className="ce-page">
-        <PageHeader title="Purchase order" crumbs={crumbs} />
+        <PageHeader title="Purchase order" />
         <ErrorState error={query.error} onRetry={() => void query.refetch()} />
       </div>
     );
@@ -115,8 +116,21 @@ export default function OrderDetailPage() {
         <PdfButton label={`${po.number} PDF`} templates={["classic", "compact", "detailed"]} start={(template) => api.post<JobRef>(`${site.base}/purchase-orders/${po.id}/pdf`, { template })} />
       )}
       {canPurchase && isDraft && (
-        <Button variant="primary" icon={<Send />} loading={send.isPending} onClick={() => send.mutate()}>
-          Send to vendor
+        <Button
+          variant="primary"
+          icon={<FileCheck2 />}
+          loading={send.isPending}
+          onClick={async () => {
+            const ok = await confirm({
+              title: `Issue ${po.number}?`,
+              message:
+                "Issuing locks the order so it can't be edited, and lets your team record deliveries against it. ConstructEase doesn't email the vendor — download the PDF and share it with them.",
+              confirmLabel: "Issue PO",
+            });
+            if (ok) send.mutate();
+          }}
+        >
+          Issue PO
         </Button>
       )}
       {site.can("receiving:write") && receivable && (
@@ -147,7 +161,7 @@ export default function OrderDetailPage() {
             <StatusBadge status={po.status} label={PO_STATUS_LABELS[po.status]} />
           </span>
         }
-        crumbs={crumbs}
+       
         actions={actions}
       />
       {site.archived && <p className="ce-muted">This site is archived — the order is read-only.</p>}

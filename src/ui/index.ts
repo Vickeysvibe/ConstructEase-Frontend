@@ -1,8 +1,12 @@
 export { Button, IconButton, ButtonLink } from "./Button";
-export { Field, Input, Textarea, Select, MoneyInput, QtyInput, Checkbox, FormError, type Option } from "./Field";
+export { Field, Input, Textarea, MoneyInput, QtyInput, Checkbox, FormError } from "./Field";
+export { Select, type Option } from "./Select";
+export { Tooltip, HelpTip, useFloating } from "./Tooltip";
 export { Modal, Drawer, ConfirmProvider, useConfirm } from "./Overlay";
 export {
   PageHeader,
+  PageHelpContext,
+  type PageHelp,
   NavTabs,
   Tabs,
   Card,
@@ -18,6 +22,7 @@ export {
   notify,
   type Tone,
 } from "./Display";
-export { DataTable, SearchInput, type ColumnDef } from "./DataTable";
+export { DataTable, SearchInput, DateRangeFilter, type ColumnDef } from "./DataTable";
 export { FileImport } from "./FileImport";
+export { DateStepper } from "./DateStepper";
 export { Combobox, type ComboboxProps } from "./Combobox";

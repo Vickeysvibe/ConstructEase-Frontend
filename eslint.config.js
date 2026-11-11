@@ -21,7 +21,7 @@ export default tseslint.config(
   },
   {
     // Provider + hook pairs and the router module intentionally export non-components.
-    files: ["src/app/**", "src/ui/Display.tsx", "src/ui/Overlay.tsx"],
+    files: ["src/app/**", "src/ui/Display.tsx", "src/ui/Overlay.tsx", "src/ui/Tooltip.tsx"],
     rules: { "react-refresh/only-export-components": "off" },
   },
 );

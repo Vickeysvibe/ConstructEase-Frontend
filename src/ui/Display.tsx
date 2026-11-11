@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { AlertTriangle, Inbox } from "lucide-react";
 import clsx from "clsx";
@@ -6,24 +6,43 @@ import toast from "react-hot-toast";
 import { ApiError } from "@/lib/api/client";
 import { titleCase } from "@/lib/format";
 import { Button } from "./Button";
+import { HelpTip } from "./Tooltip";
 
 // ---------- PageHeader ----------
+export interface PageHelp {
+  title: string;
+  body: ReactNode;
+}
+/** The app layout provides help for the current route; PageHeader shows it as a (?) next to the title. */
+export const PageHelpContext = createContext<PageHelp | undefined>(undefined);
+
 export function PageHeader({
   title,
-  crumbs,
   description,
   actions,
+  help,
 }: {
   title: ReactNode;
+  /** @deprecated the breadcrumb bar shows the trail now */
   crumbs?: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  /** overrides the route's help */
+  help?: PageHelp | null;
 }) {
+  const routeHelp = useContext(PageHelpContext);
+  const h = help === null ? undefined : (help ?? routeHelp);
   return (
     <header className="ce-page-header">
       <div className="ce-page-header__titles">
-        {crumbs && <div className="ce-page-header__crumbs">{crumbs}</div>}
-        <h1>{title}</h1>
+        <div className="ce-page-header__title-row">
+          <h1>{title}</h1>
+          {h && (
+            <HelpTip title={h.title} label={`About this page: ${h.title}`}>
+              {h.body}
+            </HelpTip>
+          )}
+        </div>
         {description && <p className="ce-page-header__desc">{description}</p>}
       </div>
       {actions && <div className="ce-page-header__actions">{actions}</div>}
@@ -132,9 +151,12 @@ const STATUS_TONES: Record<string, Tone> = {
   done: "ok",
   failed: "danger",
 };
+/** Wording users see where the API status name would mislead (a "sent" PO is issued, not emailed). */
+const STATUS_LABELS: Record<string, string> = { sent: "Issued", partially_received: "Partially received" };
+
 /** Badge for any status string used by the API. */
 export function StatusBadge({ status, label }: { status: string; label?: string }) {
-  return <Badge tone={STATUS_TONES[status] ?? "neutral"}>{label ?? titleCase(status)}</Badge>;
+  return <Badge tone={STATUS_TONES[status] ?? "neutral"}>{label ?? STATUS_LABELS[status] ?? titleCase(status)}</Badge>;
 }
 
 // ---------- Stat ----------

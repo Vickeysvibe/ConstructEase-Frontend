@@ -567,6 +567,8 @@ export interface Job {
   id: Id;
   type: string;
   status: "queued" | "running" | "done" | "failed";
+  /** 0 while no worker has picked the job up */
+  attempts: number;
   error?: string;
   file?: { id: Id; filename: string; contentType: string; size: number };
 }

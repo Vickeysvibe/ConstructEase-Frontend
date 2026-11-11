@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Button } from "./Button";
+import { Select } from "./Select";
 import { EmptyState, ErrorState, LoadingBlock } from "./Display";
 
 export type { ColumnDef };
@@ -29,7 +30,20 @@ export interface DataTableProps<T> {
   onRetry?: () => void;
   onRowClick?: (row: T) => void;
   empty?: ReactNode;
+  /** search box, first in the toolbar */
+  search?: { value: string; onChange: (q: string) => void; placeholder?: string; label?: string };
+  /** compact filter controls shown inline after the search (give each an aria-label + "All …" placeholder) */
+  filters?: ReactNode;
+  /** shows "Clear filters" when filters are active */
+  onClearFilters?: () => void;
+  filtersActive?: boolean;
+  /** right side of the toolbar: short summary text (totals) */
+  summary?: ReactNode;
+  /** right side of the toolbar: buttons */
+  actions?: ReactNode;
+  /** custom toolbar content (prefer search/filters/actions) */
   toolbar?: ReactNode;
+  onPageSizeChange?: (size: number) => void;
   /** server pagination */
   page?: number;
   pageSize?: number;
@@ -63,6 +77,13 @@ export function DataTable<T>({
   onRowClick,
   empty,
   toolbar,
+  search,
+  filters,
+  onClearFilters,
+  filtersActive,
+  summary,
+  actions,
+  onPageSizeChange,
   page,
   pageSize,
   total,
@@ -109,9 +130,9 @@ export function DataTable<T>({
                       style={{ width: h.column.columnDef.size !== 150 ? h.column.columnDef.size : undefined }}
                     >
                       {meta?.sortKey && onSortChange ? (
-                        <button onClick={() => toggleSort(meta.sortKey!)}>
+                        <button onClick={() => toggleSort(meta.sortKey!)} className={active ? "is-sorted" : undefined}>
                           {label}
-                          {active && (sortDesc ? <ArrowDown size={12} /> : <ArrowUp size={12} />)}
+                          {active ? (sortDesc ? <ArrowDown size={13} /> : <ArrowUp size={13} />) : <ArrowUpDown size={13} className="ce-sort-hint" />}
                         </button>
                       ) : (
                         label
@@ -155,25 +176,86 @@ export function DataTable<T>({
     );
 
   const pages = page && pageSize && total !== undefined ? Math.max(1, Math.ceil(total / pageSize)) : 0;
+  const hasToolbar = Boolean(toolbar || search || filters || summary || actions);
   return (
-    <div className="ce-card">
-      {toolbar && <div className="ce-table-toolbar">{toolbar}</div>}
+    <div className="ce-card ce-datatable">
+      {hasToolbar && (
+        <div className="ce-table-toolbar">
+          {toolbar}
+          {(search || filters) && (
+            <div className="ce-table-toolbar__filters" role="group" aria-label="Search and filters">
+              {search && <SearchInput {...search} />}
+              {filters}
+              {onClearFilters && filtersActive && (
+                <Button variant="ghost" size="sm" icon={<X />} onClick={onClearFilters}>
+                  Clear filters
+                </Button>
+              )}
+            </div>
+          )}
+          {(summary || actions) && (
+            <div className="ce-table-toolbar__end">
+              {summary && <div className="ce-table-toolbar__summary">{summary}</div>}
+              {actions}
+            </div>
+          )}
+        </div>
+      )}
       {body}
-      {pages > 1 && onPageChange && (
+      {pages > 0 && total! > 0 && (
         <div className="ce-pager">
-          <span>
-            {(page! - 1) * pageSize! + 1}–{Math.min(page! * pageSize!, total!)} of {total}
+          <span aria-live="polite">
+            Showing <strong>{(page! - 1) * pageSize! + 1}–{Math.min(page! * pageSize!, total!)}</strong> of <strong>{total}</strong>
           </span>
           <div className="ce-pager__btns">
-            <Button size="sm" icon={<ChevronLeft />} disabled={page! <= 1} onClick={() => onPageChange(page! - 1)}>
-              Previous
-            </Button>
-            <Button size="sm" disabled={page! >= pages} onClick={() => onPageChange(page! + 1)}>
-              Next <ChevronRight />
-            </Button>
+            {onPageSizeChange && (
+              <label className="ce-pager__size">
+                <span>Rows</span>
+                <Select
+                  aria-label="Rows per page"
+                  value={String(pageSize)}
+                  options={["10", "25", "50", "100"].map((v) => ({ value: v, label: v }))}
+                  onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                />
+              </label>
+            )}
+            {pages > 1 && onPageChange && (
+              <>
+                <Button size="sm" icon={<ChevronLeft />} disabled={page! <= 1} onClick={() => onPageChange(page! - 1)}>
+                  Previous
+                </Button>
+                <span className="ce-pager__page">
+                  Page {page} of {pages}
+                </span>
+                <Button size="sm" disabled={page! >= pages} onClick={() => onPageChange(page! + 1)}>
+                  Next <ChevronRight />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** From–to date pair for filter bars (inclusive, YYYY-MM-DD). */
+export function DateRangeFilter({
+  from,
+  to,
+  onChange,
+  max,
+}: {
+  from?: string;
+  to?: string;
+  onChange: (patch: { from?: string; to?: string }) => void;
+  max?: string;
+}) {
+  return (
+    <div className="ce-daterange" role="group" aria-label="Date range">
+      <input className="ce-input" type="date" aria-label="From date" value={from ?? ""} max={to || max} onChange={(e) => onChange({ from: e.target.value || undefined })} />
+      <span aria-hidden>to</span>
+      <input className="ce-input" type="date" aria-label="To date" value={to ?? ""} min={from} max={max} onChange={(e) => onChange({ to: e.target.value || undefined })} />
     </div>
   );
 }

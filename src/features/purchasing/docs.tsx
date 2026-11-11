@@ -6,8 +6,9 @@ import type { GoodsReceipt, GoodsReceiptSummary, JobRef, List, PurchaseReturn, P
 import { date, dateTime, money } from "@/lib/format";
 import { useListParams } from "@/lib/hooks";
 import { useSite } from "@/app/site";
-import { ButtonLink, Card, DataTable, DescriptionList, EmptyState, ErrorState, LoadingBlock, PageHeader, SearchInput, type ColumnDef } from "@/ui";
-import { DateRangeFilter, DocLinesTable, PdfButton } from "./components";
+import { useCrumbLabel } from "@/app/Breadcrumbs";
+import { ButtonLink, Card, DataTable, DescriptionList, EmptyState, ErrorState, LoadingBlock, PageHeader, type ColumnDef, DateRangeFilter } from "@/ui";
+import { DocLinesTable, PdfButton } from "./components";
 import { keys } from "./lib";
 
 type Kind = "receipt" | "return";
@@ -84,12 +85,11 @@ export function DocsListPage({ kind }: { kind: Kind }) {
         sort={params.sort}
         onSortChange={(sort) => setParams({ sort })}
         onRowClick={(r) => navigate(site.to(`${c.route}/${r.id}`))}
-        toolbar={
-          <div className="pur-filters">
-            <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder={c.search} label={`Search ${c.title.toLowerCase()}`} />
-            <DateRangeFilter from={params.from} to={params.to} onChange={setParams} />
-          </div>
-        }
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: c.search, label: `Search ${c.title.toLowerCase()}` }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filtersActive={Boolean(params.from || params.to)}
+        onClearFilters={() => setParams({ from: undefined, to: undefined })}
+        filters={<DateRangeFilter from={params.from} to={params.to} onChange={setParams} />}
         empty={
           filtered ? (
             <EmptyState plain title={`No ${c.title.toLowerCase()} match these filters`} description="Clear the search or widen the dates." />
@@ -117,12 +117,12 @@ export function DocDetailPage({ kind }: { kind: Kind }) {
     queryFn: () => api.get<GoodsReceipt | PurchaseReturn>(`${site.base}/${c.api}/${id}`),
   });
   const doc = query.data;
-  const crumbs = <Link to={site.to(c.route)}>{c.title}</Link>;
+  useCrumbLabel(doc?.number);
   if (query.isPending) return <LoadingBlock rows={6} />;
   if (query.error || !doc)
     return (
       <div className="ce-page">
-        <PageHeader title={c.singular} crumbs={crumbs} />
+        <PageHeader title={c.singular} />
         <ErrorState error={query.error} onRetry={() => void query.refetch()} />
       </div>
     );
@@ -150,7 +150,7 @@ export function DocDetailPage({ kind }: { kind: Kind }) {
     <div className="ce-page">
       <PageHeader
         title={<span className="ce-num">{doc.number}</span>}
-        crumbs={crumbs}
+       
         actions={
           kind === "return" ? (
             <PdfButton label={`${doc.number} PDF`} templates={["classic"]} start={(template) => api.post<JobRef>(`${site.base}/${c.api}/${doc.id}/pdf`, { template })} />

@@ -7,6 +7,7 @@ import type { Party } from "@/lib/api/types";
 import { SiteProvider } from "@/app/site";
 import { PaymentDrawer } from "./PaymentDrawer";
 import { blankPayment, toPaymentInput, toPaymentPatch } from "./paymentForm";
+import { chooseOption, nativeSelectOf, selectValue } from "@/test/select";
 
 vi.mock(import("@/lib/api/client"), async (orig) => ({
   ...(await orig()),
@@ -53,7 +54,7 @@ describe("PaymentDrawer", () => {
     const user = userEvent.setup();
     vi.mocked(api.post).mockResolvedValue({ amountPaise: 120000, direction: "out" } as never);
     const { onClose } = renderDrawer();
-    await user.selectOptions(screen.getByLabelText(/^Category/), "other");
+    await chooseOption(user, screen.getByLabelText(/^Category/), "other");
     expect(screen.queryByLabelText(/^Vendor/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/^Quantity/)).not.toBeInTheDocument();
     await user.type(screen.getByLabelText(/^Amount/), "1200");
@@ -70,8 +71,11 @@ describe("PaymentDrawer", () => {
   it("defaults client payments to received and offers that kind of party", async () => {
     const user = userEvent.setup();
     renderDrawer();
-    await user.selectOptions(screen.getByLabelText(/^Category/), "client");
-    expect(screen.getByLabelText(/^Direction/)).toHaveValue("in");
+    await chooseOption(user, screen.getByLabelText(/^Category/), "client");
+    expect(selectValue(screen.getByLabelText(/^Direction/))).toBe("in");
+    const party = await screen.findByLabelText(/^Client/);
+    await waitFor(() => expect(Array.from(nativeSelectOf(party).options).map((o) => o.textContent)).toContain("Mr Kumar"));
+    await user.click(party);
     expect(await screen.findByRole("option", { name: "Mr Kumar" })).toBeInTheDocument();
   });
 });

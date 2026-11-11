@@ -18,7 +18,6 @@ import {
   Input,
   MoneyInput,
   PageHeader,
-  SearchInput,
   Select,
   Textarea,
   notify,
@@ -172,9 +171,8 @@ export function ResourcePage<T extends { id: string }, F extends FieldValues>({ 
         sort={params.sort}
         onSortChange={(sort) => setParams({ sort })}
         onRowClick={canWrite ? (r) => setEditing(r) : undefined}
-        toolbar={
-          <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder={config.searchPlaceholder} label={`Search ${config.title.toLowerCase()}`} />
-        }
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: config.searchPlaceholder, label: `Search ${config.title.toLowerCase()}` }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
         empty={
           params.q ? (
             <EmptyState plain title={`No ${config.title.toLowerCase()} match "${params.q}"`} description="Try a shorter search." />

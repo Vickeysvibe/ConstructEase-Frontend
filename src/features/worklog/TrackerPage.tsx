@@ -9,6 +9,7 @@ import type { List, Tracker, TrackerColumn, TrackerRow } from "@/lib/api/types";
 import { date as fmtDate, qty } from "@/lib/format";
 import { useListParams } from "@/lib/hooks";
 import { useSite } from "@/app/site";
+import { useCrumbLabel } from "@/app/Breadcrumbs";
 import {
   Badge,
   Button,
@@ -21,7 +22,6 @@ import {
   LoadingBlock,
   Modal,
   PageHeader,
-  SearchInput,
   Select,
   notify,
   useConfirm,
@@ -60,6 +60,7 @@ export default function TrackerPage() {
   const site = useSite();
   const trackers = useTrackers();
   const tracker = trackers.data?.items.find((t) => t.id === trackerId);
+  useCrumbLabel(tracker?.name);
 
   if (trackers.isLoading) return <LoadingBlock rows={6} />;
   if (trackers.error) return <ErrorState error={trackers.error} onRetry={() => void trackers.refetch()} />;
@@ -184,7 +185,6 @@ function TrackerView({ tracker }: { tracker: Tracker }) {
   return (
     <div className="ce-page">
       <PageHeader
-        crumbs={<Link to={site.to("worklog")}>Trackers</Link>}
         title={tracker.name}
         description={`${tracker.rowCount} ${tracker.rowCount === 1 ? "row" : "rows"}`}
         actions={
@@ -218,9 +218,10 @@ function TrackerView({ tracker }: { tracker: Tracker }) {
         onSortChange={(sort) => setParams({ sort })}
         onRowClick={canWrite ? (r) => setEditing(r) : undefined}
         caption={tracker.name}
-        toolbar={
-          <div className="ce-table-toolbar__left">
-            <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} label={`Search ${tracker.name}`} />
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), label: `Search ${tracker.name}` }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filters={
+          <>
             <Select
               aria-label="Show"
               value={params.done ?? ""}
@@ -230,9 +231,8 @@ function TrackerView({ tracker }: { tracker: Tracker }) {
                 { value: "true", label: "Done only" },
               ]}
               placeholder="All rows"
-              style={{ width: "auto" }}
             />
-          </div>
+          </>
         }
         empty={
           filtered ? (

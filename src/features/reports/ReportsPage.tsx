@@ -25,7 +25,7 @@ export default function ReportsPage() {
   const { search } = useReportRange();
   return (
     <div className="ce-page">
-      <PageHeader title="Reports" crumbs={site.site.name} description="Pick a period, check the figures, then download the Excel copy." />
+      <PageHeader title="Reports" description="Pick a period, check the figures, then download the Excel copy." />
       <NavTabs label="Reports" tabs={TABS.map((t) => ({ to: `${site.to(`reports/${t.path}`)}${search}`, label: t.label }))} />
       <Suspense fallback={<LoadingBlock rows={5} />}>
         <Routes>

@@ -25,7 +25,8 @@ import {
   KeyRound,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { IconButton, Select, Badge } from "@/ui";
+import { IconButton, Select, Badge, PageHelpContext, Tooltip } from "@/ui";
+import { Breadcrumbs, CrumbProvider, useCurrentPageHelp } from "./Breadcrumbs";
 import { useAuth } from "./auth";
 import { useSite, type SitePermission } from "./site";
 import "./shell.css";
@@ -178,14 +179,59 @@ function SiteSwitcher() {
 
 const NavContext = createContext<{ open: boolean; setOpen: (v: boolean) => void }>({ open: false, setOpen: () => undefined });
 
+/** Organisation logo + name, next to the account menu. Admins can click through to settings. */
+function OrgPill() {
+  const { session, isOrgAdmin } = useAuth();
+  const [logoFailed, setLogoFailed] = useState(false);
+  const org = session?.org;
+  if (!org) return null;
+  const initials = org.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+  const content = (
+    <>
+      {org.logoUrl && !logoFailed ? (
+        <img src={org.logoUrl} alt="" className="orgpill__logo" onError={() => setLogoFailed(true)} />
+      ) : (
+        <span className="orgpill__logo orgpill__logo--initials" aria-hidden>
+          {initials}
+        </span>
+      )}
+      <span className="orgpill__name">{org.name}</span>
+    </>
+  );
+  return isOrgAdmin ? (
+    <Tooltip content="Organisation settings" describe={false}>
+      <Link to="/settings" className="orgpill orgpill--link">
+        {content}
+      </Link>
+    </Tooltip>
+  ) : (
+    <span className="orgpill">{content}</span>
+  );
+}
+
+function PageChrome({ children }: { children: ReactNode }) {
+  const help = useCurrentPageHelp();
+  return (
+    <PageHelpContext.Provider value={help}>
+      <Breadcrumbs />
+      {children}
+    </PageHelpContext.Provider>
+  );
+}
+
 /** Top bar + (on site routes) the section sidebar. */
 export function AppShell() {
-  const { session } = useAuth();
   const inSite = Boolean(useMatch("/sites/:siteId/*"));
   const [navOpen, setNavOpen] = useState(false);
   const location = useLocation();
   useEffect(() => setNavOpen(false), [location.pathname]);
   return (
+    <CrumbProvider>
     <NavContext.Provider value={{ open: navOpen, setOpen: setNavOpen }}>
       <div className="shell">
         <header className="topbar">
@@ -202,9 +248,9 @@ export function AppShell() {
             <img src={logo} alt="" />
             <span>ConstructEase</span>
           </Link>
-          <span className="topbar__org">{session?.org.name}</span>
           <span className="ce-spacer" />
           <SiteSwitcher />
+          <OrgPill />
           <UserMenu />
         </header>
         <div className={inSite ? "body" : "body body--no-side"}>
@@ -212,6 +258,7 @@ export function AppShell() {
         </div>
       </div>
     </NavContext.Provider>
+    </CrumbProvider>
   );
 }
 
@@ -224,7 +271,9 @@ export function SiteLayout() {
       <SiteSidebar open={open} onNavigate={() => setOpen(false)} />
       <main className="main">
         <div className="main__inner">
-          <Outlet />
+          <PageChrome>
+            <Outlet />
+          </PageChrome>
         </div>
       </main>
     </>
@@ -236,7 +285,9 @@ export function PlainLayout() {
   return (
     <main className="main">
       <div className="main__inner">
-        <Outlet />
+        <PageChrome>
+          <Outlet />
+        </PageChrome>
       </div>
     </main>
   );

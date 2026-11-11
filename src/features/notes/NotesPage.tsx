@@ -18,7 +18,6 @@ import {
   IconButton,
   Input,
   PageHeader,
-  SearchInput,
   Textarea,
   notify,
   useConfirm,
@@ -139,7 +138,8 @@ export default function NotesPage() {
         onSortChange={(sort) => setParams({ sort })}
         onRowClick={canWrite ? (n) => setEditing(n) : undefined}
         caption="Notes"
-        toolbar={<SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder="Search title or text…" label="Search notes" />}
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: "Search title or text…", label: "Search notes" }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
         empty={
           params.q ? (
             <EmptyState plain title={`No notes match "${params.q}"`} description="Try a shorter search." />

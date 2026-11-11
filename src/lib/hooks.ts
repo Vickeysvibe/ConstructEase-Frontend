@@ -15,11 +15,11 @@ export function useListParams<F extends Record<string, string>>(defaults: { page
   const params = useMemo(() => {
     const out: Record<string, string | number | undefined> = {
       page: Number(sp.get("page") ?? 1) || 1,
-      pageSize: defaults.pageSize ?? 25,
+      pageSize: [10, 25, 50, 100].includes(Number(sp.get("pageSize"))) ? Number(sp.get("pageSize")) : (defaults.pageSize ?? 25),
       q: sp.get("q") ?? undefined,
       sort: sp.get("sort") ?? defaults.sort,
     };
-    for (const [k, v] of sp.entries()) if (!["page", "q", "sort"].includes(k)) out[k] = v;
+    for (const [k, v] of sp.entries()) if (!["page", "q", "sort", "pageSize"].includes(k)) out[k] = v;
     for (const [k, v] of Object.entries(defaults)) if (out[k] === undefined && k !== "pageSize") out[k] = v as string;
     return out as { page: number; pageSize: number; q?: string; sort?: string } & Partial<F>;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are static per page
@@ -59,10 +59,15 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Polls a job until it finishes, then downloads its file. */
 export async function waitForJobAndDownload(jobId: string, opts: { timeoutMs?: number } = {}) {
-  const deadline = Date.now() + (opts.timeoutMs ?? 120_000);
+  const started = Date.now();
+  const deadline = started + (opts.timeoutMs ?? 120_000);
   let delay = 600;
   while (Date.now() < deadline) {
     const job = await api.get<Job>(`/jobs/${jobId}`);
+    // Nothing picked the job up: the background worker isn't running.
+    if (job.status === "queued" && !job.attempts && Date.now() - started > 20_000) {
+      throw new Error("The file couldn't be prepared because the background worker isn't running. Ask your administrator to start it, then try again.");
+    }
     if (job.status === "done") {
       if (job.file) await api.download(`/files/${job.file.id}`, job.file.filename);
       return job;

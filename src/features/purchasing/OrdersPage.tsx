@@ -6,8 +6,8 @@ import type { List, POStatus, PurchaseOrderSummary } from "@/lib/api/types";
 import { date, money } from "@/lib/format";
 import { useListParams } from "@/lib/hooks";
 import { useSite } from "@/app/site";
-import { ButtonLink, DataTable, EmptyState, PageHeader, SearchInput, Select, StatusBadge, Tabs, type ColumnDef } from "@/ui";
-import { DateRangeFilter } from "./components";
+import { ButtonLink, DataTable, EmptyState, PageHeader, Select, StatusBadge, Tabs, type ColumnDef, DateRangeFilter } from "@/ui";
+
 import { PO_STATUS_LABELS, keys, useSiteVendors } from "./lib";
 
 type StatusTab = POStatus | "all";
@@ -63,9 +63,12 @@ export default function OrdersPage() {
         sort={params.sort}
         onSortChange={(sort) => setParams({ sort })}
         onRowClick={(r) => navigate(site.to(`purchasing/orders/${r.id}`))}
-        toolbar={
-          <div className="pur-filters">
-            <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder="PO number or vendor…" label="Search purchase orders" />
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: "PO number or vendor…", label: "Search purchase orders" }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filtersActive={Boolean(params.vendorId || params.from || params.to)}
+        onClearFilters={() => setParams({ vendorId: undefined, from: undefined, to: undefined })}
+        filters={
+          <>
             <Select
               aria-label="Vendor"
               value={params.vendorId ?? ""}
@@ -74,7 +77,7 @@ export default function OrdersPage() {
               options={(vendors.data?.items ?? []).map((v) => ({ value: v.id, label: v.name }))}
             />
             <DateRangeFilter from={params.from} to={params.to} onChange={setParams} />
-          </div>
+          </>
         }
         empty={
           filtered ? (

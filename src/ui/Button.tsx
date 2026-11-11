@@ -1,6 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { Link, type LinkProps } from "react-router-dom";
 import clsx from "clsx";
+import { Tooltip } from "./Tooltip";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
@@ -42,9 +43,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 export const IconButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "children"> & { label: string; icon: ReactNode }>(
   function IconButton({ label, icon, variant = "ghost", size = "md", className, ...rest }, ref) {
     return (
-      <Button ref={ref} variant={variant} size={size} className={clsx("ce-btn--icon", className)} aria-label={label} title={label} {...rest}>
-        {icon}
-      </Button>
+      <Tooltip content={label} describe={false}>
+        <Button ref={ref} variant={variant} size={size} className={clsx("ce-btn--icon", className)} aria-label={label} {...rest}>
+          {icon}
+        </Button>
+      </Tooltip>
     );
   },
 );

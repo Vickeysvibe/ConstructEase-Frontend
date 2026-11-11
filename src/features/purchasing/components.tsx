@@ -4,28 +4,9 @@ import { FileDown } from "lucide-react";
 import type { JobRef, Product, ReceiptLine } from "@/lib/api/types";
 import { money, percentFromBp, qty } from "@/lib/format";
 import { useExportJob } from "@/lib/hooks";
-import { Button, Combobox, DataTable, Field, Input, Modal, Select, type ColumnDef } from "@/ui";
+import { Button, Combobox, DataTable, Field, Modal, Select, type ColumnDef } from "@/ui";
 import { useProductSearch } from "./lib";
 import "./purchasing.css";
-
-/** From / to date filters for list toolbars (inclusive range, YYYY-MM-DD). */
-export function DateRangeFilter({
-  from,
-  to,
-  onChange,
-}: {
-  from?: string;
-  to?: string;
-  onChange: (patch: { from?: string; to?: string }) => void;
-}) {
-  return (
-    <div className="pur-daterange">
-      <Input type="date" aria-label="From date" value={from ?? ""} max={to} onChange={(e) => onChange({ from: e.target.value || undefined })} />
-      <span aria-hidden>–</span>
-      <Input type="date" aria-label="To date" value={to ?? ""} min={from} onChange={(e) => onChange({ to: e.target.value || undefined })} />
-    </div>
-  );
-}
 
 /**
  * Searchable product picker over the org catalogue (server search + native suggestions).

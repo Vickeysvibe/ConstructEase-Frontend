@@ -19,7 +19,6 @@ import {
   IconButton,
   Input,
   Modal,
-  SearchInput,
   Select,
   StatusBadge,
   notify,
@@ -171,25 +170,21 @@ export default function UsersSettings() {
         sort={params.sort}
         onSortChange={(sort) => setParams({ sort })}
         columns={columns}
-        toolbar={
-          <>
-            <div className="ce-table-toolbar__left">
-              <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder="Search name or email…" />
-              <Select
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: "Search name or email…", label: "Search users" }}
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filters={
+          <Select
                 aria-label="Status"
                 value={params.status ?? ""}
                 placeholder="All statuses"
                 options={STATUS_OPTIONS}
                 onChange={(e) => setParams({ status: e.target.value || undefined })}
-                style={{ maxWidth: 160 }}
-              />
-            </div>
-            <div className="ce-table-toolbar__right">
-              <Button variant="primary" icon={<Plus />} onClick={() => setAdding(true)}>
-                Add user
-              </Button>
-            </div>
-          </>
+          />
+        }
+        actions={
+          <Button variant="primary" icon={<Plus />} onClick={() => setAdding(true)}>
+            Add user
+          </Button>
         }
         empty={
           params.q || params.status ? (

@@ -7,7 +7,7 @@ import type { StockItem } from "@/lib/api/types";
 import { money, qty } from "@/lib/format";
 import { useListParams } from "@/lib/hooks";
 import { useSite } from "@/app/site";
-import { Button, ButtonLink, DataTable, EmptyState, PageHeader, SearchInput, Select, type ColumnDef } from "@/ui";
+import { Button, ButtonLink, DataTable, EmptyState, PageHeader, Select, type ColumnDef } from "@/ui";
 import { keys } from "@/features/purchasing/lib";
 import { AdjustStockModal, RecordUsageModal } from "./StockForms";
 import "@/features/purchasing/purchasing.css";
@@ -93,13 +93,13 @@ export default function StockPage() {
         onRetry={() => void query.refetch()}
         showFooter={showCost}
         onRowClick={(i) => navigate(`${site.to("stock/movements")}?productId=${i.productId}`)}
-        toolbar={
-          <div className="pur-filters">
-            <SearchInput value={params.q ?? ""} onChange={(q) => setParams({ q })} placeholder="Material or category…" label="Search stock" />
+        search={{ value: params.q ?? "", onChange: (q) => setParams({ q }), placeholder: "Material or category…", label: "Search stock" }}
+        filters={
+          <>
             {categories.length > 0 && (
               <Select aria-label="Category" value={params.category ?? ""} onChange={(e) => setParams({ category: e.target.value })} placeholder="All categories" options={categories.map((c) => ({ value: c, label: c }))} />
             )}
-          </div>
+          </>
         }
         empty={
           params.q || params.category ? (

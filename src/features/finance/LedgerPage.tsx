@@ -7,6 +7,7 @@ import type { Ledger, LedgerRow } from "@/lib/api/types";
 import { date as fmtDate, money, today as todayIn } from "@/lib/format";
 import { useAuth } from "@/app/auth";
 import { useSite } from "@/app/site";
+import { useCrumbLabel } from "@/app/Breadcrumbs";
 import { Badge, Button, Card, DataTable, EmptyState, ErrorState, Field, Input, LoadingBlock, PageHeader, StatCard, type ColumnDef } from "@/ui";
 import { PaymentDrawer } from "./PaymentDrawer";
 import { financialYearStart } from "./paymentForm";
@@ -48,6 +49,7 @@ export default function LedgerPage() {
     placeholderData: keepPreviousData,
   });
   const ledger = query.data;
+  useCrumbLabel(ledger?.party.name);
   const totals = useMemo(
     () => (ledger?.entries ?? []).reduce((t, e) => ({ debit: t.debit + e.debitPaise, credit: t.credit + e.creditPaise }), { debit: 0, credit: 0 }),
     [ledger],
@@ -102,7 +104,6 @@ export default function LedgerPage() {
   return (
     <div className="ce-page">
       <PageHeader
-        crumbs={<Link to={site.to("finance/payments")}>Payments</Link>}
         title={ledger.party.name}
         description={
           <span className="ce-row">

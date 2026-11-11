@@ -4,9 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Building, Plus } from "lucide-react";
+import { ArrowRight, Building, CalendarCheck, Plus, ShoppingCart } from "lucide-react";
 import { api } from "@/lib/api/client";
-import type { OrgDashboard, Site } from "@/lib/api/types";
+import type { List, MeSite, OrgDashboard, Site } from "@/lib/api/types";
 import { moneyShort } from "@/lib/format";
 import { applyFieldErrors } from "@/lib/hooks";
 import { useAuth, meQueryKey } from "@/app/auth";
@@ -15,10 +15,12 @@ import "./home.css";
 
 /** Landing page: the sites you can open, with today's headline numbers. */
 export default function HomePage() {
-  const { me, isOrgAdmin, session } = useAuth();
+  const { me, isOrgAdmin } = useAuth();
   const [creating, setCreating] = useState(false);
   const dash = useQuery({ queryKey: ["dashboard", "org"], queryFn: () => api.get<OrgDashboard>("/dashboard"), retry: false });
   const stats = new Map(dash.data?.sites.map((s) => [s.id, s]) ?? []);
+  const siteList = useQuery({ queryKey: ["sites", "all"], queryFn: () => api.get<List<Site>>("/sites", { pageSize: 100 }) });
+  const addresses = new Map(siteList.data?.items.map((s) => [s.id, s.address]) ?? []);
 
   if (!me) return <LoadingBlock rows={4} />;
   const sites = [...me.sites].sort((a, b) => Number(a.status === "archived") - Number(b.status === "archived") || a.name.localeCompare(b.name));
@@ -27,7 +29,6 @@ export default function HomePage() {
     <div className="ce-page">
       <PageHeader
         title="Your sites"
-        crumbs={session?.org.name}
         actions={
           isOrgAdmin && (
             <Button variant="primary" icon={<Plus />} onClick={() => setCreating(true)}>
@@ -51,37 +52,95 @@ export default function HomePage() {
         />
       ) : (
         <div className="site-grid">
-          {sites.map((s) => {
-            const st = stats.get(s.id);
-            return (
-              <Link key={s.id} to={`/sites/${s.id}`} className="site-card">
-                <div className="site-card__head">
-                  <h2>{s.name}</h2>
-                  {s.status === "archived" ? <Badge>Archived</Badge> : <Badge tone="info">{s.role === "engineer" ? "Engineer" : "Supervisor"}</Badge>}
-                </div>
-                <dl className="site-card__stats">
-                  <div>
-                    <dt>Labour today</dt>
-                    <dd className="ce-num">{st ? st.today.labourPresent : "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Open POs</dt>
-                    <dd className="ce-num">{st ? st.openPOs : "—"}</dd>
-                  </div>
-                  {st?.monthSpendPaise !== undefined && (
-                    <div>
-                      <dt>Spend this month</dt>
-                      <dd className="ce-num">{moneyShort(st.monthSpendPaise)}</dd>
-                    </div>
-                  )}
-                </dl>
-              </Link>
-            );
-          })}
+          {sites.map((s) => (
+            <SiteCard
+              key={s.id}
+              site={s}
+              address={addresses.get(s.id)}
+              stats={stats.get(s.id)}
+              isOrgAdmin={isOrgAdmin}
+            />
+          ))}
+          {isOrgAdmin && (
+            <button type="button" className="site-card site-card--new" onClick={() => setCreating(true)}>
+              <Plus aria-hidden />
+              <span>New site</span>
+              <small>Start tracking another project</small>
+            </button>
+          )}
         </div>
       )}
       {creating && <CreateSiteDrawer onClose={() => setCreating(false)} />}
     </div>
+  );
+}
+
+type SiteStats = OrgDashboard["sites"][number];
+
+function initials(name: string) {
+  return name
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+}
+
+/** One site: identity on top, today's numbers in the middle, the two most common jobs at the bottom. */
+function SiteCard({ site, address, stats, isOrgAdmin }: { site: MeSite; address?: string; stats?: SiteStats; isOrgAdmin: boolean }) {
+  const base = `/sites/${site.id}`;
+  const archived = site.status === "archived";
+  return (
+    <article className={`site-card${archived ? " site-card--archived" : ""}`}>
+      <div className="site-card__head">
+        <span className="site-card__mark" aria-hidden>
+          {initials(site.name)}
+        </span>
+        <div className="site-card__titles">
+          <h2>
+            <Link to={base} className="site-card__link">
+              {site.name}
+            </Link>
+          </h2>
+          {address && <p className="site-card__address">{address}</p>}
+        </div>
+        {archived ? (
+          <Badge>Archived</Badge>
+        ) : (
+          <Badge tone="info">{isOrgAdmin ? "Admin" : site.role === "engineer" ? "Engineer" : "Supervisor"}</Badge>
+        )}
+      </div>
+      <dl className="site-card__stats">
+        <div>
+          <dt>Labour today</dt>
+          <dd>{stats ? stats.today.labourPresent : "—"}</dd>
+        </div>
+        <div>
+          <dt>Open orders</dt>
+          <dd>{stats ? stats.openPOs : "—"}</dd>
+        </div>
+        <div>
+          <dt>{stats?.monthSpendPaise !== undefined ? "Spend this month" : "Checked in"}</dt>
+          <dd>{stats ? (stats.monthSpendPaise !== undefined ? moneyShort(stats.monthSpendPaise) : stats.today.checkedIn) : "—"}</dd>
+        </div>
+      </dl>
+      <div className="site-card__foot">
+        {!archived && (
+          <>
+            <Link to={`${base}/attendance`} className="site-card__quick">
+              <CalendarCheck aria-hidden /> Attendance
+            </Link>
+            <Link to={`${base}/purchasing/orders`} className="site-card__quick">
+              <ShoppingCart aria-hidden /> Orders
+            </Link>
+          </>
+        )}
+        <span className="ce-spacer" />
+        <span className="site-card__open" aria-hidden>
+          Open site <ArrowRight />
+        </span>
+      </div>
+    </article>
   );
 }
 

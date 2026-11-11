@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, LogIn, LogOut, MapPin } from "lucide-react";
+import { LogIn, LogOut, MapPin } from "lucide-react";
 import { api } from "@/lib/api/client";
 import type { CheckinDay, CheckinEvent, CheckinInput } from "@/lib/api/types";
-import { addDays, date as fmtDate, minutes, time } from "@/lib/format";
+import { date as fmtDate, minutes, time } from "@/lib/format";
 import { useAuth } from "@/app/auth";
 import { useSite } from "@/app/site";
-import { Badge, Button, Card, DataTable, EmptyState, ErrorState, IconButton, Input, LoadingBlock, NavTabs, PageHeader, notify, type ColumnDef } from "@/ui";
+import { Badge, Button, Card, DataTable, DateStepper, EmptyState, ErrorState, LoadingBlock, NavTabs, PageHeader, notify, type ColumnDef } from "@/ui";
 import { describeGeoError, getPosition, osmLink } from "./geo";
 import { attendanceTabs, useToday } from "./shared";
 import "./attendance.css";
@@ -186,13 +186,7 @@ function TeamDay() {
         error={query.error}
         onRetry={() => void query.refetch()}
         caption={`Check-ins on ${fmtDate(day)}`}
-        toolbar={
-          <div className="att-date" role="group" aria-label="Choose date">
-            <IconButton variant="secondary" label="Previous day" icon={<ChevronLeft />} onClick={() => setDay(addDays(day, -1))} />
-            <Input type="date" aria-label="Check-in date" value={day} max={todayStr} onChange={(e) => e.target.value && setDay(e.target.value)} />
-            <IconButton variant="secondary" label="Next day" icon={<ChevronRight />} disabled={day >= todayStr} onClick={() => setDay(addDays(day, 1))} />
-          </div>
-        }
+        toolbar={<DateStepper label="Check-in date" value={day} max={todayStr} today={todayStr} onChange={setDay} />}
         empty={<EmptyState plain title="Nobody checked in" description="Engineers and supervisors appear here once they check in on this site." />}
       />
     </section>

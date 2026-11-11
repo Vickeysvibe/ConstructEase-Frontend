@@ -6,6 +6,7 @@ import type { Tracker, TrackerColumn } from "@/lib/api/types";
 import { SiteProvider } from "@/app/site";
 import { RowDrawer } from "./RowDrawer";
 import { applyTrackerErrors, rowSchema, rowValuesBody, trackerSchema, type RowForm } from "./trackerForm";
+import { chooseOption } from "@/test/select";
 
 vi.mock(import("@/lib/api/client"), async (orig) => ({
   ...(await orig()),
@@ -112,7 +113,7 @@ describe("RowDrawer", () => {
     renderDrawer();
     await user.type(screen.getByLabelText(/^Task/), "Pour slab");
     await user.type(screen.getByLabelText(/^Qty/), "4");
-    await user.selectOptions(screen.getByLabelText(/^Status/), "Open");
+    await chooseOption(user, screen.getByLabelText(/^Status/), "Open");
     await user.click(screen.getByRole("button", { name: "Add row" }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith("/sites/s1/trackers/t1/rows", { values: { c_task: "Pour slab", c_qty: 4, c_status: "Open" }, done: false }));
     expect(await screen.findByText("Too long for the server")).toBeInTheDocument();

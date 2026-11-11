@@ -5,8 +5,8 @@ import type { List, MovementType, StockItem, StockMovement } from "@/lib/api/typ
 import { date, money } from "@/lib/format";
 import { useListParams } from "@/lib/hooks";
 import { useSite, type SiteContextValue } from "@/app/site";
-import { Badge, DataTable, EmptyState, PageHeader, Select, type ColumnDef, type Tone } from "@/ui";
-import { DateRangeFilter } from "@/features/purchasing/components";
+import { Badge, DataTable, EmptyState, PageHeader, Select, type ColumnDef, type Tone, DateRangeFilter } from "@/ui";
+
 import { keys } from "@/features/purchasing/lib";
 import { SignedQty } from "./StockForms";
 import "./stock.css";
@@ -95,8 +95,11 @@ export default function MovementsPage() {
         pageSize={params.pageSize}
         total={query.data?.total}
         onPageChange={(page) => setParams({ page })}
-        toolbar={
-          <div className="pur-filters">
+        onPageSizeChange={(pageSize) => setParams({ pageSize })}
+        filtersActive={Boolean(params.productId || params.type || params.from || params.to)}
+        onClearFilters={() => setParams({ productId: undefined, type: undefined, from: undefined, to: undefined })}
+        filters={
+          <>
             <Select
               aria-label="Material"
               value={params.productId ?? ""}
@@ -112,7 +115,7 @@ export default function MovementsPage() {
               options={(Object.entries(TYPES) as [MovementType, { label: string }][]).map(([value, t]) => ({ value, label: t.label }))}
             />
             <DateRangeFilter from={params.from} to={params.to} onChange={setParams} />
-          </div>
+          </>
         }
         empty={
           filtered ? (

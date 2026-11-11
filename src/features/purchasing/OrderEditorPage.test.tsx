@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { api, ApiError } from "@/lib/api/client";
 import OrderEditorPage from "./OrderEditorPage";
 import { renderInSite } from "./testUtils";
+import { chooseOption, selectValue } from "@/test/select";
 
 vi.mock("@/app/auth", () => ({ useAuth: () => ({ session: { org: { timezone: "Asia/Kolkata" } } }) }));
 vi.mock("@/lib/api/client", async (importOriginal) => {
@@ -29,11 +30,11 @@ describe("order editor", () => {
     );
     renderInSite(<OrderEditorPage />, { path: "purchasing/orders/new", route: "purchasing/orders/new" });
 
-    await user.selectOptions(await screen.findByLabelText(/Vendor/), "v1");
+    await chooseOption(user, await screen.findByLabelText(/Vendor/), "v1");
     const line = screen.getByRole("group", { name: "Line 1" });
     await user.type(within(line).getByLabelText(/Product/), "OPC");
     await user.click(await screen.findByRole("option", { name: /OPC 53 cement/ }));
-    await waitFor(() => expect(within(line).getByLabelText("GST")).toHaveValue("2800")); // product default
+    await waitFor(() => expect(selectValue(within(line).getByLabelText("GST"))).toBe("2800")); // product default
     await user.type(within(line).getByLabelText(/Qty/), "12.5");
     await user.type(within(line).getByLabelText(/Rate/), "412.50");
 

@@ -4,13 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useFieldArray, useForm, useWatch, type Control, type UseFormSetValue } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Send, Trash2 } from "lucide-react";
+import { FileCheck2, Plus, Trash2 } from "lucide-react";
 import { api, newIdempotencyKey } from "@/lib/api/client";
 import type { POInput, PurchaseOrder } from "@/lib/api/types";
 import { money, today } from "@/lib/format";
 import { applyFieldErrors } from "@/lib/hooks";
 import { useAuth } from "@/app/auth";
 import { useSite } from "@/app/site";
+import { useCrumbLabel } from "@/app/Breadcrumbs";
 import {
   Button,
   ButtonLink,
@@ -94,9 +95,9 @@ export default function OrderEditorPage() {
     queryFn: () => api.get<PurchaseOrder>(`${site.base}/purchase-orders/${poId}`),
     enabled: Boolean(poId),
   });
+  useCrumbLabel(existing.data?.number, 1);
   const vendors = useSiteVendors(site);
   const title = poId ? `Edit ${existing.data?.number ?? "purchase order"}` : "New purchase order";
-  const crumbs = <Link to={site.to("purchasing/orders")}>Purchase orders</Link>;
 
   let body;
   if (!site.can("purchasing:write")) {
@@ -132,7 +133,7 @@ export default function OrderEditorPage() {
   }
   return (
     <div className="ce-page">
-      <PageHeader title={title} crumbs={crumbs} />
+      <PageHeader title={title} />
       {body}
     </div>
   );
@@ -168,7 +169,7 @@ function OrderForm({ po, vendorOptions }: { po?: PurchaseOrder; vendorOptions: {
     onSuccess: (r) => {
       void qc.invalidateQueries({ queryKey: keys.orders(site) });
       if ("sendError" in r) notify.error(r.sendError);
-      notify.success(r.sent ? `${r.po.number} sent.` : `${r.po.number} saved as draft.`);
+      notify.success(r.sent ? `${r.po.number} issued.` : `${r.po.number} saved as draft.`);
       navigate(site.to(`purchasing/orders/${r.po.id}`), { replace: true });
     },
     onError: (err) => setFormError(applyFieldErrors(err, form.setError, [...FIELDS, ...linePaths(form.getValues("lines").length, LINE_FIELDS)])),
@@ -265,8 +266,8 @@ function OrderForm({ po, vendorOptions }: { po?: PurchaseOrder; vendorOptions: {
         <Button type="submit" loading={save.isPending && !save.variables?.send}>
           Save as draft
         </Button>
-        <Button variant="primary" icon={<Send />} loading={save.isPending && save.variables?.send} onClick={(e) => void submit(true)(e)}>
-          Save &amp; send
+        <Button variant="primary" icon={<FileCheck2 />} loading={save.isPending && save.variables?.send} onClick={(e) => void submit(true)(e)}>
+          Save &amp; issue
         </Button>
       </div>
     </form>
