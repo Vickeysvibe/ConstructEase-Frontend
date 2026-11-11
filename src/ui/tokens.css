@@ -23,6 +23,10 @@
   --ce-danger: #b42318;
   --ce-danger-soft: #fbe4e1;
   --ce-neutral-soft: #e9ecec;
+  /* chart series: distinct hues, ≥3:1 against surfaces in both themes */
+  --ce-chart-1: #b7790b;
+  --ce-chart-2: #2c5a78;
+  --ce-chart-3: #6b4fa0;
   --ce-overlay: rgba(20, 24, 27, 0.45);
   --ce-shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.16);
   --ce-shadow-toast: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -75,6 +79,9 @@
     --ce-danger: #f0857a;
     --ce-danger-soft: #3b1d1a;
     --ce-neutral-soft: #262d31;
+    --ce-chart-1: #f2b33d;
+    --ce-chart-2: #7fb0d1;
+    --ce-chart-3: #b79be0;
     --ce-overlay: rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
@@ -97,6 +104,9 @@
   --ce-danger: #f0857a;
   --ce-danger-soft: #3b1d1a;
   --ce-neutral-soft: #262d31;
+  --ce-chart-1: #f2b33d;
+  --ce-chart-2: #7fb0d1;
+  --ce-chart-3: #b79be0;
   --ce-overlay: rgba(0, 0, 0, 0.6);
   color-scheme: dark;
 }

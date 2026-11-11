@@ -51,11 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthValue>(
     () => ({
       status,
-      session,
+      // /me is refreshed after org settings change; overlay it so e.g. the timezone is never stale.
+      session: session && me.data ? { ...session, org: me.data.org, user: me.data.user } : session,
       me: me.data,
       login,
       logout,
-      isOrgAdmin: session?.user.orgRole === "owner" || session?.user.orgRole === "admin",
+      isOrgAdmin: ["owner", "admin"].includes((me.data?.user ?? session?.user)?.orgRole ?? ""),
     }),
     [status, session, me.data, login, logout],
   );

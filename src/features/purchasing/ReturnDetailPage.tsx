@@ -1,5 +1,5 @@
-import { Placeholder } from "@/ui/Placeholder";
+import { DocDetailPage } from "./docs";
 
-export default function Page() {
-  return <Placeholder title="Purchase return" />;
+export default function ReturnDetailPage() {
+  return <DocDetailPage kind="return" />;
 }

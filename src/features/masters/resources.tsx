@@ -3,6 +3,7 @@ import { api } from "@/lib/api/client";
 import type { ImportResult, JobRef, List, Party, PartyKind, Product } from "@/lib/api/types";
 import { money, percentFromBp } from "@/lib/format";
 import { StatusBadge } from "@/ui";
+import { PartyName } from "./PartyName";
 import type { ResourceConfig } from "./ResourcePage";
 import type { SiteContextValue } from "@/app/site";
 
@@ -74,7 +75,7 @@ export const vendorsResource: ResourceConfig<Party, VendorForm> = {
   canWrite: (s) => s.can("masters:write"),
   emptyDescription: "Add your cement, steel and sand suppliers to start raising purchase orders.",
   columns: [
-    { accessorKey: "name", header: "Vendor", meta: { sortKey: "name" }, cell: ({ row }) => <strong>{row.original.name}</strong> },
+    { accessorKey: "name", header: "Vendor", meta: { sortKey: "name" }, cell: ({ row }) => <PartyName party={row.original} /> },
     { accessorKey: "contactName", header: "Contact", meta: { hideBelow: 900 } },
     { accessorKey: "phone", header: "Phone", cell: ({ row }) => <span className="ce-num">{row.original.phone}</span> },
     { accessorKey: "gstIn", header: "GSTIN", meta: { hideBelow: 700 }, cell: ({ row }) => <span className="ce-num">{row.original.gstIn ?? "—"}</span> },
@@ -108,7 +109,7 @@ export const clientsResource: ResourceConfig<Party, ClientForm> = {
   canWrite: (s) => s.can("masters:write"),
   emptyDescription: "Add the client for this site to record the payments you receive from them.",
   columns: [
-    { accessorKey: "name", header: "Client", meta: { sortKey: "name" }, cell: ({ row }) => <strong>{row.original.name}</strong> },
+    { accessorKey: "name", header: "Client", meta: { sortKey: "name" }, cell: ({ row }) => <PartyName party={row.original} /> },
     { accessorKey: "contactName", header: "Contact", meta: { hideBelow: 800 } },
     { accessorKey: "phone", header: "Phone", cell: ({ row }) => <span className="ce-num">{row.original.phone}</span> },
     { accessorKey: "address", header: "Address", meta: { hideBelow: 1000 } },

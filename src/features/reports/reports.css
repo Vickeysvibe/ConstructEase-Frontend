@@ -1,0 +1,21 @@
+/* Reports: filter bar, day matrix. Tokens only. */
+.report-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--ce-s3);
+  align-items: end;
+}
+.report-matrix .ce-table th,
+.report-matrix .ce-table td { padding-left: var(--ce-s2); padding-right: var(--ce-s2); white-space: nowrap; }
+.report-matrix .ce-table th:first-child,
+.report-matrix .ce-table td:first-child {
+  position: sticky; left: 0; z-index: 1;
+  background: var(--ce-surface-raised);
+  border-right: 1px solid var(--ce-border);
+}
+.report-matrix abbr { text-decoration: none; }
+.report-matrix__name { font-weight: 600; }
+.report-link {
+  background: none; border: 0; padding: 0; font: inherit; font-weight: 600;
+  color: var(--ce-interactive); cursor: pointer; text-align: left; text-decoration: underline;
+}

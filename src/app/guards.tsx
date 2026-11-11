@@ -38,7 +38,7 @@ export function SiteScope() {
   const site = me.sites.find((s) => s.id === siteId);
   if (!site) {
     return (
-      <div style={{ padding: 32 }}>
+      <div style={{ padding: 32, gridColumn: "1 / -1" }}>
         <EmptyState
           title="Site not found"
           description="It doesn't exist or you haven't been added to it. Ask your engineer or admin to add you."

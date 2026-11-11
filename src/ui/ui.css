@@ -124,7 +124,8 @@ textarea.ce-input { min-height: 84px; resize: vertical; }
 .ce-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--ce-s3); }
 .ce-stat { background: var(--ce-surface-raised); border: 1px solid var(--ce-border); border-radius: var(--ce-radius-md); padding: var(--ce-s3) var(--ce-s4); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ce-stat__label { font-size: var(--ce-fs-caption); color: var(--ce-text-muted); }
-.ce-stat__value { font-family: var(--ce-font-display); font-stretch: 85%; font-size: 26px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.15; overflow-wrap: anywhere; }
+.ce-stat__value { font-family: var(--ce-font-display); font-stretch: 85%; font-size: 26px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 560px) { .ce-stat__value { font-size: 20px; } }
 .ce-stat__sub { font-size: var(--ce-fs-caption); color: var(--ce-text-muted); }
 
 /* ---------- Table ---------- */
@@ -188,3 +189,16 @@ textarea.ce-input { min-height: 84px; resize: vertical; }
 .ce-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ce-s4); }
 @media (max-width: 860px) { .ce-grid-2 { grid-template-columns: 1fr; } }
 .ce-spacer { flex: 1; }
+
+/* ---------- Combobox ---------- */
+.ce-combo { position: relative; min-width: 0; }
+.ce-combo__list {
+  position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: var(--ce-s1); list-style: none;
+  max-height: 260px; overflow-y: auto; background: var(--ce-surface-raised); border: 1px solid var(--ce-border-strong);
+  border-radius: var(--ce-radius-md); box-shadow: var(--ce-shadow-pop); min-width: 220px;
+}
+.ce-combo__opt { display: flex; flex-direction: column; gap: 1px; padding: 6px 10px; border-radius: var(--ce-radius-sm); cursor: pointer; font-size: 14px; }
+.ce-combo__opt small { color: var(--ce-text-muted); font-size: 12px; }
+.ce-combo__opt--active { background: var(--ce-interactive-soft); }
+.ce-combo__opt[aria-selected="true"] { font-weight: 600; }
+.ce-combo__empty { padding: 8px 10px; color: var(--ce-text-muted); font-size: 14px; }

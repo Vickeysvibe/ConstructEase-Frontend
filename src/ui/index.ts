@@ -20,3 +20,4 @@ export {
 } from "./Display";
 export { DataTable, SearchInput, type ColumnDef } from "./DataTable";
 export { FileImport } from "./FileImport";
+export { Combobox, type ComboboxProps } from "./Combobox";

@@ -1,0 +1,2 @@
+.notes-snippet { font-size: var(--ce-fs-caption); color: var(--ce-text-muted); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notes-link { overflow-wrap: anywhere; font-size: var(--ce-fs-label); }

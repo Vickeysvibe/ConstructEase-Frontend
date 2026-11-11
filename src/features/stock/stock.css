@@ -1,0 +1,5 @@
+/* Stock screens. Tokens only. */
+/* Signed quantities: colour plus an explicit sign, never colour alone */
+.stk-in { color: var(--ce-ok); }
+.stk-out { color: var(--ce-danger); }
+.stk-low { color: var(--ce-danger); font-weight: 600; }
